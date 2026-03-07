@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EarnNest Starter
 
-## Getting Started
+This is a mobile-first Next.js starter for your parent-child financial literacy app. It uses:
 
-First, run the development server:
+- Next.js App Router route handlers for backend APIs
+- Firebase Authentication for parent Google sign-in
+- Cloud Firestore for families, children, chores, completions, and reports
+- Signed child session cookies for kid mode
+- Gemini API for dynamic parent conversation prompts
+
+## What is already working
+
+- Parent signs in with Google
+- Parent account is bootstrapped into a family record
+- Parent can create child profiles with a temporary 4-digit PIN
+- App generates a kid access code
+- Parent can create chores for a child
+- Child can log in with access code + PIN
+- Child can mark chores as done
+- Parent can approve or reject completed chores
+- Approved chores update the child coin balance and streak
+- Parent report endpoint aggregates totals
+- Gemini endpoint can generate a money conversation prompt
+
+## Firestore shape
+
+- `parents/{parentUid}`
+- `families/{familyId}`
+- `families/{familyId}/children/{childId}`
+- `families/{familyId}/chores/{choreId}`
+- `families/{familyId}/completions/{completionId}`
+- `childAccessCodes/{accessCode}`
+
+## Setup
+
+1. Create a Firebase project.
+2. Add a Web App in Firebase.
+3. Enable **Authentication -> Sign-in method -> Google**.
+4. Enable **Cloud Firestore** in production or test mode.
+5. Create a Firebase service account key.
+6. Copy `.env.example` to `.env.local` and fill in every value.
+7. Install packages:
+
+```bash
+npm install
+```
+
+8. Run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+9. Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Recommended Firebase console steps
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Authentication
+Enable Google sign-in because parents are using Google authentication.
 
-## Learn More
+### Firestore
+Create the database. The app writes collections automatically.
 
-To learn more about Next.js, take a look at the following resources:
+### Service account
+Use a service account because the Next.js route handlers verify Firebase ID tokens and write to Firestore server-side.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Important notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- The child personalization flow is only partially scaffolded. The route/session system is ready, but the first-login UI still needs to be expanded.
+- Coin allocation into save/spend/share is represented in the schema but not fully implemented in the UI yet.
+- Learning modules are scaffolded as static metadata for now.
+- Firestore rules are locked down because this starter expects all data writes to go through the server route handlers.
 
-## Deploy on Vercel
+## Suggested next steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Add parent and kid logout endpoints.
+2. Add first-login kid personalization screen.
+3. Add coin allocation API and UI.
+4. Add module completion + quiz results storage.
+5. Add push notifications or parent in-app notification badges.
+6. Add responsive polish and your final visual design.

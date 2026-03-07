@@ -1,0 +1,6 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { adminDb } from '@/lib/firebase-admin';
+import { readChildSession } from '@/lib/auth';
+const schema=z.object({choreId:z.string().min(1)});
+export async function POST(request:Request){try{const session=await readChildSession();if(!session) return NextResponse.json({error:'Child is not signed in'},{status:401});const body=await request.json();const {choreId}=schema.parse(body);const familyRef=adminDb.collection('families').doc(session.familyId);const choreSnap=await familyRef.collection('chores').doc(choreId).get();if(!choreSnap.exists) return NextResponse.json({error:'Chore not found'},{status:404});const chore=choreSnap.data();if(chore?.childId!==session.childId) return NextResponse.json({error:'This chore is not assigned to the signed-in child'},{status:403});const completionRef=familyRef.collection('completions').doc();await completionRef.set({familyId:session.familyId,childId:session.childId,choreId,choreTitle:chore.title,rewardCoins:chore.rewardCoins,status:'pending',completedAt:new Date()});return NextResponse.json({id:completionRef.id,message:'Marked as done and sent for parent approval'});}catch(error){const message=error instanceof Error?error.message:'Failed to mark chore complete';return NextResponse.json({error:message},{status:400});}}

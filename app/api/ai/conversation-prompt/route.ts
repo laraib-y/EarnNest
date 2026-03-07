@@ -1,0 +1,6 @@
+import { NextResponse } from 'next/server';
+import { GoogleGenAI } from '@google/genai';
+import { env } from '@/lib/env';
+import { readChildSession } from '@/lib/auth';
+import { adminDb } from '@/lib/firebase-admin';
+export async function GET(){try{if(!env.geminiApiKey) return NextResponse.json({prompt:'Ask your child what they want to save for this week.'});const session=await readChildSession();if(!session) return NextResponse.json({prompt:'Ask your child what they want to save for this week.'});const childSnap=await adminDb.collection('families').doc(session.familyId).collection('children').doc(session.childId).get();const child=childSnap.data();const ai=new GoogleGenAI({apiKey:env.geminiApiKey});const response=await ai.models.generateContent({model:'gemini-2.5-flash',contents:`Create one short conversation prompt for a parent to discuss money habits with a child named ${child?.displayName??'their child'} who has earned ${child?.totalCoinsEarned??0} coins and currently has ${child?.balance??0} coins. Keep it under 25 words.`});return NextResponse.json({prompt:response.text?.trim()||'Ask your child what they are saving for and how they plan to earn it.'});}catch{return NextResponse.json({prompt:'Ask your child what they are saving for and how they plan to earn it.'});}}

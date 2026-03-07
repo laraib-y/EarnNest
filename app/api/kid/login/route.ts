@@ -1,0 +1,7 @@
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import { adminDb } from '@/lib/firebase-admin';
+import { createChildSession, setChildSessionCookie } from '@/lib/auth';
+import { verifyPin } from '@/lib/security';
+const loginSchema=z.object({accessCode:z.string().min(6).max(8),pin:z.string().regex(/^\d{4}$/)});
+export async function POST(request:Request){try{const body=await request.json();const input=loginSchema.parse(body);const code=input.accessCode.trim().toUpperCase();const codeSnap=await adminDb.collection('childAccessCodes').doc(code).get();if(!codeSnap.exists) return NextResponse.json({error:'Invalid access code'},{status:401});const {familyId,childId}=codeSnap.data() as {familyId:string;childId:string};const childRef=adminDb.collection('families').doc(familyId).collection('children').doc(childId);const childSnap=await childRef.get();if(!childSnap.exists) return NextResponse.json({error:'Child profile not found'},{status:404});const child=childSnap.data()!;if(!verifyPin(input.pin,child.pinHash)) return NextResponse.json({error:'Incorrect PIN'},{status:401});const token=await createChildSession({childId,familyId});await setChildSessionCookie(token);return NextResponse.json({success:true,child:{id:childId,familyId,displayName:child.displayName,avatar:child.avatar,needsPersonalization:child.needsPersonalization,balance:child.balance??0,streak:child.streak??0}});}catch(error){const message=error instanceof Error?error.message:'Kid login failed';return NextResponse.json({error:message},{status:400});}}

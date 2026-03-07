@@ -1,0 +1,2 @@
+export function generateAccessCode(length=6){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length},()=>chars[Math.floor(Math.random()*chars.length)]).join('');}
+export function serializeTimestamp(value:unknown){if(!value) return undefined;if(typeof value==='string') return value;if(typeof value==='object'&&value!==null&&'toDate' in value&&typeof (value as {toDate:()=>Date}).toDate==='function') return (value as {toDate:()=>Date}).toDate().toISOString();return undefined;}
