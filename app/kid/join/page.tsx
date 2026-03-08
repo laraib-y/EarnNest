@@ -21,7 +21,7 @@ export default function KidJoinPage() {
       const q = query(
         collection(db, "children"),
         where("accessCode", "==", accessCode.toUpperCase()),
-        where("pin", "==", pin),
+        where("pin", "==", pin)
       );
 
       const snap = await getDocs(q);
@@ -54,53 +54,52 @@ export default function KidJoinPage() {
   return (
     <main className="kid-join-page">
       <div className="kid-join-shell">
-        <section className="kid-join-card">
-          <p className="kid-join-kicker">EarnNest</p>
-          <h1 className="kid-join-title">First time here?</h1>
-          <p className="kid-join-subtitle">
-            Use your access code and temporary PIN from your parent.
-          </p>
 
-          <form onSubmit={handleJoin} className="kid-join-form">
-            <div className="kid-join-field">
-              <label htmlFor="accessCode">Access Code</label>
-              <input
-                id="accessCode"
-                placeholder="ABC123"
-                value={accessCode}
-                onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-              />
-            </div>
+        <img src="/assets/Child.svg" alt="Child" className="kid-join-mascot" />
 
-            <div className="kid-join-field">
-              <label htmlFor="pin">Temporary 4-digit PIN</label>
-              <input
-                id="pin"
-                placeholder="1234"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                maxLength={4}
-              />
-            </div>
+        <h2 className="welcome-font">Join Family</h2>
+        <h3 className="login-font">
+          Use your access code and temporary PIN!
+        </h3>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="kid-join-button"
-            >
-              {loading ? "Joining..." : "Join Parent Account"}
-            </button>
-          </form>
-
-          <div className="kid-join-divider" />
-
-          <div className="kid-join-footer">
-            <p>Already set up?</p>
-            <Link href="/kid" className="kid-join-link">
-              Log in with Username
-            </Link>
+        <form onSubmit={handleJoin} className="kid-join-form">
+          <div className="kid-join-field">
+            <label htmlFor="accessCode">Access Code</label>
+            <input
+              id="accessCode"
+              placeholder="Enter family access code"
+              value={accessCode}
+              onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+            />
           </div>
-        </section>
+
+          <div className="kid-join-field">
+            <label htmlFor="pin">Temporary PIN</label>
+            <input
+              id="pin"
+              placeholder="Enter temporary PIN"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={4}
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="kid-join-button"
+          >
+            {loading ? "Joining..." : "Join Family"}
+          </button>
+        </form>
+
+        <div className="kid-join-footer">
+          <p>Already set up?</p>
+          <Link href="/kid" className="kid-join-link">
+            Log in with Username
+          </Link>
+        </div>
+
       </div>
     </main>
   );
