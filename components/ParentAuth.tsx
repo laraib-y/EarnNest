@@ -8,9 +8,10 @@ import { auth, googleProvider } from "@/lib/firebase-client";
 
 type ParentAuthProps = {
   className?: string;
+  children?: React.ReactNode;
 };
 
-export default function ParentAuth({ className }: ParentAuthProps) {
+export default function ParentAuth({ className, children }: ParentAuthProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -39,7 +40,11 @@ export default function ParentAuth({ className }: ParentAuthProps) {
 
   return (
     <button onClick={signIn} disabled={loading} className={className}>
-      {loading ? "SIGNING IN..." : "PARENT"}
+      {children ? (
+        children
+      ) : (
+        <span>{loading ? "SIGNING IN..." : "PARENT"}</span>
+      )}
     </button>
   );
 }
