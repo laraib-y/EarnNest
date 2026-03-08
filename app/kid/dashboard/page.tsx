@@ -421,69 +421,24 @@ export default function KidDashboardPage() {
         </section>
 
         <section className="kid-dashboard-section">
-          <div className="kid-section-header">
-            <h2>Current Goal</h2>
-          </div>
 
           {goals.length === 0 ? (
             <div className="kid-empty-card">
               <p>No goal set yet. Complete Module 1 to set your first goal!</p>
             </div>
           ) : (
-            <div style={{ display: "grid", gap: "18px" }}>
+            <div className="kid-goals-grid">
               {goals.slice(0, 1).map((goal) => (
-                <div
-                  key={goal.id}
-                  style={{
-                    background: "#ffffff",
-                    borderRadius: "12px",
-                    padding: "20px",
-                    border: "2px solid #e8dcc8",
-                    boxShadow: "0 2px 8px rgba(47, 36, 31, 0.06)",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: "12px",
-                    }}
-                  >
+                <div key={goal.id} className="kid-goal-card">
+                  <div className="kid-goal-top">
                     <div>
-                      <p
-                        style={{
-                          margin: "0 0 8px",
-                          fontSize: "0.8rem",
-                          color: "#999",
-                          fontWeight: 500,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.5px",
-                        }}
-                      >
-                        Current Goal
-                      </p>
-                      <h3
-                        style={{
-                          margin: "0 0 8px",
-                          fontSize: "1.4rem",
-                          fontWeight: 700,
-                          color: "#2f241f",
-                        }}
-                      >
-                        {goal.item}
-                      </h3>
+                      <p className="kid-goal-label">Current Goal</p>
+                      <h3>{goal.item}</h3>
                     </div>
+
                     <button
                       onClick={() => handleEditGoal(goal)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "1.2rem",
-                        padding: "4px",
-                        color: "#f1642e",
-                      }}
+                      className="kid-goal-edit-button"
                       type="button"
                       title="Edit goal"
                     >
@@ -491,38 +446,19 @@ export default function KidDashboardPage() {
                     </button>
                   </div>
 
-                  <p
-                    style={{
-                      margin: "8px 0",
-                      fontSize: "0.9rem",
-                      color: "#7a675d",
-                      fontWeight: 500,
-                    }}
-                  >
+                  <p className="kid-goal-progress-text">
                     {Math.min(child?.coinBalance || 0, goal.cost)} / {goal.cost}{" "}
                     Coins
                   </p>
 
-                  <div
-                    style={{
-                      width: "100%",
-                      height: "8px",
-                      backgroundColor: "#f0e6db",
-                      borderRadius: "4px",
-                      overflow: "hidden",
-                      marginTop: "10px",
-                    }}
-                  >
+                  <div className="kid-goal-progress-track">
                     <div
+                      className="kid-goal-progress-fill"
                       style={{
-                        height: "100%",
-                        backgroundColor: "#52c41a",
                         width: `${Math.min(
                           ((child?.coinBalance || 0) / goal.cost) * 100,
                           100,
                         )}%`,
-                        transition: "width 0.3s ease",
-                        borderRadius: "4px",
                       }}
                     />
                   </div>
