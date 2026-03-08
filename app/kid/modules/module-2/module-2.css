@@ -1,519 +1,189 @@
-.module2-page {
+.module-two-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #fff8ef 0%, #fff3e2 100%);
-  color: #2f241f;
-  padding: 32px 20px 48px;
-}
-
-.module2-shell {
-  max-width: 980px;
-  margin: 0 auto;
-}
-
-.module2-loading {
-  color: #7a675d;
-  font-size: 1rem;
-}
-
-.module2-kicker {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #c45a2b;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.module2-title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  line-height: 1.05;
-}
-
-.module2-subtitle {
-  margin: 12px 0 0;
-  max-width: 560px;
-  line-height: 1.6;
-  color: #7a675d;
-  font-size: 1rem;
-}
-
-.module2-hero {
+  height: 100vh;
+  background: #efefef;
+  padding: 0;
+  font-family: "Rubik", sans-serif;
+  color: #171717;
+  overflow: hidden;
   display: flex;
-  justify-content: space-between;
-  align-items: stretch;
-  gap: 20px;
-  padding: 28px;
-  border-radius: 30px;
-  background: linear-gradient(135deg, #fcdd9d 0%, #ffe7be 100%);
-  box-shadow: 0 12px 32px rgba(241, 100, 46, 0.14);
-}
-
-.module2-hero-copy {
-  flex: 1;
-}
-
-.module2-hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-  margin-bottom: 22px;
-}
-
-.module2-badge {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: #f1642e;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 0.95rem;
 }
 
-.module2-badge-soft {
-  background: rgba(255, 255, 255, 0.8);
-  color: #9b5328;
-}
-
-.module2-hero-visual {
-  min-width: 240px;
-  background: rgba(255, 255, 255, 0.58);
-  border-radius: 24px;
-  padding: 20px;
+.module-two-shell {
+  width: 100%;
+  max-width: 430px;
+  height: 100vh;
+  padding: 22px 22px 24px;
+  box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  text-align: center;
-}
-
-.module2-coin-stack {
-  font-size: 2.2rem;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-
-.module2-hero-visual p {
-  margin: 0;
-  color: #7a675d;
-  line-height: 1.5;
-  font-weight: 600;
-}
-
-.module2-section {
-  margin-top: 28px;
-}
-
-.module2-section-header {
-  margin-bottom: 16px;
-}
-
-.module2-section-header h2 {
-  margin: 0;
-  font-size: 1.6rem;
-}
-
-.module2-card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.module2-info-card {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 22px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
-  border: 1px solid #faead4;
-}
-
-.module2-card-emoji {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: #fff1d0;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 14px;
 }
 
-.module2-info-card h3 {
-  margin: 0 0 10px;
-  font-size: 1.2rem;
-}
-
-.module2-info-card p {
-  margin: 0;
-  color: #6f5c52;
-  line-height: 1.6;
-}
-
-.module2-budget-board {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.module2-budget-board-card {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
-  border-left: 6px solid #f1642e;
-}
-
-.module2-budget-board-card h3 {
-  margin: 0 0 10px;
-  font-size: 1.2rem;
-}
-
-.module2-budget-board-card p {
-  margin: 0;
-  color: #6f5c52;
-  line-height: 1.6;
-}
-
-.module2-tips-list {
-  display: grid;
-  gap: 12px;
-}
-
-.module2-tip-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: #ffffff;
-  border-radius: 18px;
-  padding: 16px 18px;
-  box-shadow: 0 8px 20px rgba(47, 36, 31, 0.06);
-}
-
-.module2-tip-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 999px;
-  background: #f1642e;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 0.9rem;
-  font-weight: 800;
-}
-
-.module2-tip-item p {
-  margin: 0;
-  color: #6f5c52;
-  line-height: 1.5;
-}
-
-.module2-ready-card {
-  background: linear-gradient(135deg, #fff0d4 0%, #ffe5b7 100%);
-  border-radius: 28px;
-  padding: 26px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 18px;
-  box-shadow: 0 12px 28px rgba(241, 100, 46, 0.1);
-}
-
-.module2-ready-kicker {
-  margin: 0 0 8px;
-  color: #c45a2b;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 0.85rem;
-}
-
-.module2-ready-card h2 {
-  margin: 0 0 8px;
-}
-
-.module2-ready-card p {
-  margin: 0;
-  color: #6f5c52;
-  line-height: 1.6;
-}
-
-.module2-primary-button,
-.module2-secondary-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  border: none;
-  border-radius: 18px;
-  padding: 14px 18px;
+.module-two-loading {
   font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  color: #6b6b6b;
 }
 
-.module2-primary-button:hover,
-.module2-secondary-button:hover {
-  transform: translateY(-1px);
-}
-
-.module2-primary-button {
-  background: #f1642e;
-  color: #ffffff;
-  box-shadow: 0 10px 22px rgba(241, 100, 46, 0.22);
-}
-
-.module2-secondary-button {
-  background: #ffffff;
-  color: #a14f28;
-  box-shadow: 0 8px 18px rgba(47, 36, 31, 0.08);
-}
-
-.module2-empty-state {
-  background: #ffffff;
-  border-radius: 26px;
-  padding: 28px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
-}
-
-.module2-empty-state h1 {
-  margin: 0 0 10px;
-}
-
-.module2-empty-state p {
-  margin: 0 0 18px;
-  color: #6f5c52;
-}
-
-.module2-game-card {
-  background: #ffffff;
-  border-radius: 30px;
-  padding: 28px;
-  box-shadow: 0 12px 30px rgba(47, 36, 31, 0.08);
-}
-
-.module2-game-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.module2-round-pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: #fff1d0;
-  color: #9b5328;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.module2-goal-panel {
-  margin-top: 20px;
-  background: #fff7ea;
-  border-radius: 22px;
-  padding: 18px;
-}
-
-.module2-goal-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-weight: 700;
-  color: #6f5c52;
-}
-
-.module2-progress-track {
+.module-two-topbar {
   width: 100%;
-  height: 16px;
-  background: #f8e1c0;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.module2-progress-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #f1642e 0%, #ff8a4c 100%);
-  transition: width 0.25s ease;
-}
-
-.module2-scenario-card {
-  margin-top: 22px;
-  background: linear-gradient(135deg, #fcdd9d 0%, #ffe8be 100%);
-  border-radius: 24px;
-  padding: 22px;
-}
-
-.module2-scenario-coins {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.8);
-  color: #9b5328;
-  font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 12px;
-}
-
-.module2-scenario-title {
-  margin: 0;
-  font-size: 1.7rem;
-  line-height: 1.1;
-}
-
-.module2-scenario-story {
-  margin: 12px 0 0;
-  color: #6f5c52;
-  line-height: 1.6;
-}
-
-.module2-options-grid {
-  display: grid;
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.module2-option-card {
-  border: 1px solid #f4e1c9;
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 18px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.module2-option-card:hover:not(:disabled) {
-  transform: translateY(-1px);
-  border-color: #f7b38f;
-  box-shadow: 0 10px 22px rgba(241, 100, 46, 0.1);
-}
-
-.module2-option-card:disabled {
-  cursor: default;
-}
-
-.module2-option-card.is-selected {
-  border-color: #f1642e;
-  box-shadow: 0 10px 22px rgba(241, 100, 46, 0.14);
-  background: #fff8f3;
-}
-
-.module2-option-save {
-  display: inline-flex;
-  margin-bottom: 8px;
-  color: #f1642e;
-  font-weight: 800;
-  font-size: 0.95rem;
-}
-
-.module2-option-label {
-  display: block;
-  color: #2f241f;
-  line-height: 1.5;
-  font-weight: 600;
-}
-
-.module2-feedback-box {
-  margin-top: 20px;
-  background: #fff7ea;
-  border-radius: 22px;
-  padding: 18px;
-  display: grid;
-  gap: 14px;
-}
-
-.module2-feedback-box p {
-  margin: 0;
-  color: #6f5c52;
-  line-height: 1.6;
-}
-
-.module2-result-card {
-  text-align: left;
-}
-
-.result-title {
-  margin-top: 0;
-}
-
-.module2-result-text {
-  margin-top: 18px;
-  color: #6f5c52;
-  line-height: 1.7;
-}
-
-.module2-result-actions {
-  margin-top: 22px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
   align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
 }
 
-.module2-saving-text {
-  color: #8b6f5f;
+.module-two-back {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: #232323;
+  font-size: 42px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.module-two-topbar-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module-two-pill {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1d1d1d;
+  box-sizing: border-box;
+}
+
+.module-two-pill-coins {
+  border: 1px solid #c99500;
+}
+
+.module-two-pill-streak {
+  border: 1px solid #ff4d1f;
+}
+
+.module-two-pill-icon {
+  flex-shrink: 0;
+}
+
+.module-two-illustration-card {
+  width: 347px;
+  height: 366px;
+  background: #f8f8f8;
+  border: 1px solid #cdbfba;
+  border-radius: 20px;
+  box-shadow: 0 6px 0 #c8bbb5;
+  padding: 18px;
+  box-sizing: border-box;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.module-two-illustration-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.module-two-lesson-stage {
+  position: relative;
+  width: 347px;
+  height: 250px;
+  margin-bottom: 16px;
+  overflow: visible;
+}
+
+.module-two-text-card {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 347px;
+  min-height: 96px;
+  border-radius: 16px;
+  border: 1px solid #ff6610;
+  background: #ffffff;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  transition:
+    top 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.module-two-text-card p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.22;
+  color: #171717;
+  text-align: left;
+}
+
+.module-two-text-card strong {
+  font-weight: 800;
+}
+
+.module-two-text-card--settled-past {
+  top: 0;
+  opacity: 0.2;
+  box-shadow: 0px 4px 0px 0px #ff6610;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.module-two-text-card--current {
+  top: 138px;
+  opacity: 1;
+  box-shadow: 0px 4px 0px 0px #ff6610;
+  z-index: 2;
+}
+
+.module-two-text-card--entering {
+  top: 178px;
+  opacity: 0;
+  box-shadow: 0px 4px 0px 0px #ff6610;
+  z-index: 2;
+}
+
+.module-two-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+.module-two-primary-button {
+  width: 331px;
+  height: 50px;
+  border: none;
+  border-radius: 14px;
+  background: #ff6610;
+  color: #ffffff;
+  font-size: 18px;
   font-weight: 700;
+  font-family: "Rubik", sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-@media (max-width: 820px) {
-  .module2-hero,
-  .module2-ready-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .module2-hero-visual {
-    min-width: 0;
-    width: 100%;
-  }
-
-  .module2-card-grid,
-  .module2-budget-board {
-    grid-template-columns: 1fr;
-  }
+.module-two-primary-button:hover {
+  transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
-  .module2-page {
-    padding: 24px 16px 40px;
-  }
-
-  .module2-hero,
-  .module2-game-card,
-  .module2-ready-card {
-    padding: 22px;
-    border-radius: 24px;
-  }
-
-  .module2-game-topbar,
-  .module2-goal-top {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .module2-result-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .module2-primary-button,
-  .module2-secondary-button {
-    width: 100%;
-  }
+.module-two-primary-button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
 }

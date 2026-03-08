@@ -126,15 +126,30 @@
   flex-direction: column;
 }
 
+.kid-module-card-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.kid-module-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .kid-module-top {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 
-.kid-module-top div {
+.kid-module-header-left {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -151,7 +166,7 @@
 
 .kid-module-card h3 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: #2f241f;
 }
 
@@ -164,6 +179,7 @@
   font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
+  margin-bottom: 12px;
 }
 
 .kid-module-description {
@@ -198,6 +214,33 @@
   cursor: not-allowed;
 }
 
+/* ===== Crow Images ===== */
+
+.kid-module-crow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kid-module-crow-right {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.kid-module-crow-left {
+  width: 100px;
+  height: 100px;
+}
+
+.kid-crow-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
+}
+
 @media (max-width: 720px) {
   .kid-modules-page {
     padding-bottom: 120px;
@@ -215,6 +258,17 @@
     display: flex;
     justify-content: flex-end;
     flex-wrap: wrap;
+  }
+
+  .kid-module-card-inner {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kid-module-crow-right,
+  .kid-module-crow-left {
+    width: 85px;
+    height: 85px;
   }
 
   .kid-module-top {

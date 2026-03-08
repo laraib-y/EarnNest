@@ -1,119 +1,287 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase-client";
+import { useRouter } from "next/navigation";
 import type { Route } from "next";
-import {
-  module2LessonCards,
-  module2Meta,
-  module2Tips,
-} from "./questions";
 import "./module-2.css";
 
-export default function Module2Page() {
-  return (
-    <main className="module2-page">
-      <div className="module2-shell">
-        <section className="module2-hero">
-          <div className="module2-hero-copy">
-            <p className="module2-kicker">Module 2</p>
-            <h1 className="module2-title">{module2Meta.title}</h1>
-            <p className="module2-subtitle">{module2Meta.subtitle}</p>
+type ChildProfile = {
+  id: string;
+  coinBalance: number;
+  streak: number;
+};
 
-            <div className="module2-hero-badges">
-              <span className="module2-badge">+{module2Meta.rewardCoins} bonus coins</span>
-              <span className="module2-badge module2-badge-soft">
-                Goal: Save {module2Meta.savingGoal} coins
+type LessonCard = {
+  id: string;
+  content: React.ReactNode;
+};
+
+type AnimatedCard = LessonCard & {
+  state: "current" | "entering" | "settled-past";
+};
+
+const lessonCards: LessonCard[] = [
+  {
+    id: "intro",
+    content: (
+      <>
+        When you get money, it’s a good
+        <br />
+        idea to make a plan for how to use
+        <br />
+        it. That plan is called a <strong>budget</strong>.
+      </>
+    ),
+  },
+  {
+    id: "budget-helps",
+    content: (
+      <>
+        A budget helps you decide:
+        <br />
+        • How much money to <strong>spend</strong>
+        <br />
+        • How much money to <strong>save</strong>
+        <br />
+        • What you want to use your
+        <br />
+        money for
+      </>
+    ),
+  },
+  {
+    id: "saving-definition",
+    content: (
+      <>
+        <strong>Saving</strong> means putting some of
+        <br />
+        your money aside now so you can
+        <br />
+        use it later.
+      </>
+    ),
+  },
+  {
+    id: "saving-future",
+    content: (
+      <>
+        Saving takes patience, but it
+        <br />
+        helps you buy bigger things in the
+        <br />
+        <strong>future</strong>.
+      </>
+    ),
+  },
+  {
+    id: "use-money-wisely",
+    content: (
+      <>
+        To use your money wisely, you
+        <br />
+        should:
+        <br />
+        1. Spend a little
+        <br />
+        2. Save some for later
+      </>
+    ),
+  },
+];
+
+const CARD_TRANSITION_MS = 520;
+
+export default function Module2Page() {
+  const router = useRouter();
+
+  const [child, setChild] = useState<ChildProfile | null>(null);
+  const [loadingChild, setLoadingChild] = useState(true);
+  const [lessonIndex, setLessonIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const [displayCards, setDisplayCards] = useState<AnimatedCard[]>([
+    {
+      ...lessonCards[0],
+      state: "current",
+    },
+  ]);
+
+  useEffect(() => {
+    const loadChild = async () => {
+      const childId = localStorage.getItem("kidChildId");
+
+      if (!childId) {
+        router.push("/kid/dashboard" as Route);
+        return;
+      }
+
+      try {
+        const childRef = doc(db, "children", childId);
+        const childSnap = await getDoc(childRef);
+
+        if (!childSnap.exists()) {
+          router.push("/kid/dashboard" as Route);
+          return;
+        }
+
+        const data = childSnap.data();
+
+        setChild({
+          id: childSnap.id,
+          coinBalance: Number(data.coinBalance || 0),
+          streak: Number(data.streak || 0),
+        });
+      } catch (error) {
+        console.error(error);
+        router.push("/kid/dashboard" as Route);
+      } finally {
+        setLoadingChild(false);
+      }
+    };
+
+    loadChild();
+  }, [router]);
+
+  const handleProceedLesson = () => {
+    if (isAnimating) return;
+
+    if (lessonIndex >= lessonCards.length - 1) {
+      router.push("/kid/dashboard" as Route);
+      return;
+    }
+
+    const currentCard = lessonCards[lessonIndex];
+    const nextCard = lessonCards[lessonIndex + 1];
+
+    setIsAnimating(true);
+
+    setDisplayCards([
+      {
+        ...currentCard,
+        state: "current",
+      },
+      {
+        ...nextCard,
+        state: "entering",
+      },
+    ]);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setDisplayCards([
+          {
+            ...currentCard,
+            state: "settled-past",
+          },
+          {
+            ...nextCard,
+            state: "current",
+          },
+        ]);
+      });
+    });
+
+    window.setTimeout(() => {
+      setLessonIndex((prev) => prev + 1);
+      setDisplayCards([
+        {
+          ...currentCard,
+          state: "settled-past",
+        },
+        {
+          ...nextCard,
+          state: "current",
+        },
+      ]);
+      setIsAnimating(false);
+    }, CARD_TRANSITION_MS);
+  };
+
+  if (loadingChild) {
+    return (
+      <main className="module-two-page">
+        <div className="module-two-shell">
+          <p className="module-two-loading">Loading lesson...</p>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="module-two-page">
+      <div className="module-two-shell">
+        <section className="module-two-topbar">
+          <button
+            type="button"
+            className="module-two-back"
+            onClick={() => router.push("/kid/dashboard" as Route)}
+            aria-label="Back to dashboard"
+          >
+            ‹
+          </button>
+
+          <div className="module-two-topbar-pills">
+            <div className="module-two-pill module-two-pill-coins">
+              <Image
+                src="/assets/CoinIcon.svg"
+                alt=""
+                width={18}
+                height={18}
+                className="module-two-pill-icon"
+              />
+              <span>{child?.coinBalance ?? 0} Coins</span>
+            </div>
+
+            <div className="module-two-pill module-two-pill-streak">
+              <Image
+                src="/assets/FireIcon.svg"
+                alt=""
+                width={18}
+                height={18}
+                className="module-two-pill-icon"
+              />
+              <span>
+                {child?.streak ?? 0} {(child?.streak ?? 0) === 1 ? "day" : "days"}
               </span>
             </div>
+          </div>
+        </section>
 
-            <Link
-              href={"/kid/modules/module-2/quiz" as Route}
-              className="module2-primary-button"
+        <section className="module-two-illustration-card">
+          <div className="module-two-illustration-inner">
+            <Image
+              src="/assets/Saving.svg"
+              alt="Saving and budgeting illustration"
+              fill
+              priority
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </section>
+
+        <section className="module-two-lesson-stage" aria-live="polite">
+          {displayCards.map((card) => (
+            <article
+              key={`${card.id}-${card.state}`}
+              className={`module-two-text-card module-two-text-card--${card.state}`}
             >
-              Play Saving Game
-            </Link>
-          </div>
-
-          <div className="module2-hero-visual">
-            <div className="module2-coin-stack">
-              <span>🪙</span>
-              <span>🪙</span>
-              <span>🪙</span>
-            </div>
-            <p>Build your budget and reach your goal!</p>
-          </div>
+              <p>{card.content}</p>
+            </article>
+          ))}
         </section>
 
-        <section className="module2-section">
-          <div className="module2-section-header">
-            <h2>What you’ll learn</h2>
-          </div>
-
-          <div className="module2-card-grid">
-            {module2LessonCards.map((card) => (
-              <article key={card.title} className="module2-info-card">
-                <div className="module2-card-emoji">{card.emoji}</div>
-                <h3>{card.title}</h3>
-                <p>{card.text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="module2-section">
-          <div className="module2-section-header">
-            <h2>Easy budgeting idea</h2>
-          </div>
-
-          <div className="module2-budget-board">
-            <div className="module2-budget-board-card">
-              <h3>Save</h3>
-              <p>Keep some coins for your future goal.</p>
-            </div>
-            <div className="module2-budget-board-card">
-              <h3>Spend</h3>
-              <p>Use a small part for something fun now.</p>
-            </div>
-            <div className="module2-budget-board-card">
-              <h3>Plan</h3>
-              <p>Choose before you spend so your coins last longer.</p>
-            </div>
-          </div>
-        </section>
-
-        <section className="module2-section">
-          <div className="module2-section-header">
-            <h2>Pro tips</h2>
-          </div>
-
-          <div className="module2-tips-list">
-            {module2Tips.map((tip) => (
-              <div key={tip} className="module2-tip-item">
-                <span className="module2-tip-icon">★</span>
-                <p>{tip}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="module2-section">
-          <div className="module2-ready-card">
-            <div>
-              <p className="module2-ready-kicker">Ready to play?</p>
-              <h2>Fill your saving bar to win</h2>
-              <p>
-                In the next activity, you’ll make coin choices and try to reach
-                your saving goal.
-              </p>
-            </div>
-
-            <Link
-              href={"/kid/modules/module-2/quiz" as Route}
-              className="module2-primary-button"
-            >
-              Start Module Game
-            </Link>
-          </div>
+        <section className="module-two-footer">
+          <button
+            type="button"
+            className="module-two-primary-button"
+            onClick={handleProceedLesson}
+            disabled={isAnimating}
+          >
+            {lessonIndex === lessonCards.length - 1 ? "Done" : "Proceed"}
+          </button>
         </section>
       </div>
     </main>
