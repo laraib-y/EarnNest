@@ -281,8 +281,8 @@
 
 .kid-module-image {
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 1px;
+  right: -2px;
   width: 92px;
   height: 92px;
   pointer-events: none;
