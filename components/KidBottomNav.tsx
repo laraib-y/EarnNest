@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import type { Route } from "next";
 import "./kidBottomNav.css";
 
 export default function KidBottomNav() {
@@ -58,7 +59,7 @@ export default function KidBottomNav() {
             key={item.key}
             type="button"
             className={`kid-bottom-nav-item ${isActive ? "active" : ""}`}
-            onClick={() => router.push(item.path)}
+            onClick={() => router.push(item.path as Route)}
           >
             {item.icon}
             <span className="kid-bottom-nav-indicator" />
