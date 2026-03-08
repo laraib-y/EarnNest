@@ -9,25 +9,25 @@ export const questions: Question[] = [
   {
     id: 1,
     text: "New Game",
-    image: "/assets/NewGame.png",
+    image: "/assets/NewGame.svg",
     correct: "want",
   },
   {
     id: 2,
     text: "School Lunch",
-    image: "/assets/SchoolLunch.png",
+    image: "/assets/SchoolLunch.svg",
     correct: "need",
   },
   {
     id: 3,
     text: "Ice Cream",
-    image: "/assets/IceCream.png",
+    image: "/assets/IceCream.svg",
     correct: "want",
   },
   {
     id: 4,
     text: "Winter Jacket",
-    image: "/assets/WinterJacket.png",
+    image: "/assets/WinterJacket.svg",
     correct: "need",
   },
 ];
