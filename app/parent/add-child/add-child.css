@@ -1,0 +1,172 @@
+.add-child-page {
+  min-height: 100vh;
+  background: #f7f3eb;
+  padding: 32px 20px 48px;
+  color: #2b2b2b;
+}
+
+.add-child-shell {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.add-child-hero {
+  margin-bottom: 24px;
+  padding: 28px;
+  background: linear-gradient(135deg, #f3efe7 0%, #ebe7f4 100%);
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(43, 43, 43, 0.08);
+}
+
+.add-child-kicker {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #7c7a87;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.add-child-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+}
+
+.add-child-subtitle {
+  margin: 12px 0 0;
+  max-width: 560px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #66636d;
+}
+
+.add-child-card,
+.add-child-success-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(43, 43, 43, 0.08);
+}
+
+.add-child-form {
+  display: grid;
+  gap: 16px;
+}
+
+.add-child-field {
+  display: grid;
+  gap: 8px;
+}
+
+.add-child-field label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #5b5877;
+}
+
+.add-child-field input,
+.add-child-field select {
+  width: 100%;
+  border: 1px solid #ddd7ec;
+  background: #faf9fd;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: #2b2b2b;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.add-child-field input:focus,
+.add-child-field select:focus {
+  border-color: #a8c686;
+  box-shadow: 0 0 0 4px rgba(168, 198, 134, 0.18);
+}
+
+.add-child-primary-button,
+.add-child-secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.add-child-primary-button:hover,
+.add-child-secondary-button:hover {
+  transform: translateY(-1px);
+}
+
+.add-child-primary-button {
+  background: #a8c686;
+  color: #223018;
+  box-shadow: 0 8px 20px rgba(168, 198, 134, 0.35);
+}
+
+.add-child-primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-child-success-card {
+  margin-top: 24px;
+  border: 1px solid #e5dfef;
+}
+
+.add-child-success-kicker {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6e6a9e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.add-child-success-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+}
+
+.add-child-success-card p {
+  margin: 6px 0 0;
+  color: #66636d;
+  line-height: 1.6;
+}
+
+.add-child-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-child-secondary-button {
+  background: #ffffff;
+  color: #5b5877;
+  box-shadow: 0 8px 20px rgba(91, 88, 119, 0.12);
+}
+
+@media (max-width: 640px) {
+  .add-child-page {
+    padding: 24px 16px 40px;
+  }
+
+  .add-child-hero,
+  .add-child-card,
+  .add-child-success-card {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .add-child-primary-button,
+  .add-child-secondary-button {
+    width: 100%;
+  }
+}
