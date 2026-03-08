@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'EarnNest Starter',
+  title: 'EarnNest',
   description: 'Next.js + Firebase starter',
   icons: {
     icon: '/Favicon.svg',

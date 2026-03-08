@@ -276,7 +276,7 @@ export default function KidDashboardPage() {
 
           setChild(childProfile);
           setLoading(false);
-        },
+        }
       );
 
       choresUnsub = onSnapshot(
@@ -297,13 +297,13 @@ export default function KidDashboardPage() {
             .filter((chore) => chore.status === "active");
 
           setChores(choreList);
-        },
+        }
       );
 
       completionsUnsub = onSnapshot(
         query(
           collection(db, "completions"),
-          where("childId", "==", storedChildId),
+          where("childId", "==", storedChildId)
         ),
         (completionSnap) => {
           const completionList: CompletionItem[] = completionSnap.docs.map(
@@ -316,11 +316,11 @@ export default function KidDashboardPage() {
                 reward: Number(data.reward || 0),
                 createdAt: data.createdAt || null,
               };
-            },
+            }
           );
 
           setCompletions(completionList);
-        },
+        }
       );
 
       goalsUnsub = onSnapshot(
@@ -337,7 +337,7 @@ export default function KidDashboardPage() {
           });
 
           setGoals(goalList);
-        },
+        }
       );
     } catch (error) {
       console.error(error);
@@ -412,7 +412,7 @@ export default function KidDashboardPage() {
     }
   };
 
-    const handleAskGoalCoach = async () => {
+  const handleAskGoalCoach = async () => {
     if (!child || !currentGoal) return;
 
     try {
@@ -442,11 +442,12 @@ export default function KidDashboardPage() {
       const data: GoalCoachReply | { error?: string } = await response.json();
 
       if (!response.ok) {
-        throw new Error(("error" in data && data.error) || "Could not get goal coach advice.");
+        throw new Error(
+          ("error" in data && data.error) || "Could not get goal coach advice."
+        );
       }
 
       setGoalCoachReply(data as GoalCoachReply);
-
     } catch (error) {
       console.error(error);
       alert("Could not get goal coach advice.");
@@ -488,11 +489,13 @@ export default function KidDashboardPage() {
       const data: SpendCoachReply | { error?: string } = await response.json();
 
       if (!response.ok) {
-        throw new Error(("error" in data && data.error) || "Could not get spend or save advice.");
+        throw new Error(
+          ("error" in data && data.error) ||
+            "Could not get spend or save advice."
+        );
       }
 
       setSpendCoachReply(data as SpendCoachReply);
-
     } catch (error) {
       console.error(error);
       alert("Could not get spend or save advice.");
@@ -585,7 +588,7 @@ export default function KidDashboardPage() {
               </div>
 
               <div>
-                <p className="kid-dashboard-kicker"></p>
+                <p className="kid-dashboard-kicker">Kid Dashboard</p>
                 <h1 className="kid-dashboard-title">
                   Hi, {child.displayName || child.name}!
                 </h1>
@@ -632,43 +635,39 @@ export default function KidDashboardPage() {
               <p>No goal set yet. Complete Module 1 to set your first goal!</p>
             </div>
           ) : (
-            <div className="kid-goals-grid">
-              {goals.map((goal, index) => {
-                const progress =
-                  goal.cost > 0
-                    ? Math.min(
-                        ((child.coinBalance || 0) / goal.cost) * 100,
-                        100,
-                      )
-                    : 0;
+            <>
+              <div className="kid-goals-grid">
+                {goals.map((goal, index) => {
+                  const progress =
+                    goal.cost > 0
+                      ? Math.min(
+                          ((child.coinBalance || 0) / goal.cost) * 100,
+                          100
+                        )
+                      : 0;
 
-                return (
-                  <div
-                    key={goal.id}
-                    className={`kid-goal-card ${index === 0 ? "is-primary" : "is-secondary"}`}
-                  >
-                    <div className="kid-goal-top">
-                      <div className="kid-goal-copy">
-                        <p className="kid-goal-label">
-                          {index === 0 ? "Current Goal" : "Next Goal"}
-                        </p>
+                  return (
+                    <div
+                      key={goal.id}
+                      className={`kid-goal-card ${
+                        index === 0 ? "is-primary" : "is-secondary"
+                      }`}
+                    >
+                      <div className="kid-goal-top">
+                        <div className="kid-goal-copy">
+                          <p className="kid-goal-label">
+                            {index === 0 ? "Current Goal" : "Next Goal"}
+                          </p>
 
-                        <div className="kid-goal-title-row">
-                          <h3>{goal.item}</h3>
+                          <div className="kid-goal-title-row">
+                            <h3>{goal.item}</h3>
 
-                          <button
-                            onClick={() => handleEditGoal(goal)}
-                            className="kid-goal-edit-button"
-                            type="button"
-                            title="Edit goal"
-                            aria-label="Edit goal"
-                          >
-                            <svg
-                              className="kid-goal-edit-icon"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              aria-hidden="true"
+                            <button
+                              onClick={() => handleEditGoal(goal)}
+                              className="kid-goal-edit-button"
+                              type="button"
+                              title="Edit goal"
+                              aria-label="Edit goal"
                             >
                               <svg
                                 className="kid-goal-edit-icon"
@@ -696,17 +695,19 @@ export default function KidDashboardPage() {
                           </div>
 
                           <p className="kid-goal-progress-text">
-                            <strong>{Math.min(child.coinBalance, goal.cost)}</strong> / {goal.cost} Coins
+                            <strong>
+                              {Math.min(child.coinBalance, goal.cost)}
+                            </strong>{" "}
+                            / {goal.cost} Coins
                           </p>
                         </div>
                       </div>
 
-                        <p className="kid-goal-progress-text">
-                          <strong>
-                            {Math.min(child.coinBalance, goal.cost)}
-                          </strong>{" "}
-                          / {goal.cost} Coins
-                        </p>
+                      <div className="kid-goal-progress-track">
+                        <div
+                          className="kid-goal-progress-fill"
+                          style={{ width: `${progress}%` }}
+                        />
                       </div>
                     </div>
                   );
@@ -722,38 +723,40 @@ export default function KidDashboardPage() {
                     </div>
                   </div>
 
-                    {goalCoachReply && (
-                      <div className="kid-ai-response">
-                        <div className="kid-ai-response-avatar">
-                          <img
-                            src={getAvatarPath(child.avatar)}
-                            alt="Coach"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
-                            }}
-                          />
-                        </div>
-                        <div className="kid-ai-response-content">
-                          <h4>{goalCoachReply.title}</h4>
-                          <p>{goalCoachReply.message}</p>
-                          <p>
-                            <strong>Right now:</strong> {goalCoachReply.actionTip}
-                          </p>
-                          <p>
-                            <strong>Money tip:</strong> {goalCoachReply.generalTip}
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          className="kid-ai-response-close"
-                          onClick={() => setGoalCoachReply(null)}
-                          aria-label="Close coach message"
-                          title="Close"
-                        >
-                          ✕
-                        </button>
+                  {goalCoachReply && (
+                    <div className="kid-ai-response">
+                      <div className="kid-ai-response-avatar">
+                        <img
+                          src={getAvatarPath(child.avatar)}
+                          alt="Coach"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "/assets/BearIcon.svg";
+                          }}
+                        />
                       </div>
-                    )}
+                      <div className="kid-ai-response-content">
+                        <h4>{goalCoachReply.title}</h4>
+                        <p>{goalCoachReply.message}</p>
+                        <p>
+                          <strong>Right now:</strong>{" "}
+                          {goalCoachReply.actionTip}
+                        </p>
+                        <p>
+                          <strong>Money tip:</strong> {goalCoachReply.generalTip}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="kid-ai-response-close"
+                        onClick={() => setGoalCoachReply(null)}
+                        aria-label="Close coach message"
+                        title="Close"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
 
                   <div className="kid-ai-button-group">
                     <button
@@ -762,7 +765,9 @@ export default function KidDashboardPage() {
                       onClick={handleAskGoalCoach}
                       disabled={goalCoachLoading}
                     >
-                      {goalCoachLoading ? "Thinking..." : "How can I reach my goal faster?"}
+                      {goalCoachLoading
+                        ? "Thinking..."
+                        : "How can I reach my goal faster?"}
                     </button>
 
                     <button
@@ -813,7 +818,7 @@ export default function KidDashboardPage() {
                   />
                 </svg>
                 <p>
-                  Complete “Module 1: Needs vs Wants” first to unlock chores.
+                  Complete "Module 1: Needs vs Wants" first to unlock chores.
                 </p>
               </div>
               <p className="kid-empty-subtext">
@@ -833,24 +838,21 @@ export default function KidDashboardPage() {
                   <article key={chore.id} className="kid-task-card">
                     <div className="kid-task-top">
                       <div className="kid-task-copy">
-                        <div className="kid-task-title-row">
-                          <h3>{chore.title}</h3>
-
-                          <div className="kid-task-reward-pill">
-                            <img
-                              src="/assets/CoinIcon.svg"
-                              alt=""
-                              className="kid-task-reward-icon"
-                            />
-                            +{chore.reward}
-                          </div>
-                        </div>
-
+                        <h3>{chore.title}</h3>
                         {chore.description ? (
                           <p className="kid-task-description">
                             {chore.description}
                           </p>
                         ) : null}
+                      </div>
+
+                      <div className="kid-task-reward-pill">
+                        <img
+                          src="/assets/CoinIcon.svg"
+                          alt=""
+                          className="kid-task-reward-icon"
+                        />
+                        +{chore.reward}
                       </div>
                     </div>
 
@@ -927,7 +929,7 @@ export default function KidDashboardPage() {
                       <button
                         onClick={() => handleMarkDone(chore)}
                         disabled={actionLoadingId === chore.id}
-                        className="kid-primary-button kid-task-done-button"
+                        className="kid-primary-button"
                         type="button"
                       >
                         {actionLoadingId === chore.id
@@ -1083,7 +1085,9 @@ export default function KidDashboardPage() {
                   <p>{spendCoachReply.message}</p>
                   <p>
                     <strong>
-                      {spendCoachReply.recommendation === "buy" ? "Buy it" : "Save it"}
+                      {spendCoachReply.recommendation === "buy"
+                        ? "Buy it"
+                        : "Save it"}
                     </strong>
                   </p>
                   <p>{spendCoachReply.reason}</p>
