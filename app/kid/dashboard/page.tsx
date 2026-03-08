@@ -376,8 +376,6 @@ export default function KidDashboardPage() {
         completedAt: serverTimestamp(),
         reviewedAt: null,
       });
-
-      alert("Nice work! Ask your parent to approve your chore.");
     } catch (error) {
       console.error(error);
       alert("Could not mark chore as done.");

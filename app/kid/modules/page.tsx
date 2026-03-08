@@ -187,7 +187,7 @@ export default function KidModulesPage() {
                         strokeWidth="2"
                       />
                     </svg>
-                    Locked ~ Do Module 1 First
+                    Locked - Do Module 1 First
                   </span>
                 )}
               </button>
