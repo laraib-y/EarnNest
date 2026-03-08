@@ -1,3 +1,5 @@
+**Live Demo:** https://earn-nest-j1qh.vercel.app/
+
 ## Inspiration
 We kept noticing that most kids’ finance apps are essentially digital piggy banks with a parent dashboard. Apps like Greenlight and BusyKid focus on managing money kids already have, tracking allowances, controlling spending, and monitoring transactions.
 
