@@ -104,6 +104,7 @@
 }
 
 .kid-module-card {
+  position: relative;
   background: #ffffff;
   border-radius: 14px;
   padding: 14px 14px 16px;
@@ -111,11 +112,36 @@
   box-shadow: none;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.kid-module-card-inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  height: 100%;
+  justify-content: space-between;
+}
+
+.kid-module-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .kid-module-top {
-  display: block;
-  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.kid-module-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .kid-module-tag {
@@ -129,10 +155,20 @@
 
 .kid-module-card h3 {
   margin: 0;
-  font-size: 1.85rem;
-  line-height: 1.02;
-  font-weight: 500;
-  color: #111111;
+  font-size: 1.25rem;
+  color: #2f241f;
+}
+
+.kid-module-status {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f1642e;
+  color: white;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-bottom: 12px;
 }
 
 .kid-module-description {
@@ -171,17 +207,31 @@
   cursor: not-allowed;
 }
 
-.kid-module-button-label {
-  display: inline-flex;
+/* ===== Crow Images ===== */
+
+.kid-module-crow {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  flex-shrink: 0;
 }
 
-.kid-module-lock-icon {
-  width: 16px;
-  height: 16px;
+.kid-module-crow-right {
+  width: 100px;
+  height: 100px;
   flex-shrink: 0;
+}
+
+.kid-module-crow-left {
+  width: 100px;
+  height: 100px;
+}
+
+.kid-crow-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08));
 }
 
 @media (max-width: 720px) {
@@ -206,4 +256,41 @@
   .kid-module-card h3 {
     font-size: 1.7rem;
   }
+
+  .kid-module-card-inner {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .kid-module-crow-right,
+  .kid-module-crow-left {
+    width: 85px;
+    height: 85px;
+  }
+
+  .kid-module-top {
+    flex-direction: column;
+    align-items: flex-start;
+    align-items: flex-start;
+  }
+
+  .kid-module-status {
+    align-self: flex-start;
+  }
+}
+
+.kid-module-image {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 92px;
+  height: 92px;
+  pointer-events: none;
+}
+
+.kid-module-image-asset {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }

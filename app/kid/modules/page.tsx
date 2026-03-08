@@ -30,27 +30,30 @@ export default function KidModulesPage() {
       return;
     }
 
-    const unsubscribe = onSnapshot(doc(db, "children", storedChildId), (childSnap) => {
-      if (!childSnap.exists()) {
-        router.push("/kid" as Route);
-        return;
-      }
+    const unsubscribe = onSnapshot(
+      doc(db, "children", storedChildId),
+      (childSnap) => {
+        if (!childSnap.exists()) {
+          router.push("/kid" as Route);
+          return;
+        }
 
-      const childData = childSnap.data();
+        const childData = childSnap.data();
 
-      setChild({
-        id: childSnap.id,
-        displayName: childData.displayName || childData.name || "",
-        name: childData.name || "",
-        modulesCompleted: Array.isArray(childData.modulesCompleted)
-          ? childData.modulesCompleted
-          : [],
-        coinBalance: Number(childData.coinBalance || 0),
-        streak: Number(childData.streak || 0),
-      });
+        setChild({
+          id: childSnap.id,
+          displayName: childData.displayName || childData.name || "",
+          name: childData.name || "",
+          modulesCompleted: Array.isArray(childData.modulesCompleted)
+            ? childData.modulesCompleted
+            : [],
+          coinBalance: Number(childData.coinBalance || 0),
+          streak: Number(childData.streak || 0),
+        });
 
-      setLoading(false);
-    });
+        setLoading(false);
+      },
+    );
 
     return () => unsubscribe();
   }, [router]);
@@ -107,13 +110,21 @@ export default function KidModulesPage() {
         <section className="kid-modules-content">
           <div className="kid-modules-grid">
             <article className="kid-module-card">
+              <div className="kid-module-image">
+                <img
+                  src="/assets/NeedsWants.svg"
+                  alt="Needs and wants"
+                  className="kid-module-image-asset"
+                />
+              </div>
+
               <div className="kid-module-top">
                 <p className="kid-module-tag">MODULE 1</p>
                 <h3>Needs vs Wants</h3>
               </div>
-
               <p className="kid-module-description">
-                Learn the difference between things you need and things you want.
+                Learn the difference between things you need and things you
+                want.
               </p>
 
               <button
@@ -126,18 +137,27 @@ export default function KidModulesPage() {
             </article>
 
             <article className="kid-module-card">
+              <div className="kid-module-image">
+                <img
+                  src="/assets/Saving.svg"
+                  alt="Saving and budgeting"
+                  className="kid-module-image-asset"
+                />
+              </div>
+
               <div className="kid-module-top">
                 <p className="kid-module-tag">MODULE 2</p>
                 <h3>Saving &amp; Budgeting</h3>
               </div>
 
               <p className="kid-module-description">
-                Practice saving coins and making smart budgeting choices to reach
-                a goal.
+                Practice saving coins and making smart budgeting choices to
+                reach a goal.
               </p>
-
               <button
-                className={`kid-module-button ${module2Unlocked ? "is-primary" : "is-locked"}`}
+                className={`kid-module-button ${
+                  module2Unlocked ? "is-primary" : "is-locked"
+                }`}
                 onClick={() => {
                   if (module2Unlocked) {
                     router.push("/kid/modules/module-2" as Route);
