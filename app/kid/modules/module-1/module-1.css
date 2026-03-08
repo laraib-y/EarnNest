@@ -1,0 +1,352 @@
+.module-one-page {
+  min-height: 100vh;
+  background: #efefef;
+  padding: 14px 14px 22px;
+  font-family: "Rubik", sans-serif;
+  color: #171717;
+  overflow: hidden;
+}
+
+.module-one-shell {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.module-one-loading {
+  font-size: 1rem;
+  color: #6b6b6b;
+}
+
+.module-one-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.module-one-back {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #232323;
+  font-size: 38px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 999px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.module-one-back:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateX(-1px);
+}
+
+.module-one-topbar-pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.module-one-pill {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.module-one-pill-coins {
+  border: 1.5px solid #d0a318;
+  color: #1d1d1d;
+}
+
+.module-one-pill-streak {
+  border: 1.5px solid #e25735;
+  color: #1d1d1d;
+}
+
+.module-one-pill-icon {
+  flex-shrink: 0;
+}
+
+.module-one-progress {
+  margin-bottom: 12px;
+}
+
+.module-one-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.module-one-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff9b5a 0%, #ff6a12 100%);
+  transition: width 180ms ease-out;
+}
+
+.module-one-illustration-card {
+  width: 100%;
+  background: #f8f8f8;
+  border: 1.5px solid #cdbfba;
+  border-radius: 24px;
+  box-shadow:
+    0 6px 0 #c8bbb5,
+    0 12px 24px rgba(109, 92, 82, 0.05);
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.module-one-illustration-inner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.module-one-lesson-stage {
+  position: relative;
+  height: 210px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.module-one-text-card {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #fffdfc;
+  border: 1.5px solid #ff9d68;
+  border-radius: 22px;
+  box-shadow:
+    0 6px 0 #ff6a12,
+    0 10px 20px rgba(255, 106, 18, 0.08);
+  padding: 20px 18px 18px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.module-one-text-card p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.34;
+  color: #171717;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.module-one-text-card strong {
+  font-weight: 800;
+}
+
+/* current card sits in lower position */
+.module-one-text-card--current {
+  top: 96px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  z-index: 2;
+}
+
+/* next card starts just below and flies into the lower slot */
+.module-one-text-card--entering {
+  top: 96px;
+  opacity: 0;
+  transform: translateY(52px) scale(0.985);
+  filter: blur(0.8px);
+  z-index: 2;
+}
+
+/* old card stays visible in its own faded box above */
+.module-one-text-card--settled-past {
+  top: 8px;
+  opacity: 0.34;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  border-color: #f0c7b2;
+  box-shadow: 0 5px 0 #f1c8b5;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.module-one-text-card--settled-past p {
+  color: #a3a3a3;
+}
+
+.module-one-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.module-one-primary-button {
+  width: 100%;
+  max-width: 335px;
+  min-height: 54px;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #ff7a20 0%, #ff660a 100%);
+  color: white;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: "Rubik", sans-serif;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(255, 106, 18, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.module-one-primary-button:hover {
+  transform: translateY(-1px);
+}
+
+.module-one-primary-button:active {
+  transform: translateY(1px);
+}
+
+.module-one-primary-button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.module-one-centered-shell {
+  min-height: calc(100vh - 36px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.module-one-simple-card {
+  width: 100%;
+  background: linear-gradient(180deg, #fffefd 0%, #fff8f2 100%);
+  border: 1.5px solid #ffb287;
+  border-radius: 24px;
+  box-shadow:
+    0 6px 0 #ff6a12,
+    0 16px 30px rgba(255, 106, 18, 0.09);
+  padding: 22px 18px 20px;
+}
+
+.module-one-card-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ff6a12;
+}
+
+.module-one-simple-title {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.module-one-simple-text {
+  margin: 0 0 20px;
+  font-size: 16px;
+  line-height: 1.45;
+  color: #5b5b5b;
+}
+
+.module-one-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.module-one-field label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.module-one-field input {
+  width: 100%;
+  min-height: 50px;
+  border: 1.5px solid #e0d8d2;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0 14px;
+  font-size: 16px;
+  font-family: "Rubik", sans-serif;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.module-one-field input:focus {
+  border-color: #ff6a12;
+  box-shadow: 0 0 0 3px rgba(255, 106, 18, 0.12);
+}
+
+@media (max-width: 480px) {
+  .module-one-page {
+    padding: 12px 12px 20px;
+  }
+
+  .module-one-pill {
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .module-one-illustration-card {
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .module-one-lesson-stage {
+    height: 198px;
+    margin-bottom: 16px;
+  }
+
+  .module-one-text-card {
+    padding: 16px 16px 14px;
+  }
+
+  .module-one-text-card p {
+    font-size: 15px;
+    line-height: 1.32;
+  }
+
+  .module-one-text-card--current,
+  .module-one-text-card--entering {
+    top: 90px;
+  }
+
+  .module-one-primary-button {
+    min-height: 50px;
+    font-size: 17px;
+  }
+
+  .module-one-simple-title {
+    font-size: 25px;
+  }
+
+  .module-one-simple-text {
+    font-size: 15px;
+  }
+}
