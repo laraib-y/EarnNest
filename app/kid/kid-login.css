@@ -1,4 +1,4 @@
-.kid-join-page {
+.kid-login-page {
   min-height: 100vh;
   background: linear-gradient(180deg, #fff8ef 0%, #fff2de 100%);
   padding: 32px 20px;
@@ -7,12 +7,12 @@
   justify-content: center;
 }
 
-.kid-join-shell {
+.kid-login-shell {
   width: 100%;
   max-width: 460px;
 }
 
-.kid-join-card {
+.kid-login-card {
   background: #ffffff;
   border-radius: 28px;
   padding: 32px 24px;
@@ -20,7 +20,7 @@
   border: 1px solid #fde7c2;
 }
 
-.kid-join-kicker {
+.kid-login-kicker {
   margin: 0 0 8px;
   font-size: 0.9rem;
   font-weight: 700;
@@ -29,37 +29,37 @@
   color: #f1642e;
 }
 
-.kid-join-title {
+.kid-login-title {
   margin: 0;
   font-size: 2.2rem;
   line-height: 1.05;
   color: #2f241f;
 }
 
-.kid-join-subtitle {
+.kid-login-subtitle {
   margin: 12px 0 0;
   color: #7a675d;
   line-height: 1.6;
 }
 
-.kid-join-form {
+.kid-login-form {
   display: grid;
   gap: 16px;
   margin-top: 24px;
 }
 
-.kid-join-field {
+.kid-login-field {
   display: grid;
   gap: 8px;
 }
 
-.kid-join-field label {
+.kid-login-field label {
   font-size: 0.95rem;
   font-weight: 600;
   color: #8a5a42;
 }
 
-.kid-join-field input {
+.kid-login-field input {
   border: 1px solid #f5d8b3;
   background: #fffaf4;
   border-radius: 16px;
@@ -70,12 +70,12 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.kid-join-field input:focus {
+.kid-login-field input:focus {
   border-color: #f1642e;
   box-shadow: 0 0 0 4px rgba(241, 100, 46, 0.12);
 }
 
-.kid-join-button {
+.kid-login-button {
   margin-top: 8px;
   border: none;
   border-radius: 18px;
@@ -89,23 +89,47 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.kid-join-button:hover {
+.kid-login-button:hover {
   transform: translateY(-1px);
 }
 
-.kid-join-button:disabled {
+.kid-login-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
+.kid-login-divider {
+  height: 1px;
+  background: #f4dfc3;
+  margin: 22px 0 16px;
+}
+
+.kid-login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kid-login-footer p {
+  margin: 0;
+  color: #7a675d;
+}
+
+.kid-login-link {
+  color: #f1642e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 @media (max-width: 520px) {
-  .kid-join-card {
+  .kid-login-card {
     padding: 26px 18px;
     border-radius: 24px;
   }
 
-  .kid-join-title {
+  .kid-login-title {
     font-size: 1.9rem;
   }
 }

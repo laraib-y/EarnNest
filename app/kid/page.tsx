@@ -2,31 +2,32 @@
 
 import { FormEvent, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase-client";
-import "./kid-join.css";
+import "./kid-login.css";
 
-export default function KidJoinPage() {
+export default function KidLoginPage() {
   const router = useRouter();
-  const [accessCode, setAccessCode] = useState("");
+  const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleJoin = async (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const q = query(
         collection(db, "children"),
-        where("accessCode", "==", accessCode.toUpperCase()),
+        where("username", "==", username.trim().toLowerCase()),
         where("pin", "==", pin)
       );
 
       const snap = await getDocs(q);
 
       if (snap.empty) {
-        alert("Invalid access code or PIN.");
+        alert("Invalid username or PIN.");
         return;
       }
 
@@ -42,25 +43,25 @@ export default function KidJoinPage() {
   };
 
   return (
-    <main className="kid-join-page">
-      <div className="kid-join-shell">
-        <section className="kid-join-card">
-          <p className="kid-join-kicker">EarnNest</p>
-          <h1 className="kid-join-title">Kid Login</h1>
-          <p className="kid-join-subtitle">Join your parent&apos;s account and start earning coins.</p>
+    <main className="kid-login-page">
+      <div className="kid-login-shell">
+        <section className="kid-login-card">
+          <p className="kid-login-kicker">EarnNest</p>
+          <h1 className="kid-login-title">Welcome back</h1>
+          <p className="kid-login-subtitle">Log in with your username and PIN.</p>
 
-          <form onSubmit={handleJoin} className="kid-join-form">
-            <div className="kid-join-field">
-              <label htmlFor="accessCode">Access code</label>
+          <form onSubmit={handleLogin} className="kid-login-form">
+            <div className="kid-login-field">
+              <label htmlFor="username">Username</label>
               <input
-                id="accessCode"
-                placeholder="XRG457"
-                value={accessCode}
-                onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+                id="username"
+                placeholder="starfox"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
 
-            <div className="kid-join-field">
+            <div className="kid-login-field">
               <label htmlFor="pin">4-digit PIN</label>
               <input
                 id="pin"
@@ -71,10 +72,19 @@ export default function KidJoinPage() {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="kid-join-button">
-              {loading ? "Joining..." : "Join Parent Account"}
+            <button type="submit" disabled={loading} className="kid-login-button">
+              {loading ? "Logging in..." : "Log In"}
             </button>
           </form>
+
+          <div className="kid-login-divider" />
+
+          <div className="kid-login-footer">
+            <p>New here?</p>
+            <Link href="/kid/join" className="kid-login-link">
+              Use Access Code
+            </Link>
+          </div>
         </section>
       </div>
     </main>

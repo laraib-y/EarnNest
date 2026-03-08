@@ -1,0 +1,55 @@
+.change-pin-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff8ef 0%, #fff2de 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+}
+
+.change-pin-shell {
+  width: 100%;
+  max-width: 420px;
+}
+
+.change-pin-card {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: 0 12px 30px rgba(241, 100, 46, 0.15);
+}
+
+.change-pin-kicker {
+  font-weight: 700;
+  color: #f1642e;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.change-pin-card h1 {
+  margin-top: 6px;
+  font-size: 2rem;
+}
+
+.change-pin-form {
+  margin-top: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.change-pin-form input {
+  border: 1px solid #f4d2a4;
+  border-radius: 16px;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+.change-pin-form button {
+  background: #f1642e;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}

@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase-client";
+import "./add-child.css";
 
 function generateAccessCode(length = 6) {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -78,10 +79,12 @@ export default function AddChildPage() {
         parentUid,
         name: childName.trim(),
         displayName: childName.trim(),
+        username: "",
         age: Number(age) || null,
         avatar,
         tempPin: pin,
         pin,
+        mustChangePin: true,
         accessCode,
         coinBalance: 0,
         streak: 0,
@@ -111,53 +114,91 @@ export default function AddChildPage() {
   };
 
   return (
-    <main style={{ padding: 40, maxWidth: 520 }}>
-      <h1>Add Child</h1>
+    <main className="add-child-page">
+      <div className="add-child-shell">
+        <section className="add-child-hero">
+          <div>
+            <p className="add-child-kicker">Parent Dashboard</p>
+            <h1 className="add-child-title">Add Child</h1>
+            <p className="add-child-subtitle">
+              Create a child profile, choose an avatar, and generate a kid access code.
+            </p>
+          </div>
+        </section>
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 12, marginTop: 20 }}>
-        <input
-          placeholder="Child name"
-          value={childName}
-          onChange={(e) => setChildName(e.target.value)}
-        />
+        <section className="add-child-card">
+          <form onSubmit={handleSubmit} className="add-child-form">
+            <div className="add-child-field">
+              <label htmlFor="childName">Child name</label>
+              <input
+                id="childName"
+                placeholder="Enter child name"
+                value={childName}
+                onChange={(e) => setChildName(e.target.value)}
+              />
+            </div>
 
-        <input
-          placeholder="Age"
-          type="number"
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-        />
+            <div className="add-child-field">
+              <label htmlFor="age">Age</label>
+              <input
+                id="age"
+                placeholder="Enter age"
+                type="number"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+              />
+            </div>
 
-        <select value={avatar} onChange={(e) => setAvatar(e.target.value)}>
-          <option value="bear">Bear</option>
-          <option value="cat">Cat</option>
-          <option value="fox">Fox</option>
-          <option value="rabbit">Rabbit</option>
-        </select>
+            <div className="add-child-field">
+              <label htmlFor="avatar">Choose avatar</label>
+              <select
+                id="avatar"
+                value={avatar}
+                onChange={(e) => setAvatar(e.target.value)}
+              >
+                <option value="bear">Bear</option>
+                <option value="cat">Cat</option>
+                <option value="fox">Fox</option>
+                <option value="rabbit">Rabbit</option>
+              </select>
+            </div>
 
-        <input
-          placeholder="Temporary 4-digit PIN"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          maxLength={4}
-        />
+            <div className="add-child-field">
+              <label htmlFor="pin">Temporary 4-digit PIN</label>
+              <input
+                id="pin"
+                placeholder="1234"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                maxLength={4}
+              />
+            </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Child Profile"}
-        </button>
-      </form>
+            <button type="submit" disabled={loading} className="add-child-primary-button">
+              {loading ? "Creating..." : "Create Child Profile"}
+            </button>
+          </form>
+        </section>
 
-      {createdChild && (
-        <div style={{ marginTop: 24, padding: 16, border: "1px solid #ccc", borderRadius: 12 }}>
-          <h3>Child Created</h3>
-          <p>Name: {createdChild.name}</p>
-          <p>Access Code: <strong>{createdChild.accessCode}</strong></p>
-          <p>Use this code on the kid's device to join the parent account.</p>
-        </div>
-      )}
+        {createdChild && (
+          <section className="add-child-success-card">
+            <p className="add-child-success-kicker">Child Created</p>
+            <h3>{createdChild.name}</h3>
+            <p>
+              Access Code: <strong>{createdChild.accessCode}</strong>
+            </p>
+            <p>Use this code on the kid&apos;s device to join the parent account.</p>
+          </section>
+        )}
 
-      <div style={{ marginTop: 24 }}>
-        <button onClick={() => router.push("/parent/dashboard")}>Back to Dashboard</button>
+        <section className="add-child-footer">
+          <button
+            onClick={() => router.push("/parent/dashboard")}
+            className="add-child-secondary-button"
+          >
+            Back to Dashboard
+          </button>
+        </section>
       </div>
     </main>
   );
