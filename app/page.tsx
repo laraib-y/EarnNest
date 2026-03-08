@@ -11,7 +11,7 @@ export default function Home() {
 
         <div className={styles.mascot}>
           <Image
-            src="/mascot.jpeg"
+            src="/assets/MascotLogo.svg"
             alt="EarnNest Mascot"
             fill
             priority
