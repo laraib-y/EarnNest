@@ -10,7 +10,6 @@ import {
   query,
   serverTimestamp,
   where,
-  deleteDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
@@ -26,6 +25,7 @@ type ChildProfile = {
   coinBalance: number;
   streak: number;
   completedChores: number;
+  modulesCompleted: string[];
 };
 
 type ChoreItem = {
@@ -44,12 +44,6 @@ type CompletionItem = {
   reward: number;
 };
 
-type GoalItem = {
-  id: string;
-  item: string;
-  cost: number;
-};
-
 export default function KidDashboardPage() {
   const router = useRouter();
 
@@ -58,7 +52,6 @@ export default function KidDashboardPage() {
   const [completions, setCompletions] = useState<CompletionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-  const [goals, setGoals] = useState<GoalItem[]>([]);
 
   const latestCompletionByChore = useMemo(() => {
     const map = new Map<string, CompletionItem>();
@@ -97,10 +90,13 @@ export default function KidDashboardPage() {
           coinBalance: Number(childData.coinBalance || 0),
           streak: Number(childData.streak || 0),
           completedChores: Number(childData.completedChores || 0),
+          modulesCompleted: Array.isArray(childData.modulesCompleted)
+            ? childData.modulesCompleted
+            : [],
         };
 
         const choreSnap = await getDocs(
-          query(collection(db, "chores"), where("childId", "==", childId)),
+          query(collection(db, "chores"), where("childId", "==", childId))
         );
 
         const choreList: ChoreItem[] = choreSnap.docs
@@ -118,38 +114,22 @@ export default function KidDashboardPage() {
           .filter((chore) => chore.status === "active");
 
         const completionSnap = await getDocs(
-          query(collection(db, "completions"), where("childId", "==", childId)),
+          query(collection(db, "completions"), where("childId", "==", childId))
         );
 
-        const completionList: CompletionItem[] = completionSnap.docs.map(
-          (completionDoc) => {
-            const data = completionDoc.data();
-            return {
-              id: completionDoc.id,
-              choreId: data.choreId || "",
-              status: data.status || "pending",
-              reward: Number(data.reward || 0),
-            };
-          },
-        );
-
-        const goalsSnap = await getDocs(
-          query(collection(db, "goals"), where("childId", "==", childId)),
-        );
-
-        const goalsList: GoalItem[] = goalsSnap.docs.map((goalDoc) => {
-          const data = goalDoc.data();
+        const completionList: CompletionItem[] = completionSnap.docs.map((completionDoc) => {
+          const data = completionDoc.data();
           return {
-            id: goalDoc.id,
-            item: data.item || "",
-            cost: Number(data.cost || 0),
+            id: completionDoc.id,
+            choreId: data.choreId || "",
+            status: data.status || "pending",
+            reward: Number(data.reward || 0),
           };
         });
 
         setChild(childProfile);
         setChores(choreList);
         setCompletions(completionList);
-        setGoals(goalsList);
       } catch (error) {
         console.error(error);
         router.push("/kid" as Route);
@@ -204,17 +184,6 @@ export default function KidDashboardPage() {
     }
   };
 
-  const handleDeleteGoal = async (goalId: string) => {
-    try {
-      await deleteDoc(doc(db, "goals", goalId));
-
-      setGoals((prev) => prev.filter((goal) => goal.id !== goalId));
-    } catch (error) {
-      console.error(error);
-      alert("Could not delete goal.");
-    }
-  };
-
   if (loading) {
     return (
       <main className="kid-dashboard-page">
@@ -237,7 +206,7 @@ export default function KidDashboardPage() {
               Hi, {child.displayName || child.name}! 👋
             </h1>
             <p className="kid-dashboard-subtitle">
-              Finish chores, earn coins, and keep your streak going.
+              Finish chores, earn coins, and grow your money skills.
             </p>
           </div>
 
@@ -262,75 +231,70 @@ export default function KidDashboardPage() {
             <h2>{child.completedChores}</h2>
           </article>
         </section>
-        <section>
-          <h2>Learning</h2>
-          <button onClick={() => router.push("/kid/modules/module-1" as Route)}>
-            Start Module 1
-          </button>
+
+        <section className="kid-dashboard-section">
+          <div className="kid-section-header">
+            <h2>Learning Modules</h2>
+            <span>Build your money skills</span>
+          </div>
+
+          <div className="kid-modules-grid">
+            <article className="kid-module-card">
+              <div className="kid-module-top">
+                <div>
+                  <p className="kid-module-tag">Module 1</p>
+                  <h3>Needs vs Wants</h3>
+                </div>
+                <span className="kid-module-status">
+                  {child.modulesCompleted.includes("module-1") ? "Completed" : "Ready"}
+                </span>
+              </div>
+
+              <p className="kid-module-description">
+                Learn the difference between things you need and things you want.
+              </p>
+
+              <button
+                className="kid-primary-button"
+                onClick={() => router.push("/kid/modules/module-1" as Route)}
+              >
+                {child.modulesCompleted.includes("module-1")
+                  ? "Play Again"
+                  : "Start Module 1"}
+              </button>
+            </article>
+
+            <article className="kid-module-card">
+              <div className="kid-module-top">
+                <div>
+                  <p className="kid-module-tag">Module 2</p>
+                  <h3>Saving & Budgeting</h3>
+                </div>
+                <span className="kid-module-status">
+                  {child.modulesCompleted.includes("module-2") ? "Completed" : "Ready"}
+                </span>
+              </div>
+
+              <p className="kid-module-description">
+                Practice saving coins and making smart budgeting choices to reach a goal.
+              </p>
+
+              <button
+                className="kid-primary-button"
+                onClick={() => router.push("/kid/modules/module-2" as Route)}
+              >
+                {child.modulesCompleted.includes("module-2")
+                  ? "Play Again"
+                  : "Start Module 2"}
+              </button>
+            </article>
+          </div>
         </section>
 
         <section className="kid-dashboard-section">
-          <section className="kid-dashboard-section">
-            <div className="kid-section-header">
-              <h2>Your Goals</h2>
-              <span>Things you're saving for</span>
-            </div>
-            {goals.length === 0 ? (
-              <div className="kid-goal-empty">
-                No goals yet. Finish Module 1 to create your first savings goal.
-              </div>
-            ) : (
-              <div className="kid-goals-grid">
-                {goals.map((goal) => {
-                  const saved = Math.min(child.coinBalance, goal.cost);
-                  const remaining = Math.max(goal.cost - child.coinBalance, 0);
-                  const progress =
-                    goal.cost > 0
-                      ? Math.min((child.coinBalance / goal.cost) * 100, 100)
-                      : 0;
-
-                  return (
-                    <div key={goal.id} className="kid-goal-card">
-                      <div className="kid-goal-top">
-                        <h3>{goal.item}</h3>
-                        <div className="kid-goal-cost-pill">
-                          {goal.cost} coins
-                        </div>
-                      </div>
-
-                      <p className="kid-goal-progress-text">
-                        You have saved {saved} out of {goal.cost} coins.
-                      </p>
-
-                      <div className="kid-goal-progress-bar">
-                        <div
-                          className="kid-goal-progress-fill"
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-
-                      <div className="kid-goal-meta">
-                        <span>{saved} saved</span>
-                        <span>{remaining} to go</span>
-                      </div>
-                      <button
-                        className="kid-primary-button"
-                        onClick={() => handleDeleteGoal(goal.id)}
-                      >
-                        Remove Goal
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
           <div className="kid-section-header">
             <h2>Your Chores</h2>
-            <span>
-              {chores.length} task{chores.length === 1 ? "" : "s"}
-            </span>
+            <span>{chores.length} task{chores.length === 1 ? "" : "s"}</span>
           </div>
 
           {chores.length === 0 ? (
@@ -346,20 +310,14 @@ export default function KidDashboardPage() {
                   <article key={chore.id} className="kid-chore-card">
                     <div className="kid-chore-top">
                       <h3>{chore.title}</h3>
-                      <span className="kid-reward-pill">
-                        {chore.reward} coins
-                      </span>
+                      <span className="kid-reward-pill">{chore.reward} coins</span>
                     </div>
 
                     {chore.description ? (
-                      <p className="kid-chore-description">
-                        {chore.description}
-                      </p>
+                      <p className="kid-chore-description">{chore.description}</p>
                     ) : null}
 
-                    <p className="kid-chore-frequency">
-                      Frequency: {chore.frequency}
-                    </p>
+                    <p className="kid-chore-frequency">Frequency: {chore.frequency}</p>
 
                     {completion?.status === "pending" && (
                       <p className="kid-status kid-status-pending">
@@ -368,9 +326,7 @@ export default function KidDashboardPage() {
                     )}
 
                     {completion?.status === "approved" && (
-                      <p className="kid-status kid-status-approved">
-                        Approved ✅
-                      </p>
+                      <p className="kid-status kid-status-approved">Approved ✅</p>
                     )}
 
                     {completion?.status === "rejected" && (
@@ -379,16 +335,13 @@ export default function KidDashboardPage() {
                       </p>
                     )}
 
-                    {(completion?.status === undefined ||
-                      completion?.status === "rejected") && (
+                    {(completion?.status === undefined || completion?.status === "rejected") && (
                       <button
                         onClick={() => handleMarkDone(chore)}
                         disabled={actionLoadingId === chore.id}
                         className="kid-primary-button"
                       >
-                        {actionLoadingId === chore.id
-                          ? "Submitting..."
-                          : "Mark as Done"}
+                        {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
                       </button>
                     )}
                   </article>
