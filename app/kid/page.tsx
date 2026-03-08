@@ -45,47 +45,42 @@ export default function KidLoginPage() {
   return (
     <main className="kid-login-page">
       <div className="kid-login-shell">
-        <section className="kid-login-card">
-          <p className="kid-login-kicker">EarnNest</p>
-          <h1 className="kid-login-title">Welcome back</h1>
-          <p className="kid-login-subtitle">Log in with your username and PIN.</p>
-
-          <form onSubmit={handleLogin} className="kid-login-form">
-            <div className="kid-login-field">
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                placeholder="starfox"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-
-            <div className="kid-login-field">
-              <label htmlFor="pin">4-digit PIN</label>
-              <input
-                id="pin"
-                placeholder="1234"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                maxLength={4}
-              />
-            </div>
-
-            <button type="submit" disabled={loading} className="kid-login-button">
-              {loading ? "Logging in..." : "Log In"}
-            </button>
-          </form>
-
-          <div className="kid-login-divider" />
-
-          <div className="kid-login-footer">
-            <p>New here?</p>
-            <Link href="/kid/join" className="kid-login-link">
-              Use Access Code
-            </Link>
+        <img src="/assets/Child.svg" alt="Child" className="kid-login-mascot" />
+        <h2 className = "welcome-font">Welcome!</h2>
+        <h3 className = "login-font">Log in with your username and pin!</h3>
+        <form onSubmit={handleLogin} className="kid-login-form">
+          <div className="kid-login-field">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
-        </section>
+
+          <div className="kid-login-field">
+            <label htmlFor="pin">Pin</label>
+            <input
+              id="pin"
+              placeholder="Enter PIN"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              maxLength={4}
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="kid-login-button">
+            {loading ? "Logging in..." : "Log In"}
+          </button>
+        </form>
+
+        <div className="kid-login-footer">
+          <p>New here?</p>
+          <Link href="/kid/join" className="kid-login-link">
+            Use Access Code
+          </Link>
+        </div>
       </div>
     </main>
   );
