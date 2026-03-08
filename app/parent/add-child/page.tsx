@@ -10,6 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { auth, db } from "@/lib/firebase-client";
 import "./add-child.css";
 
@@ -28,7 +29,6 @@ export default function AddChildPage() {
   const [parentUid, setParentUid] = useState("");
   const [childName, setChildName] = useState("");
   const [age, setAge] = useState("");
-  const [avatar, setAvatar] = useState("bear");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [createdChild, setCreatedChild] = useState<null | {
@@ -81,7 +81,7 @@ export default function AddChildPage() {
         displayName: childName.trim(),
         username: "",
         age: Number(age) || null,
-        avatar,
+        avatar: "bird",
         tempPin: pin,
         pin,
         mustChangePin: true,
@@ -103,7 +103,6 @@ export default function AddChildPage() {
 
       setChildName("");
       setAge("");
-      setAvatar("bear");
       setPin("");
     } catch (error) {
       console.error(error);
@@ -116,23 +115,16 @@ export default function AddChildPage() {
   return (
     <main className="add-child-page">
       <div className="add-child-shell">
-        <section className="add-child-hero">
-          <div>
-            <p className="add-child-kicker">Parent Dashboard</p>
-            <h1 className="add-child-title">Add Child</h1>
-            <p className="add-child-subtitle">
-              Create a child profile, choose an avatar, and generate a kid access code.
-            </p>
-          </div>
+        <section className="add-child-top">
+          <h1 className="add-child-title">Add your child</h1>
         </section>
 
-        <section className="add-child-card">
+        <section className="add-child-form-card">
           <form onSubmit={handleSubmit} className="add-child-form">
             <div className="add-child-field">
-              <label htmlFor="childName">Child name</label>
+              <label htmlFor="childName">Name</label>
               <input
                 id="childName"
-                placeholder="Enter child name"
                 value={childName}
                 onChange={(e) => setChildName(e.target.value)}
               />
@@ -142,7 +134,6 @@ export default function AddChildPage() {
               <label htmlFor="age">Age</label>
               <input
                 id="age"
-                placeholder="Enter age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
@@ -150,53 +141,79 @@ export default function AddChildPage() {
             </div>
 
             <div className="add-child-field">
-              <label htmlFor="avatar">Choose avatar</label>
-              <select
-                id="avatar"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-              >
-                <option value="bear">Bear</option>
-                <option value="cat">Cat</option>
-                <option value="fox">Fox</option>
-                <option value="rabbit">Rabbit</option>
-              </select>
-            </div>
-
-            <div className="add-child-field">
-              <label htmlFor="pin">Temporary 4-digit PIN</label>
+              <label htmlFor="pin">Pin</label>
               <input
                 id="pin"
-                placeholder="1234"
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 maxLength={4}
+                inputMode="numeric"
               />
             </div>
 
-            <button type="submit" disabled={loading} className="add-child-primary-button">
-              {loading ? "Creating..." : "Create Child Profile"}
-            </button>
+            <div className="add-child-button-row">
+              <button type="submit" disabled={loading} className="add-child-primary-button">
+                <span className="add-child-plus">＋</span>
+                {loading ? "Adding..." : "Add Child"}
+              </button>
+            </div>
           </form>
         </section>
 
-        {createdChild && (
-          <section className="add-child-success-card">
-            <p className="add-child-success-kicker">Child Created</p>
-            <h3>{createdChild.name}</h3>
-            <p>
-              Access Code: <strong>{createdChild.accessCode}</strong>
-            </p>
-            <p>Use this code on the kid&apos;s device to join the parent account.</p>
-          </section>
-        )}
+        <section className="add-child-empty-state">
+          {createdChild ? (
+            <>
+              <p className="add-child-empty-title">
+                {createdChild.name} added successfully!
+              </p>
+              <div className="add-child-access-code">
+                Access code: <strong>{createdChild.accessCode}</strong>
+              </div>
+              <p className="add-child-empty-subtitle">
+                Use this code on the child&apos;s device to join the account.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="add-child-empty-title">No Account Added Yet...</p>
 
-        <section className="add-child-footer">
+              <div className="add-child-bird">
+                <Image
+                  src="/assets/Parent.svg"
+                  alt="Bird"
+                  fill
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+
+              <p className="add-child-empty-subtitle">Add child to get started!</p>
+            </>
+          )}
+        </section>
+
+        <section className="add-child-pager" aria-label="carousel navigation">
           <button
+            type="button"
+            className="add-child-arrow"
             onClick={() => router.push("/parent/dashboard")}
-            className="add-child-secondary-button"
+            aria-label="Back to dashboard"
           >
-            Back to Dashboard
+            ‹
+          </button>
+
+          <div className="add-child-dots">
+            <span className="add-child-dot active" />
+            <span className="add-child-dot" />
+            <span className="add-child-dot" />
+          </div>
+
+          <button
+            type="button"
+            className="add-child-arrow"
+            onClick={() => router.push("/parent/dashboard")}
+            aria-label="Next"
+          >
+            ›
           </button>
         </section>
       </div>

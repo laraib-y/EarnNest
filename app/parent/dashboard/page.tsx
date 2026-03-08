@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import {
   collection,
@@ -53,6 +53,7 @@ export default function ParentDashboardPage() {
   const [children, setChildren] = useState<ChildItem[]>([]);
   const [pendingCompletions, setPendingCompletions] = useState<PendingCompletion[]>([]);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [activeChildIndex, setActiveChildIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,7 +109,7 @@ export default function ParentDashboardPage() {
               id: completionDoc.id,
               childId: data.childId || "",
               choreId: data.choreId || "",
-              choreTitle: data.choreTitle || "Chore",
+              choreTitle: data.choreTitle || "Task",
               reward: Number(data.reward || 0),
               status: data.status || "pending",
               childName: childNameMap.get(data.childId || "") || "Child",
@@ -166,7 +167,7 @@ export default function ParentDashboardPage() {
           id: completionDoc.id,
           childId: data.childId || "",
           choreId: data.choreId || "",
-          choreTitle: data.choreTitle || "Chore",
+          choreTitle: data.choreTitle || "Task",
           reward: Number(data.reward || 0),
           status: data.status || "pending",
           childName: childNameMap.get(data.childId || "") || "Child",
@@ -176,6 +177,10 @@ export default function ParentDashboardPage() {
 
     setChildren(childList);
     setPendingCompletions(pendingList);
+    setActiveChildIndex((prev) => {
+      if (childList.length === 0) return 0;
+      return Math.min(prev, childList.length - 1);
+    });
   };
 
   const handleApprove = async (completionId: string) => {
@@ -222,7 +227,7 @@ export default function ParentDashboardPage() {
       await refreshDashboard();
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Could not approve chore.");
+      alert(error.message || "Could not approve task.");
     } finally {
       setActionLoadingId(null);
     }
@@ -240,7 +245,7 @@ export default function ParentDashboardPage() {
       await refreshDashboard();
     } catch (error) {
       console.error(error);
-      alert("Could not reject chore.");
+      alert("Could not reject task.");
     } finally {
       setActionLoadingId(null);
     }
@@ -250,6 +255,16 @@ export default function ParentDashboardPage() {
     await signOut(auth);
     router.push("/" as Route);
   };
+
+  const activeChild = useMemo(() => {
+    if (children.length === 0) return null;
+    return children[activeChildIndex] || children[0];
+  }, [children, activeChildIndex]);
+
+  const activeChildPending = useMemo(() => {
+    if (!activeChild) return [];
+    return pendingCompletions.filter((item) => item.childId === activeChild.id);
+  }, [pendingCompletions, activeChild]);
 
   if (loading) {
     return (
@@ -264,117 +279,136 @@ export default function ParentDashboardPage() {
   return (
     <main className="parent-dashboard-page">
       <div className="parent-dashboard-shell">
-        <section className="parent-dashboard-hero">
-          <div>
-            <p className="parent-dashboard-kicker">Parent Dashboard</p>
-            <h1 className="parent-dashboard-title">
-              Hi {user?.displayName?.split(" ")[0] || "Parent"} 👋
-            </h1>
-            <p className="parent-dashboard-subtitle">
-              Keep track of your children, assign chores, and review progress.
-            </p>
-          </div>
+        <section className="parent-dashboard-topbar">
+          <h1 className="parent-dashboard-title">
+            Hi {user?.displayName?.split(" ")[0] || "parent"}! 👋
+          </h1>
 
-          <div className="parent-dashboard-actions">
+          <div className="parent-dashboard-top-actions">
             <Link href={"/parent/add-child" as Route} className="parent-primary-button">
-              + Add Child
+              <span className="parent-plus">＋</span> Add Child
             </Link>
           </div>
         </section>
 
-        <section className="parent-dashboard-section">
-          <div className="parent-section-header">
-            <h2>Your Children</h2>
-            <span>{children.length} profile{children.length === 1 ? "" : "s"}</span>
-          </div>
+        {children.length === 0 ? (
+          <section className="parent-empty-state-card">
+            <Link href={"/parent/add-child" as Route} className="parent-primary-button parent-primary-button-full">
+              <span className="parent-plus">＋</span> Add Child
+            </Link>
 
-          {children.length === 0 ? (
-            <div className="parent-empty-card">
-              <p>No child profiles yet.</p>
+            <div className="parent-empty-panel">
+              <p>No Account Added Yet</p>
             </div>
-          ) : (
-            <div className="parent-children-grid">
-              {children.map((child) => (
-                <article key={child.id} className="parent-child-card">
-                  <div className="parent-child-top">
-                    <div className="parent-child-avatar">
-                      {child.displayName?.charAt(0).toUpperCase() || "C"}
-                    </div>
-
-                    <div className="parent-child-meta">
-                      <h3>{child.displayName}</h3>
-                      <p className="parent-child-code">Access Code: {child.accessCode}</p>
-                    </div>
+          </section>
+        ) : (
+          <>
+            <section className="parent-child-panel">
+              <article className="parent-child-focus-card">
+                <div className="parent-child-header">
+                  <div className="parent-child-avatar" aria-hidden="true" />
+                  <div className="parent-child-meta">
+                    <h2>{activeChild?.displayName}</h2>
+                    <p>lvl 1</p>
+                    <span>🪙 {activeChild?.coinBalance} Coins</span>
                   </div>
+                </div>
 
-                  <div className="parent-child-stats">
-                    <div className="parent-stat-pill">
-                      <span className="parent-stat-label">Coins</span>
-                      <strong>{child.coinBalance}</strong>
-                    </div>
-                  </div>
+                <Link
+                  href={`/parent/assign-chore/${activeChild?.id}` as Route}
+                  className="parent-task-button"
+                >
+                  <span className="parent-plus">＋</span> Add New Task
+                </Link>
 
-                  <Link
-                    href={`/parent/assign-chore/${child.id}` as Route}
-                    className="parent-task-button"
-                  >
-                    + Assign New Task
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+                <div className="parent-activity-list">
+                  {activeChildPending.length === 0 ? (
+                    <div className="parent-activity-empty">No recent activities yet.</div>
+                  ) : (
+                    activeChildPending.map((completion) => (
+                      <article key={completion.id} className="parent-activity-card">
+                        <div className="parent-activity-copy">
+                          <p className="parent-activity-label">Complete</p>
+                          <h3>{completion.choreTitle}</h3>
+                        </div>
 
-        <section className="parent-dashboard-section">
-          <div className="parent-section-header">
-            <h2>Pending Approvals</h2>
-            <span>{pendingCompletions.length} waiting</span>
-          </div>
+                        <div className="parent-activity-actions">
+                          <button
+                            onClick={() => handleReject(completion.id)}
+                            disabled={actionLoadingId === completion.id}
+                            className="parent-icon-button parent-icon-button-muted"
+                            aria-label="Reject task"
+                          >
+                            ✕
+                          </button>
 
-          {pendingCompletions.length === 0 ? (
-            <div className="parent-empty-card">
-              <p>No chores waiting for approval.</p>
-            </div>
-          ) : (
-            <div className="parent-approvals-list">
-              {pendingCompletions.map((completion) => (
-                <article key={completion.id} className="parent-approval-card">
-                  <div className="parent-approval-copy">
-                    <p className="parent-approval-label">Chore Completed</p>
-                    <h3>{completion.choreTitle}</h3>
-                    <p className="parent-approval-child">Child: {completion.childName}</p>
-                    <p className="parent-approval-reward">{completion.reward} coins</p>
-                  </div>
+                          <button
+                            onClick={() => handleApprove(completion.id)}
+                            disabled={actionLoadingId === completion.id}
+                            className="parent-icon-button parent-icon-button-primary"
+                            aria-label="Approve task"
+                          >
+                            {actionLoadingId === completion.id ? "…" : "✓"}
+                          </button>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </article>
+            </section>
 
-                  <div className="parent-approval-actions">
+            {children.length > 1 && (
+              <section className="parent-child-nav">
+                <button
+                  type="button"
+                  className="parent-nav-arrow"
+                  onClick={() =>
+                    setActiveChildIndex((prev) =>
+                      prev === 0 ? children.length - 1 : prev - 1
+                    )
+                  }
+                  aria-label="Previous child"
+                >
+                  ‹
+                </button>
+
+                <div className="parent-nav-dots">
+                  {children.map((child, index) => (
                     <button
-                      onClick={() => handleApprove(completion.id)}
-                      disabled={actionLoadingId === completion.id}
-                      className="parent-approve-button"
-                    >
-                      {actionLoadingId === completion.id ? "..." : "✓"}
-                    </button>
+                      key={child.id}
+                      type="button"
+                      className={`parent-nav-dot ${
+                        index === activeChildIndex ? "is-active" : ""
+                      }`}
+                      onClick={() => setActiveChildIndex(index)}
+                      aria-label={`Go to ${child.displayName}`}
+                    />
+                  ))}
+                </div>
 
-                    <button
-                      onClick={() => handleReject(completion.id)}
-                      disabled={actionLoadingId === completion.id}
-                      className="parent-reject-button"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+                <button
+                  type="button"
+                  className="parent-nav-arrow"
+                  onClick={() =>
+                    setActiveChildIndex((prev) =>
+                      prev === children.length - 1 ? 0 : prev + 1
+                    )
+                  }
+                  aria-label="Next child"
+                >
+                  ›
+                </button>
+              </section>
+            )}
 
-        <section className="parent-dashboard-footer">
-          <button onClick={handleLogout} className="parent-secondary-button">
-            Log out
-          </button>
-        </section>
+            <section className="parent-dashboard-footer">
+              <button onClick={handleLogout} className="parent-secondary-button">
+                Log out
+              </button>
+            </section>
+          </>
+        )}
       </div>
     </main>
   );
