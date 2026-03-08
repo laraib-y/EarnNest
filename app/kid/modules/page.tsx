@@ -30,30 +30,27 @@ export default function KidModulesPage() {
       return;
     }
 
-    const unsubscribe = onSnapshot(
-      doc(db, "children", storedChildId),
-      (childSnap) => {
-        if (!childSnap.exists()) {
-          router.push("/kid" as Route);
-          return;
-        }
+    const unsubscribe = onSnapshot(doc(db, "children", storedChildId), (childSnap) => {
+      if (!childSnap.exists()) {
+        router.push("/kid" as Route);
+        return;
+      }
 
-        const childData = childSnap.data();
+      const childData = childSnap.data();
 
-        setChild({
-          id: childSnap.id,
-          displayName: childData.displayName || childData.name || "",
-          name: childData.name || "",
-          modulesCompleted: Array.isArray(childData.modulesCompleted)
-            ? childData.modulesCompleted
-            : [],
-          coinBalance: Number(childData.coinBalance || 0),
-          streak: Number(childData.streak || 0),
-        });
+      setChild({
+        id: childSnap.id,
+        displayName: childData.displayName || childData.name || "",
+        name: childData.name || "",
+        modulesCompleted: Array.isArray(childData.modulesCompleted)
+          ? childData.modulesCompleted
+          : [],
+        coinBalance: Number(childData.coinBalance || 0),
+        streak: Number(childData.streak || 0),
+      });
 
-        setLoading(false);
-      },
-    );
+      setLoading(false);
+    });
 
     return () => unsubscribe();
   }, [router]);
@@ -80,20 +77,12 @@ export default function KidModulesPage() {
         <section className="kid-modules-hero">
           <div className="kid-corner-stats">
             <div className="kid-pill kid-pill-coins">
-              <img
-                src="/assets/CoinIcon.svg"
-                alt="Coin"
-                className="kid-pill-icon"
-              />
+              <img src="/assets/CoinIcon.svg" alt="Coin" className="kid-pill-icon" />
               {child.coinBalance} Coins
             </div>
 
             <div className="kid-pill kid-pill-streak">
-              <img
-                src="/assets/FireIcon.svg"
-                alt="Streak"
-                className="kid-pill-icon"
-              />
+              <img src="/assets/FireIcon.svg" alt="Streak" className="kid-pill-icon" />
               {child.streak} {child.streak === 1 ? "day" : "days"}
             </div>
           </div>
@@ -101,8 +90,7 @@ export default function KidModulesPage() {
           <div>
             <h1 className="kid-modules-title">Build Your Money Skills</h1>
             <p className="kid-modules-subtitle">
-              Complete modules to learn about money, saving, and financial
-              literacy.
+              Complete modules to learn about money, saving, and financial literacy.
             </p>
           </div>
         </section>
@@ -119,12 +107,14 @@ export default function KidModulesPage() {
               </div>
 
               <div className="kid-module-top">
-                <p className="kid-module-tag">MODULE 1</p>
-                <h3>Needs vs Wants</h3>
+                <div className="kid-module-header-left">
+                  <p className="kid-module-tag">MODULE 1</p>
+                  <h3>Needs vs Wants</h3>
+                </div>
               </div>
+
               <p className="kid-module-description">
-                Learn the difference between things you need and things you
-                want.
+                Learn the difference between things you need and things you want.
               </p>
 
               <button
@@ -146,18 +136,18 @@ export default function KidModulesPage() {
               </div>
 
               <div className="kid-module-top">
-                <p className="kid-module-tag">MODULE 2</p>
-                <h3>Saving &amp; Budgeting</h3>
+                <div className="kid-module-header-left">
+                  <p className="kid-module-tag">MODULE 2</p>
+                  <h3>Saving &amp; Budgeting</h3>
+                </div>
               </div>
 
               <p className="kid-module-description">
-                Practice saving coins and making smart budgeting choices to
-                reach a goal.
+                Practice saving coins and making smart budgeting choices to reach a goal.
               </p>
+
               <button
-                className={`kid-module-button ${
-                  module2Unlocked ? "is-primary" : "is-locked"
-                }`}
+                className={`kid-module-button ${module2Unlocked ? "is-primary" : "is-locked"}`}
                 onClick={() => {
                   if (module2Unlocked) {
                     router.push("/kid/modules/module-2" as Route);
