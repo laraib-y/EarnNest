@@ -63,6 +63,59 @@
   font-weight: 800;
   flex-shrink: 0;
   box-shadow: 0 10px 24px rgba(241, 100, 46, 0.22);
+  overflow: hidden;
+}
+
+.kid-avatar-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.kid-avatar-customize-btn {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #f1642e;
+  border: 3px solid #fff8ef;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(241, 100, 46, 0.3);
+  padding: 0;
+}
+
+.kid-avatar-customize-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.4);
+}
+
+.kid-avatar-customize-text {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2f241f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.kid-avatar-customize-btn:hover .kid-avatar-customize-text {
+  opacity: 1;
 }
 
 .kid-stats-grid {

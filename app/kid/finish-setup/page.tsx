@@ -36,11 +36,6 @@ export default function KidFinishSetupPage() {
 
         const data = childSnap.data();
 
-        if (!data.mustChangePin) {
-          router.push("/kid/dashboard");
-          return;
-        }
-
         setChildId(storedChildId);
         setDisplayName(data.displayName || data.name || "");
       } catch (error) {
@@ -77,14 +72,23 @@ export default function KidFinishSetupPage() {
     try {
       setLoading(true);
 
-      await updateDoc(doc(db, "children", childId), {
+      const childRef = doc(db, "children", childId);
+
+      await updateDoc(childRef, {
         username: username.trim().toLowerCase(),
         displayName: displayName.trim() || username.trim(),
         pin: newPin,
         mustChangePin: false,
       });
 
-      router.push("/kid/dashboard");
+      const updatedSnap = await getDoc(childRef);
+      const updatedData = updatedSnap.data();
+
+      if (!updatedData?.avatar) {
+        router.push("/customization");
+      } else {
+        router.push("/kid/dashboard");
+      }
     } catch (error) {
       console.error(error);
       alert("Could not finish setup.");
@@ -156,7 +160,11 @@ export default function KidFinishSetupPage() {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="finish-setup-button">
+            <button
+              type="submit"
+              disabled={loading}
+              className="finish-setup-button"
+            >
               {loading ? "Saving..." : "Finish Setup"}
             </button>
           </form>

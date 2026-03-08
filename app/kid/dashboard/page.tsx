@@ -9,6 +9,7 @@ import {
   getDocs,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -44,6 +45,15 @@ type CompletionItem = {
   reward: number;
 };
 
+const avatars = [
+  "assets/BearIcon.svg",
+  "assets/CatIcon.svg",
+  "assets/DogIcon.svg",
+  "assets/SnakeIcon.svg",
+  "assets/CapybaraIcon.svg",
+  "assets/BunnyIcon.svg",
+];
+
 export default function KidDashboardPage() {
   const router = useRouter();
 
@@ -52,6 +62,50 @@ export default function KidDashboardPage() {
   const [completions, setCompletions] = useState<CompletionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState("");
+  const [savingAvatar, setSavingAvatar] = useState(false);
+
+  const getAvatarPath = (avatar: string) => {
+    if (!avatar) return "/assets/BearIcon.svg";
+    if (avatar.startsWith("assets/")) return `/${avatar}`;
+    
+    const avatarMap: { [key: string]: string } = {
+      bear: "/assets/BearIcon.svg",
+      cat: "/assets/CatIcon.svg",
+      dog: "/assets/DogIcon.svg",
+      snake: "/assets/SnakeIcon.svg",
+      capybara: "/assets/CapybaraIcon.svg",
+      bunny: "/assets/BunnyIcon.svg",
+      fox: "/assets/DogIcon.svg",
+      rabbit: "/assets/BunnyIcon.svg",
+    };
+    return avatarMap[avatar.toLowerCase()] || "/assets/BearIcon.svg";
+  };
+
+  const handleOpenCustomize = () => {
+    setSelectedAvatar(child?.avatar || "");
+    setIsCustomizing(true);
+  };
+
+  const handleSaveAvatar = async () => {
+    if (!child || !selectedAvatar) return;
+
+    try {
+      setSavingAvatar(true);
+      await updateDoc(doc(db, "children", child.id), {
+        avatar: selectedAvatar,
+      });
+
+      setChild({ ...child, avatar: selectedAvatar });
+      setIsCustomizing(false);
+    } catch (error) {
+      console.error(error);
+      alert("Could not update avatar.");
+    } finally {
+      setSavingAvatar(false);
+    }
+  };
 
   const latestCompletionByChore = useMemo(() => {
     const map = new Map<string, CompletionItem>();
@@ -203,15 +257,43 @@ export default function KidDashboardPage() {
           <div>
             <p className="kid-dashboard-kicker">Kid Dashboard</p>
             <h1 className="kid-dashboard-title">
-              Hi, {child.displayName || child.name}! 👋
+              Hi, {child.displayName || child.name}!
             </h1>
             <p className="kid-dashboard-subtitle">
               Finish chores, earn coins, and grow your money skills.
             </p>
           </div>
 
-          <div className="kid-avatar-badge">
-            {(child.displayName || child.name).charAt(0).toUpperCase()}
+          <div style={{ position: "relative", display: "inline-block" }}>
+            <div className="kid-avatar-badge">
+              <img
+                src={getAvatarPath(child.avatar)}
+                alt="Your avatar"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                }}
+              />
+            </div>
+            <button
+              onClick={handleOpenCustomize}
+              className="kid-avatar-customize-btn"
+              title="Customize"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span className="kid-avatar-customize-text">Customize</span>
+            </button>
           </div>
         </section>
 
@@ -350,6 +432,148 @@ export default function KidDashboardPage() {
             </div>
           )}
         </section>
+
+        {isCustomizing && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1000,
+              padding: "24px",
+            }}
+            onClick={() => !savingAvatar && setIsCustomizing(false)}
+          >
+            <div
+              style={{
+                background: "white",
+                borderRadius: "12px",
+                padding: "40px 24px",
+                maxWidth: "390px",
+                width: "100%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 style={{ marginBottom: 20 }}>Pick your avatar</h2>
+
+              <div
+                style={{
+                  width: 180,
+                  height: 180,
+                  marginBottom: 30,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img
+                  src={getAvatarPath(selectedAvatar)}
+                  alt="Selected avatar"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                  }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gap: 20,
+                  marginBottom: 40,
+                  width: "100%",
+                }}
+              >
+                {avatars.map((avatar) => (
+                  <button
+                    key={avatar}
+                    onClick={() => setSelectedAvatar(avatar)}
+                    style={{
+                      width: 70,
+                      height: 70,
+                      borderRadius: "50%",
+                      border:
+                        selectedAvatar === avatar
+                          ? "3px solid #f1642e"
+                          : "3px solid transparent",
+                      background: "#ddd",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                  >
+                    <img
+                      src={`/${avatar}`}
+                      alt="Avatar option"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  width: "100%",
+                }}
+              >
+                <button
+                  onClick={() => setIsCustomizing(false)}
+                  disabled={savingAvatar}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    borderRadius: 12,
+                    border: "1px solid #ccc",
+                    background: "white",
+                    color: "#333",
+                    fontWeight: 600,
+                    cursor: savingAvatar ? "not-allowed" : "pointer",
+                    opacity: savingAvatar ? 0.7 : 1,
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveAvatar}
+                  disabled={savingAvatar}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    borderRadius: 12,
+                    border: "none",
+                    background: "#f1642e",
+                    color: "white",
+                    fontWeight: 600,
+                    cursor: savingAvatar ? "not-allowed" : "pointer",
+                    opacity: savingAvatar ? 0.7 : 1,
+                  }}
+                >
+                  {savingAvatar ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

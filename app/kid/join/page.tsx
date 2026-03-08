@@ -21,7 +21,7 @@ export default function KidJoinPage() {
       const q = query(
         collection(db, "children"),
         where("accessCode", "==", accessCode.toUpperCase()),
-        where("pin", "==", pin)
+        where("pin", "==", pin),
       );
 
       const snap = await getDocs(q);
@@ -38,6 +38,8 @@ export default function KidJoinPage() {
 
       if (childData.mustChangePin) {
         router.push("/kid/finish-setup");
+      } else if (!childData.avatar) {
+        router.push("/customization");
       } else {
         router.push("/kid/dashboard");
       }
@@ -81,7 +83,11 @@ export default function KidJoinPage() {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="kid-join-button">
+            <button
+              type="submit"
+              disabled={loading}
+              className="kid-join-button"
+            >
               {loading ? "Joining..." : "Join Parent Account"}
             </button>
           </form>
