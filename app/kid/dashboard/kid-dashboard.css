@@ -700,41 +700,33 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+
+  gap: 4px;
+  padding: 6px 10px;
 
   border: none;
   background: transparent;
 
   font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  color: #2f241f;
   cursor: pointer;
-  padding: 4px;
 
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .kid-add-goal-button:hover {
   transform: translateY(-1px);
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
-.kid-add-goal-icon-box {
-  width: 28px;
-  height: 28px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 1.5px solid #000;
-  border-radius: 8px;
-
-  background: #ffffff;
-}
-
-.kid-add-goal-icon-box svg {
-  width: 16px;
-  height: 16px;
-  color: #000;
+.kid-add-goal-icon {
+  width: 22px;
+  height: 22px;
+  color: #000000;
 }
 
 .kid-add-goal-text {
