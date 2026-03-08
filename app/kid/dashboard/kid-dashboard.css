@@ -1,3 +1,17 @@
+@font-face {
+  font-family: "Londrina Solid";
+  src: url("/assets/fonts/LondrinaSolid-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("/assets/fonts/Rubik-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
 .kid-dashboard-page {
   min-height: 100vh;
   background: #fff8ef;
@@ -786,5 +800,628 @@
 
   .kid-goal-edit-button {
     align-self: flex-end;
+  }
+}
+
+/* ========================================
+   AI COACH CARDS - PREMIUM STYLING
+   ======================================== */
+
+.kid-ai-card {
+  background: linear-gradient(135deg, #fdfaf5 0%, #fffbf7 100%);
+  border-radius: 28px;
+  padding: 26px;
+  border: 1.5px solid #f0dcc8;
+  box-shadow: 0 12px 32px rgba(47, 36, 31, 0.08);
+  margin-top: 20px;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.kid-ai-card:hover {
+  border-color: #e8cbb5;
+  box-shadow: 0 16px 40px rgba(47, 36, 31, 0.12);
+}
+
+/* AI Card Header - Clean Layout */
+.kid-ai-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 0;
+}
+
+.kid-ai-kicker {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #f1642e;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.kid-ai-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #2f241f;
+  line-height: 1.2;
+}
+
+/* Action Buttons */
+.kid-ai-action-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f1642e 0%, #e8552a 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.22);
+  font-family: inherit;
+}
+
+.kid-ai-action-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(241, 100, 46, 0.3);
+  background: linear-gradient(135deg, #e8552a 0%, #db4c25 100%);
+}
+
+.kid-ai-action-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.kid-ai-action-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: 0 4px 12px rgba(241, 100, 46, 0.12);
+}
+
+/* Secondary Action Button */
+.kid-ai-action-button-secondary {
+  background: linear-gradient(135deg, #ffffff 0%, #faf7f3 100%);
+  color: #2f241f;
+  border: 1.5px solid #e8dcc8;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.06);
+}
+
+.kid-ai-action-button-secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fffaf5 0%, #fff5f0 100%);
+  border-color: #dcc9b3;
+  box-shadow: 0 8px 18px rgba(47, 36, 31, 0.1);
+}
+
+/* ========================================
+   AI COACH CHATBOT STYLE
+   ======================================== */
+
+.kid-ai-response {
+  background: linear-gradient(135deg, #fffffe 0%, #fffbf8 100%);
+  border-radius: 20px;
+  padding: 22px;
+  margin-top: 18px;
+  border: 1px solid #f2e4d3;
+  box-shadow: 0 6px 18px rgba(47, 36, 31, 0.05);
+  animation: slideUpFade 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.kid-ai-response-avatar {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f1642e 0%, #e8552a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(241, 100, 46, 0.2);
+  overflow: hidden;
+}
+
+.kid-ai-response-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.kid-ai-response-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.kid-ai-response h4 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #2f241f;
+  line-height: 1.3;
+}
+
+.kid-ai-response p {
+  margin: 0 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #665a4f;
+}
+
+.kid-ai-response p:last-child {
+  margin-bottom: 0;
+}
+
+.kid-ai-response strong {
+  color: #f1642e;
+  font-weight: 800;
+}
+
+.kid-ai-response-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: #8b7265;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 1.2rem;
+}
+
+.kid-ai-response-close:hover {
+  color: #f1642e;
+  transform: rotate(90deg);
+}
+
+.kid-ai-card {
+  background: linear-gradient(135deg, #fdfaf5 0%, #fffbf7 100%);
+  border-radius: 28px;
+  padding: 26px;
+  border: 1.5px solid #f0dcc8;
+  box-shadow: 0 12px 32px rgba(47, 36, 31, 0.08);
+  margin-top: 20px;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Divider */
+.kid-ai-divider {
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e8dcc8 50%,
+    transparent 100%
+  );
+  margin: 18px 0;
+}
+
+/* Button Group Layout */
+.kid-ai-button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.kid-ai-response-modal {
+  margin-top: 0;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.kid-ai-response-modal .kid-ai-response-avatar {
+  display: none;
+}
+
+.kid-ai-response-modal .kid-ai-response-content {
+  width: 100%;
+}
+
+.kid-ai-response-modal .kid-ai-response-content p:nth-child(3) {
+  font-size: 1.4rem;
+  font-weight: 900;
+  margin: 16px 0 14px;
+  line-height: 1.2;
+}
+
+/* ========================================
+   MODAL STYLING - SPEND OR SAVE
+   ======================================== */
+
+.kid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  animation: fadeInBackdrop 0.22s ease-out;
+}
+
+@keyframes fadeInBackdrop {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+.kid-modal-overlay.closing {
+  animation: fadeOutBackdrop 0.2s ease-in forwards;
+}
+
+@keyframes fadeOutBackdrop {
+  from {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+  to {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+}
+
+.kid-modal-card {
+  background: linear-gradient(180deg, #fefdfb 0%, #fffaf6 100%);
+  border-radius: 24px;
+  padding: 32px 28px;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: modalSlideUp 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center bottom;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid #f5ede2;
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.kid-modal-card.closing {
+  animation: modalSlideDown 0.22s ease-in forwards;
+}
+
+@keyframes modalSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(32px) scale(0.94);
+  }
+}
+
+.kid-modal-title {
+  margin: 0 0 24px;
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #2f241f;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.kid-modal-input {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-radius: 14px;
+  border: 1.5px solid #e8dcc8;
+  background: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+  color: #2f241f;
+}
+
+.kid-modal-input::placeholder {
+  color: #b8a89d;
+  font-weight: 400;
+}
+
+.kid-modal-input:focus {
+  border-color: #f1642e;
+  background: linear-gradient(180deg, #fffbf7 0%, #fff8f3 100%);
+  box-shadow: 0 0 0 4px rgba(241, 100, 46, 0.1);
+}
+
+.kid-modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.kid-modal-secondary-button,
+.kid-modal-primary-button {
+  height: 56px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  padding: 0 20px;
+}
+
+.kid-modal-secondary-button {
+  flex: 0.6;
+}
+
+.kid-modal-primary-button {
+  flex: 1.4;
+}
+
+.kid-modal-secondary-button {
+  border: 1.5px solid #e8dcc8;
+  background: linear-gradient(135deg, #ffffff 0%, #faf7f3 100%);
+  color: #2f241f;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.06);
+}
+
+.kid-modal-secondary-button:hover:not(:disabled) {
+  border-color: #dcc9b3;
+  background: linear-gradient(135deg, #fffaf5 0%, #fff5f0 100%);
+  box-shadow: 0 8px 18px rgba(47, 36, 31, 0.1);
+  transform: translateY(-1px);
+}
+
+.kid-modal-secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kid-modal-primary-button {
+  background: linear-gradient(135deg, #f1642e 0%, #e8552a 100%);
+  color: white;
+  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.22);
+}
+
+.kid-modal-primary-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e8552a 0%, #db4c25 100%);
+  box-shadow: 0 10px 24px rgba(241, 100, 46, 0.3);
+  transform: translateY(-1px);
+}
+
+.kid-modal-primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  box-shadow: 0 4px 12px rgba(241, 100, 46, 0.12);
+}
+
+.kid-modal-avatar-preview {
+  width: 160px;
+  height: 160px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
+  box-shadow: 0 8px 20px rgba(241, 100, 46, 0.15);
+}
+
+.kid-modal-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kid-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+  width: 100%;
+  justify-items: center;
+}
+
+.kid-avatar-option {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  border: 2.5px solid transparent;
+  background: linear-gradient(135deg, #f5f0e8 0%, #fffaf5 100%);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.05);
+}
+
+.kid-avatar-option:hover {
+  transform: scale(1.06);
+  border-color: #f1642e;
+  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.15);
+}
+
+.kid-avatar-option.is-selected {
+  border-color: #f1642e;
+  box-shadow: 0 8px 20px rgba(241, 100, 46, 0.25);
+  background: linear-gradient(135deg, #fffbf7 0%, #fff5f0 100%);
+}
+
+.kid-avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 720px) {
+  .kid-ai-card {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .kid-ai-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .kid-ai-title {
+    font-size: 1.2rem;
+  }
+
+  .kid-ai-button-group {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .kid-ai-action-button,
+  .kid-ai-action-button-secondary {
+    width: 100%;
+    padding: 14px 18px;
+  }
+
+  .kid-ai-response {
+    padding: 18px;
+    margin-top: 16px;
+    border-radius: 18px;
+    gap: 12px;
+  }
+
+  .kid-ai-response-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 14px;
+  }
+
+  .kid-ai-response h4 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+  }
+
+  .kid-ai-response p {
+    font-size: 0.92rem;
+  }
+
+  .kid-modal-card {
+    padding: 26px 22px;
+    max-width: 100%;
+    border-radius: 20px;
+  }
+
+  .kid-modal-title {
+    font-size: 1.35rem;
+    margin-bottom: 20px;
+  }
+
+  .kid-modal-input {
+    padding: 12px 14px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    margin-bottom: 12px;
+  }
+
+  .kid-modal-actions {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .kid-modal-secondary-button,
+  .kid-modal-primary-button {
+    height: 52px;
+    font-size: 0.93rem;
+  }
+
+  .kid-modal-secondary-button {
+    flex: 0.5;
+  }
+
+  .kid-modal-primary-button {
+    flex: 1.5;
+  }
+
+  .kid-avatar-grid {
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .kid-avatar-option {
+    width: 64px;
+    height: 64px;
+  }
+
+  .kid-modal-avatar-preview {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .kid-ai-card-header {
+    gap: 10px;
+  }
+
+  .kid-ai-title {
+    font-size: 1.1rem;
+  }
+
+  .kid-ai-kicker {
+    font-size: 0.7rem;
+  }
+
+  .kid-modal-card {
+    padding: 22px 18px;
+  }
+
+  .kid-modal-title {
+    font-size: 1.2rem;
+    margin-bottom: 18px;
   }
 }
