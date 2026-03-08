@@ -28,7 +28,7 @@ export default function AddChildPage() {
   const [parentUid, setParentUid] = useState("");
   const [childName, setChildName] = useState("");
   const [age, setAge] = useState("");
-  const [avatar, setAvatar] = useState("");
+  const [avatar, setAvatar] = useState("bear");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
   const [createdChild, setCreatedChild] = useState<null | {
@@ -103,7 +103,7 @@ export default function AddChildPage() {
 
       setChildName("");
       setAge("");
-      setAvatar("");
+      setAvatar("bear");
       setPin("");
     } catch (error) {
       console.error(error);
@@ -156,11 +156,12 @@ export default function AddChildPage() {
                 value={avatar}
                 onChange={(e) => setAvatar(e.target.value)}
               >
-                <option value="">Let child choose</option>
                 <option value="bear">Bear</option>
                 <option value="cat">Cat</option>
-                <option value="fox">Fox</option>
-                <option value="rabbit">Rabbit</option>
+                <option value="dog">Dog</option>
+                <option value="snake">Snake</option>
+                <option value="capybara">Capybara</option>
+                <option value="bunny">Bunny</option>
               </select>
             </div>
 

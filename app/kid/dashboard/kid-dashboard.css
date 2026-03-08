@@ -342,3 +342,39 @@
     align-self: flex-start;
   }
 }
+
+.kid-dashboard-hero {
+  position: relative;
+  margin-top: 40px; 
+}
+
+.kid-corner-stats {
+  position: absolute;
+  top: -50px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.kid-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.kid-pill-coins {
+  border: 2px solid #B28600;
+  color: #e9ba2e;
+}
+
+.kid-pill-streak {
+  border: 2px solid #B31800;
+  color: #db3b16;
+}

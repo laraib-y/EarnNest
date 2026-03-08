@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { db } from "@/lib/firebase-client";
 import "./kid-dashboard.css";
+import KidBottomNav from "@/components/KidBottomNav";
 
 type ChildProfile = {
   id: string;
@@ -69,7 +70,7 @@ export default function KidDashboardPage() {
   const getAvatarPath = (avatar: string) => {
     if (!avatar) return "/assets/BearIcon.svg";
     if (avatar.startsWith("assets/")) return `/${avatar}`;
-    
+
     const avatarMap: { [key: string]: string } = {
       bear: "/assets/BearIcon.svg",
       cat: "/assets/CatIcon.svg",
@@ -150,7 +151,7 @@ export default function KidDashboardPage() {
         };
 
         const choreSnap = await getDocs(
-          query(collection(db, "chores"), where("childId", "==", childId))
+          query(collection(db, "chores"), where("childId", "==", childId)),
         );
 
         const choreList: ChoreItem[] = choreSnap.docs
@@ -168,18 +169,20 @@ export default function KidDashboardPage() {
           .filter((chore) => chore.status === "active");
 
         const completionSnap = await getDocs(
-          query(collection(db, "completions"), where("childId", "==", childId))
+          query(collection(db, "completions"), where("childId", "==", childId)),
         );
 
-        const completionList: CompletionItem[] = completionSnap.docs.map((completionDoc) => {
-          const data = completionDoc.data();
-          return {
-            id: completionDoc.id,
-            choreId: data.choreId || "",
-            status: data.status || "pending",
-            reward: Number(data.reward || 0),
-          };
-        });
+        const completionList: CompletionItem[] = completionSnap.docs.map(
+          (completionDoc) => {
+            const data = completionDoc.data();
+            return {
+              id: completionDoc.id,
+              choreId: data.choreId || "",
+              status: data.status || "pending",
+              reward: Number(data.reward || 0),
+            };
+          },
+        );
 
         setChild(childProfile);
         setChores(choreList);
@@ -250,10 +253,22 @@ export default function KidDashboardPage() {
 
   if (!child) return null;
 
-  return (
+    return (
     <main className="kid-dashboard-page">
       <div className="kid-dashboard-shell">
         <section className="kid-dashboard-hero">
+          <div className="kid-corner-stats">
+            <div className="kid-pill kid-pill-coins">
+              <img src="/assets/CoinIcon.svg" alt="Coin" />
+              {child.coinBalance} Coins
+            </div>
+
+            <div className="kid-pill kid-pill-streak">
+              <img src="/assets/FireIcon.svg" alt="Fire" />
+              {child.streak} {child.streak === 1 ? "day" : "days"}
+            </div>
+          </div>
+
           <div>
             <p className="kid-dashboard-kicker">Kid Dashboard</p>
             <h1 className="kid-dashboard-title">
@@ -289,29 +304,12 @@ export default function KidDashboardPage() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
               </svg>
               <span className="kid-avatar-customize-text">Customize</span>
             </button>
           </div>
-        </section>
-
-        <section className="kid-stats-grid">
-          <article className="kid-stat-card">
-            <p className="kid-stat-label">Coins</p>
-            <h2>{child.coinBalance}</h2>
-          </article>
-
-          <article className="kid-stat-card">
-            <p className="kid-stat-label">Streak</p>
-            <h2>{child.streak}</h2>
-          </article>
-
-          <article className="kid-stat-card">
-            <p className="kid-stat-label">Completed</p>
-            <h2>{child.completedChores}</h2>
-          </article>
         </section>
 
         <section className="kid-dashboard-section">
@@ -328,7 +326,9 @@ export default function KidDashboardPage() {
                   <h3>Needs vs Wants</h3>
                 </div>
                 <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-1") ? "Completed" : "Ready"}
+                  {child.modulesCompleted.includes("module-1")
+                    ? "Completed"
+                    : "Ready"}
                 </span>
               </div>
 
@@ -353,12 +353,15 @@ export default function KidDashboardPage() {
                   <h3>Saving & Budgeting</h3>
                 </div>
                 <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-2") ? "Completed" : "Ready"}
+                  {child.modulesCompleted.includes("module-2")
+                    ? "Completed"
+                    : "Ready"}
                 </span>
               </div>
 
               <p className="kid-module-description">
-                Practice saving coins and making smart budgeting choices to reach a goal.
+                Practice saving coins and making smart budgeting choices to reach
+                a goal.
               </p>
 
               <button
@@ -376,7 +379,9 @@ export default function KidDashboardPage() {
         <section className="kid-dashboard-section">
           <div className="kid-section-header">
             <h2>Your Chores</h2>
-            <span>{chores.length} task{chores.length === 1 ? "" : "s"}</span>
+            <span>
+              {chores.length} task{chores.length === 1 ? "" : "s"}
+            </span>
           </div>
 
           {chores.length === 0 ? (
@@ -392,14 +397,20 @@ export default function KidDashboardPage() {
                   <article key={chore.id} className="kid-chore-card">
                     <div className="kid-chore-top">
                       <h3>{chore.title}</h3>
-                      <span className="kid-reward-pill">{chore.reward} coins</span>
+                      <span className="kid-reward-pill">
+                        {chore.reward} coins
+                      </span>
                     </div>
 
                     {chore.description ? (
-                      <p className="kid-chore-description">{chore.description}</p>
+                      <p className="kid-chore-description">
+                        {chore.description}
+                      </p>
                     ) : null}
 
-                    <p className="kid-chore-frequency">Frequency: {chore.frequency}</p>
+                    <p className="kid-chore-frequency">
+                      Frequency: {chore.frequency}
+                    </p>
 
                     {completion?.status === "pending" && (
                       <p className="kid-status kid-status-pending">
@@ -408,7 +419,9 @@ export default function KidDashboardPage() {
                     )}
 
                     {completion?.status === "approved" && (
-                      <p className="kid-status kid-status-approved">Approved ✅</p>
+                      <p className="kid-status kid-status-approved">
+                        Approved ✅
+                      </p>
                     )}
 
                     {completion?.status === "rejected" && (
@@ -417,13 +430,16 @@ export default function KidDashboardPage() {
                       </p>
                     )}
 
-                    {(completion?.status === undefined || completion?.status === "rejected") && (
+                    {(completion?.status === undefined ||
+                      completion?.status === "rejected") && (
                       <button
                         onClick={() => handleMarkDone(chore)}
                         disabled={actionLoadingId === chore.id}
                         className="kid-primary-button"
                       >
-                        {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
+                        {actionLoadingId === chore.id
+                          ? "Submitting..."
+                          : "Mark as Done"}
                       </button>
                     )}
                   </article>
@@ -479,7 +495,8 @@ export default function KidDashboardPage() {
                   src={getAvatarPath(selectedAvatar)}
                   alt="Selected avatar"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                    (e.target as HTMLImageElement).src =
+                      "/assets/BearIcon.svg";
                   }}
                   style={{
                     width: "100%",
@@ -575,6 +592,7 @@ export default function KidDashboardPage() {
           </div>
         )}
       </div>
+      <KidBottomNav/>
     </main>
   );
 }
