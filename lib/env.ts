@@ -1,4 +1,56 @@
-import 'server-only';
-const required=(name:string,value?:string)=>{if(!value) throw new Error(`Missing required environment variable: ${name}`);return value;};
-export const env={firebase:{apiKey:required('NEXT_PUBLIC_FIREBASE_API_KEY',process.env.NEXT_PUBLIC_FIREBASE_API_KEY),authDomain:required('NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN),projectId:required('NEXT_PUBLIC_FIREBASE_PROJECT_ID',process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID),storageBucket:required('NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET),messagingSenderId:required('NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),appId:required('NEXT_PUBLIC_FIREBASE_APP_ID',process.env.NEXT_PUBLIC_FIREBASE_APP_ID)},admin:{projectId:required('FIREBASE_PROJECT_ID',process.env.FIREBASE_PROJECT_ID),clientEmail:required('FIREBASE_CLIENT_EMAIL',process.env.FIREBASE_CLIENT_EMAIL),privateKey:required('FIREBASE_PRIVATE_KEY',process.env.FIREBASE_PRIVATE_KEY).replace(/\n/g,'
-')},childSessionSecret:required('CHILD_SESSION_SECRET',process.env.CHILD_SESSION_SECRET),geminiApiKey:process.env.GEMINI_API_KEY??''};
+import "server-only";
+
+const required = (name: string, value?: string) => {
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+};
+
+export const env = {
+  firebase: {
+    apiKey: required(
+      "NEXT_PUBLIC_FIREBASE_API_KEY",
+      process.env.NEXT_PUBLIC_FIREBASE_API_KEY
+    ),
+    authDomain: required(
+      "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN",
+      process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    ),
+    projectId: required(
+      "NEXT_PUBLIC_FIREBASE_PROJECT_ID",
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    ),
+    storageBucket: required(
+      "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET",
+      process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    ),
+    messagingSenderId: required(
+      "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID",
+      process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    ),
+    appId: required(
+      "NEXT_PUBLIC_FIREBASE_APP_ID",
+      process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+    ),
+  },
+
+  admin: {
+    projectId: required("FIREBASE_PROJECT_ID", process.env.FIREBASE_PROJECT_ID),
+    clientEmail: required(
+      "FIREBASE_CLIENT_EMAIL",
+      process.env.FIREBASE_CLIENT_EMAIL
+    ),
+    privateKey: required(
+      "FIREBASE_PRIVATE_KEY",
+      process.env.FIREBASE_PRIVATE_KEY
+    ).replace(/\\n/g, "\n"),
+  },
+
+  childSessionSecret: required(
+    "CHILD_SESSION_SECRET",
+    process.env.CHILD_SESSION_SECRET
+  ),
+
+  geminiApiKey: process.env.GEMINI_API_KEY ?? "",
+};
