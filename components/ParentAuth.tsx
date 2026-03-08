@@ -3,16 +3,21 @@
 import { useEffect, useState } from "react";
 import { signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { auth, googleProvider } from "@/lib/firebase-client";
 
-export default function ParentAuth() {
+type ParentAuthProps = {
+  className?: string;
+};
+
+export default function ParentAuth({ className }: ParentAuthProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
-        router.push("/parent/dashboard");
+        router.push("/parent/dashboard" as Route);
       }
     });
 
@@ -23,7 +28,7 @@ export default function ParentAuth() {
     try {
       setLoading(true);
       await signInWithPopup(auth, googleProvider);
-      router.push("/parent/dashboard");
+      router.push("/parent/dashboard" as Route);
     } catch (error: any) {
       console.error("Firebase sign-in error:", error.code, error.message);
       alert(error.message || "Sign-in failed");
@@ -33,20 +38,8 @@ export default function ParentAuth() {
   };
 
   return (
-    <button
-      onClick={signIn}
-      disabled={loading}
-      style={{
-        padding: "12px 20px",
-        background: "#4285F4",
-        color: "white",
-        borderRadius: "8px",
-        border: "none",
-        cursor: "pointer",
-        opacity: loading ? 0.7 : 1,
-      }}
-    >
-      {loading ? "Signing in..." : "Sign in with Google"}
+    <button onClick={signIn} disabled={loading} className={className}>
+      {loading ? "SIGNING IN..." : "PARENT"}
     </button>
   );
 }
