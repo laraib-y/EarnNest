@@ -187,3 +187,182 @@
   cursor: not-allowed;
   transform: none;
 }
+/* =========================
+   MODULE 2 QUIZ
+   ========================= */
+
+.module-two-quiz-shell {
+  align-items: stretch;
+  padding: 12px 18px 20px;
+  max-width: 390px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.module-two-quiz-topbar {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.module-two-quiz-title {
+  margin: 8px 0 20px;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #171717;
+}
+
+.module-two-scene-card {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  margin: 0 auto 20px;
+}
+
+.module-two-scene-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.module-two-scene-image {
+  object-fit: contain;
+  border-radius: 45px;
+  padding: 10px;
+}
+
+.module-two-scene-coin-pill {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  min-width: 86px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1.5px solid #d5a100;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-weight: 700;
+  color: #d5a100;
+  z-index: 2;
+}
+
+.module-two-scene-coin-pill.is-zero {
+  border-color: #e25c43;
+  color: #e25c43;
+}
+
+.module-two-scene-coin-icon {
+  flex-shrink: 0;
+}
+
+.module-two-scene-text-card {
+  width: 100%;
+  min-height: 118px;
+  margin: 0 auto 18px;
+  border-radius: 20px;
+  border: 1.5px solid #ff6610;
+  background: #ffffff;
+  padding: 18px 20px;
+  box-sizing: border-box;
+  box-shadow: 0 5px 0 #ff6610;
+}
+
+.module-two-scene-text-card p {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.34;
+  color: #171717;
+  font-weight: 400;
+}
+
+.module-two-choice-list {
+  width: 100%;
+  margin: 0 auto 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.module-two-choice-button {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 14px;
+  border: 1px solid #d8c7bc;
+  background: #ead4c5;
+  color: #2d241f;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 400;
+  font-family: "Rubik", sans-serif;
+  padding: 11px 14px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.module-two-choice-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.module-two-choice-button.is-disabled,
+.module-two-choice-button:disabled {
+  background: #dddddd;
+  border-color: #d6d6d6;
+  color: #9e9e9e;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.module-two-no-coins-block {
+  width: 100%;
+  margin: 0 auto 18px;
+}
+
+.module-two-no-coins-text {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.2;
+  color: #666666;
+  font-weight: 400;
+}
+
+.module-two-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 2px;
+}
+
+.module-two-primary-button {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 16px;
+  background: #ff6610;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: "Rubik", sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.module-two-primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.module-two-primary-button:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+}

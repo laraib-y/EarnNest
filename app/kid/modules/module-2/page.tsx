@@ -28,7 +28,7 @@ const lessonCards: LessonCard[] = [
     id: "intro",
     content: (
       <>
-        When you get money, it’s a good
+        When you get money, it&apos;s a good
         <br />
         idea to make a plan for how to use
         <br />
@@ -41,12 +41,9 @@ const lessonCards: LessonCard[] = [
     content: (
       <>
         A budget helps you decide:
-        <br />
-        • How much money to <strong>spend</strong>
-        <br />
-        • How much money to <strong>save</strong>
-        <br />
-        • What you want to use your
+        <br />• How much money to <strong>spend</strong>
+        <br />• How much money to <strong>save</strong>
+        <br />• What you want to use your
         <br />
         money for
       </>
@@ -149,7 +146,7 @@ export default function Module2Page() {
     if (isAnimating) return;
 
     if (lessonIndex >= lessonCards.length - 1) {
-      router.push("/kid/dashboard" as Route);
+      router.push("/kid/modules/module-2/quiz" as Route);
       return;
     }
 
@@ -280,7 +277,7 @@ export default function Module2Page() {
             onClick={handleProceedLesson}
             disabled={isAnimating}
           >
-            {lessonIndex === lessonCards.length - 1 ? "Done" : "Proceed"}
+            Proceed
           </button>
         </section>
       </div>

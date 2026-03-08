@@ -1,250 +1,287 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import type { Route } from "next";
-import { doc, getDoc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
-import { module2Meta, module2Scenarios } from "../questions";
+import { useRouter } from "next/navigation";
+import type { Route } from "next";
+import { module2QuizTitle, module2Scenes } from "../questions";
 import "../module-2.css";
 
+type ChildProfile = {
+  id: string;
+  coinBalance: number;
+  streak: number;
+  modulesCompleted: string[];
+};
+
 export default function Module2QuizPage() {
-  const [childId, setChildId] = useState<string | null>(null);
-  const [loadingChild, setLoadingChild] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [savedCoins, setSavedCoins] = useState(0);
-  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<string>("");
-  const [isRevealed, setIsRevealed] = useState(false);
-  const [finishing, setFinishing] = useState(false);
-  const [moduleRewarded, setModuleRewarded] = useState(false);
+  const router = useRouter();
 
-  const currentScenario = module2Scenarios[currentIndex];
-  const isLastScenario = currentIndex === module2Scenarios.length - 1;
-  const progressPercent = Math.min(
-    100,
-    Math.round((savedCoins / module2Meta.savingGoal) * 100)
-  );
+  const [child, setChild] = useState<ChildProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [currentSceneId, setCurrentSceneId] = useState("intro");
+  const [coinsLeft, setCoinsLeft] = useState(10);
+  const [savingProgress, setSavingProgress] = useState(false);
 
-  const hasWon = useMemo(() => {
-    return savedCoins >= module2Meta.savingGoal;
-  }, [savedCoins]);
+  const currentScene = module2Scenes[currentSceneId];
 
   useEffect(() => {
-    const storedChildId = localStorage.getItem("kidChildId");
-    if (!storedChildId) {
-      setLoadingChild(false);
-      return;
-    }
-    setChildId(storedChildId);
-    setLoadingChild(false);
-  }, []);
+    const loadChild = async () => {
+      const childId = localStorage.getItem("kidChildId");
 
-  const handleChoice = (optionId: string) => {
-    if (isRevealed) return;
+      if (!childId) {
+        router.push("/kid" as Route);
+        return;
+      }
 
-    const option = currentScenario.options.find((item) => item.id === optionId);
-    if (!option) return;
+      try {
+        const childRef = doc(db, "children", childId);
+        const childSnap = await getDoc(childRef);
 
-    setSelectedOptionId(optionId);
-    setSavedCoins((prev) => prev + option.saveAmount);
-    setFeedback(option.message);
-    setIsRevealed(true);
+        if (!childSnap.exists()) {
+          router.push("/kid" as Route);
+          return;
+        }
+
+        const data = childSnap.data();
+
+        setChild({
+          id: childSnap.id,
+          coinBalance: Number(data.coinBalance || 0),
+          streak: Number(data.streak || 0),
+          modulesCompleted: Array.isArray(data.modulesCompleted)
+            ? data.modulesCompleted
+            : [],
+        });
+      } catch (error) {
+        console.error(error);
+        router.push("/kid" as Route);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadChild();
+  }, [router]);
+
+  const handleChoice = (choiceId: string) => {
+    if (!currentScene.choices) return;
+
+    const choice = currentScene.choices.find((item) => item.id === choiceId);
+    if (!choice) return;
+
+    const cost = Number(choice.cost || 0);
+
+    if (cost > coinsLeft) return;
+
+    setCoinsLeft((prev) => Math.max(0, prev - cost));
+    setCurrentSceneId(choice.nextSceneId);
   };
 
-  const handleNext = async () => {
-    if (!isRevealed) return;
+  const handleProceed = async () => {
+    if (currentScene.final) {
+      if (!child) return;
 
-    if (isLastScenario) {
-      if (hasWon && childId && !moduleRewarded) {
-        try {
-          setFinishing(true);
+      try {
+        setSavingProgress(true);
 
-          await runTransaction(db, async (transaction) => {
-            const childRef = doc(db, "children", childId);
-            const childSnap = await transaction.get(childRef);
+        await runTransaction(db, async (transaction) => {
+          const childRef = doc(db, "children", child.id);
+          const childSnap = await transaction.get(childRef);
 
-            if (!childSnap.exists()) {
-              throw new Error("Child profile not found.");
-            }
+          if (!childSnap.exists()) {
+            throw new Error("Child profile not found.");
+          }
 
-            const childData = childSnap.data();
-            const modulesCompleted = Array.isArray(childData.modulesCompleted)
-              ? childData.modulesCompleted
-              : [];
+          const childData = childSnap.data();
+          const modulesCompleted = Array.isArray(childData.modulesCompleted)
+            ? childData.modulesCompleted
+            : [];
 
-            const alreadyCompleted = modulesCompleted.includes(module2Meta.id);
+          const alreadyCompleted = modulesCompleted.includes("module-2");
 
-            if (!alreadyCompleted) {
-              transaction.update(childRef, {
-                modulesCompleted: [...modulesCompleted, module2Meta.id],
-                coinBalance: Number(childData.coinBalance || 0) + module2Meta.rewardCoins,
-                streak: (childData.streak || 0) + 1,
-                updatedAt: serverTimestamp(),
-              });
-            }
-          });
+          if (!alreadyCompleted) {
+            transaction.update(childRef, {
+              modulesCompleted: [...modulesCompleted, "module-2"],
+              streak: Number(childData.streak || 0) + 1,
+              updatedAt: serverTimestamp(),
+            });
+          }
+        });
 
-          setModuleRewarded(true);
-        } catch (error) {
-          console.error(error);
-          alert("Could not save your module progress.");
-        } finally {
-          setFinishing(false);
-        }
+        router.push("/kid/dashboard" as Route);
+      } catch (error) {
+        console.error(error);
+        alert("Could not save module progress.");
+      } finally {
+        setSavingProgress(false);
       }
 
       return;
     }
 
-    setCurrentIndex((prev) => prev + 1);
-    setSelectedOptionId(null);
-    setFeedback("");
-    setIsRevealed(false);
+    if (currentScene.id === "rain-no-coins") {
+      setCurrentSceneId("wet-ending");
+      return;
+    }
+
+    if (currentScene.id === "rain-have-coins") {
+      setCurrentSceneId("wet-ending");
+      return;
+    }
+
+    if (currentScene.autoNext) {
+      setCurrentSceneId(currentScene.autoNext);
+    }
   };
 
-  if (loadingChild) {
+  if (loading) {
     return (
-      <main className="module2-page">
-        <div className="module2-shell">
-          <p className="module2-loading">Loading game...</p>
+      <main className="module-two-page">
+        <div className="module-two-shell">
+          <p className="module-two-loading">Loading game...</p>
         </div>
       </main>
     );
   }
 
-  if (!childId) {
-    return (
-      <main className="module2-page">
-        <div className="module2-shell">
-          <div className="module2-empty-state">
-            <h1>Not signed in</h1>
-            <p>Please return to the kid login page first.</p>
-            <Link href={"/kid" as Route} className="module2-primary-button">
-              Go to Kid Login
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  if (!child) return null;
 
-  if (isLastScenario && isRevealed) {
-    return (
-      <main className="module2-page">
-        <div className="module2-shell">
-          <section className="module2-game-card module2-result-card">
-            <p className="module2-kicker">Module Complete</p>
-            <h1 className="module2-title result-title">
-              {hasWon ? "You reached your saving goal! 🎉" : "Good try — play again! 💪"}
-            </h1>
+  const showChoices =
+    !!currentScene.choices &&
+    currentScene.choices.length > 0 &&
+    currentScene.id !== "rain-no-coins";
 
-            <div className="module2-goal-panel">
-              <div className="module2-goal-top">
-                <span>Saved</span>
-                <strong>
-                  {savedCoins} / {module2Meta.savingGoal} coins
-                </strong>
-              </div>
-              <div className="module2-progress-track">
-                <div
-                  className="module2-progress-fill"
-                  style={{ width: `${Math.min(100, (savedCoins / module2Meta.savingGoal) * 100)}%` }}
-                />
-              </div>
-            </div>
-
-            <p className="module2-result-text">
-              {hasWon
-                ? `Amazing job! You planned your coins well and earned ${module2Meta.rewardCoins} bonus coins.`
-                : "You made some good choices, but your budget can get even stronger. Try again and save more coins."}
-            </p>
-
-            <div className="module2-result-actions">
-              <Link href={"/kid/dashboard" as Route} className="module2-primary-button">
-                Back to Dashboard
-              </Link>
-
-              {!hasWon && (
-                <Link href={"/kid/modules/module-2" as Route} className="module2-secondary-button">
-                  Try Module Again
-                </Link>
-              )}
-
-              {hasWon && finishing && (
-                <span className="module2-saving-text">Saving your progress...</span>
-              )}
-            </div>
-          </section>
-        </div>
-      </main>
-    );
-  }
+  const showProceed = true;
 
   return (
-    <main className="module2-page">
-      <div className="module2-shell">
-        <section className="module2-game-card">
-          <div className="module2-game-topbar">
-            <p className="module2-kicker">Saving Game</p>
-            <span className="module2-round-pill">
-              Round {currentIndex + 1} / {module2Scenarios.length}
-            </span>
-          </div>
+    <main className="module-two-page">
+      <div className="module-two-shell module-two-quiz-shell">
+        <section className="module-two-topbar module-two-quiz-topbar">
+          <button
+            type="button"
+            className="module-two-back"
+            onClick={() => router.push("/kid/modules/module-2" as Route)}
+            aria-label="Go back"
+          >
+            ‹
+          </button>
 
-          <div className="module2-goal-panel">
-            <div className="module2-goal-top">
-              <span>Saving Goal</span>
-              <strong>
-                {savedCoins} / {module2Meta.savingGoal} coins
-              </strong>
-            </div>
-
-            <div className="module2-progress-track">
-              <div
-                className="module2-progress-fill"
-                style={{ width: `${progressPercent}%` }}
+          <div className="module-two-topbar-pills">
+            <div className="module-two-pill module-two-pill-coins">
+              <Image
+                src="/assets/CoinIcon.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="module-two-pill-icon"
               />
+              <span>{coinsLeft} Coins</span>
+            </div>
+
+            <div className="module-two-pill module-two-pill-streak">
+              <Image
+                src="/assets/FireIcon.svg"
+                alt=""
+                width={14}
+                height={14}
+                className="module-two-pill-icon"
+              />
+              <span>
+                {child.streak} {child.streak === 1 ? "day" : "days"}
+              </span>
             </div>
           </div>
+        </section>
 
-          <div className="module2-scenario-card">
-            <div className="module2-scenario-coins">+{currentScenario.coinAmount} possible coins</div>
-            <h1 className="module2-scenario-title">{currentScenario.title}</h1>
-            <p className="module2-scenario-story">{currentScenario.story}</p>
+        <h1 className="module-two-quiz-title">{module2QuizTitle}</h1>
+
+        <section className="module-two-scene-card">
+          <div className="module-two-scene-image-wrap">
+            <Image
+              src={currentScene.image}
+              alt={module2QuizTitle}
+              fill
+              priority
+              className="module-two-scene-image"
+            />
           </div>
 
-          <div className="module2-options-grid">
-            {currentScenario.options.map((option) => {
-              const isSelected = selectedOptionId === option.id;
+          <div
+            className={`module-two-scene-coin-pill ${
+              coinsLeft === 0 ? "is-zero" : ""
+            }`}
+          >
+            <Image
+              src="/assets/CoinIcon.svg"
+              alt=""
+              width={16}
+              height={16}
+              className="module-two-scene-coin-icon"
+            />
+            <span>{coinsLeft}</span>
+          </div>
+        </section>
+
+        <section className="module-two-scene-text-card">
+          <p>{currentScene.text}</p>
+        </section>
+
+        {currentScene.id === "rain-no-coins" && (
+          <section className="module-two-no-coins-block">
+            <p className="module-two-no-coins-text">You’re out of coins!</p>
+            <button
+              type="button"
+              className="module-two-choice-button is-disabled"
+              disabled
+            >
+              Buy umbrella for 5 coins
+            </button>
+          </section>
+        )}
+
+        {showChoices && (
+          <section className="module-two-choice-list">
+            {currentScene.choices!.map((choice) => {
+              const cost = Number(choice.cost || 0);
+              const disabled = cost > coinsLeft;
 
               return (
                 <button
-                  key={option.id}
-                  className={`module2-option-card ${isSelected ? "is-selected" : ""}`}
-                  onClick={() => handleChoice(option.id)}
-                  disabled={isRevealed}
+                  key={choice.id}
+                  type="button"
+                  className={`module-two-choice-button ${
+                    disabled ? "is-disabled" : ""
+                  }`}
+                  onClick={() => handleChoice(choice.id)}
+                  disabled={disabled}
                 >
-                  <span className="module2-option-save">Save {option.saveAmount}</span>
-                  <span className="module2-option-label">{option.label}</span>
+                  {choice.label}
                 </button>
               );
             })}
-          </div>
+          </section>
+        )}
 
-          {isRevealed && (
-            <div className="module2-feedback-box">
-              <p>{feedback}</p>
-              <button
-                onClick={handleNext}
-                className="module2-primary-button"
-                disabled={finishing}
-              >
-                {isLastScenario ? "See Results" : "Next Round"}
-              </button>
-            </div>
-          )}
-        </section>
+        {showProceed && (
+          <section className="module-two-footer">
+            <button
+              type="button"
+              className="module-two-primary-button"
+              onClick={handleProceed}
+              disabled={savingProgress}
+            >
+              {savingProgress ? "Saving..." : "Proceed"}
+            </button>
+          </section>
+        )}
       </div>
     </main>
   );
