@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase-client";
+import "./kid-join.css";
 
 export default function KidJoinPage() {
   const router = useRouter();
@@ -41,26 +42,41 @@ export default function KidJoinPage() {
   };
 
   return (
-    <main style={{ padding: 40, maxWidth: 420 }}>
-      <h1>Kid Login</h1>
-      <p>Join your parent&apos;s account.</p>
+    <main className="kid-join-page">
+      <div className="kid-join-shell">
+        <section className="kid-join-card">
+          <p className="kid-join-kicker">EarnNest</p>
+          <h1 className="kid-join-title">Kid Login</h1>
+          <p className="kid-join-subtitle">Join your parent&apos;s account and start earning coins.</p>
 
-      <form onSubmit={handleJoin} style={{ display: "grid", gap: 12, marginTop: 20 }}>
-        <input
-          placeholder="Access code"
-          value={accessCode}
-          onChange={(e) => setAccessCode(e.target.value)}
-        />
-        <input
-          placeholder="4-digit PIN"
-          value={pin}
-          onChange={(e) => setPin(e.target.value)}
-          maxLength={4}
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Joining..." : "Join Parent Account"}
-        </button>
-      </form>
+          <form onSubmit={handleJoin} className="kid-join-form">
+            <div className="kid-join-field">
+              <label htmlFor="accessCode">Access code</label>
+              <input
+                id="accessCode"
+                placeholder="XRG457"
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
+              />
+            </div>
+
+            <div className="kid-join-field">
+              <label htmlFor="pin">4-digit PIN</label>
+              <input
+                id="pin"
+                placeholder="1234"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                maxLength={4}
+              />
+            </div>
+
+            <button type="submit" disabled={loading} className="kid-join-button">
+              {loading ? "Joining..." : "Join Parent Account"}
+            </button>
+          </form>
+        </section>
+      </div>
     </main>
   );
 }
