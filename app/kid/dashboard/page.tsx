@@ -15,8 +15,8 @@ import {
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { db } from "@/lib/firebase-client";
-import "./kid-dashboard.css";
 import KidBottomNav from "@/components/KidBottomNav";
+import "./kid-dashboard.css";
 
 type ChildProfile = {
   id: string;
@@ -71,7 +71,7 @@ export default function KidDashboardPage() {
     if (!avatar) return "/assets/BearIcon.svg";
     if (avatar.startsWith("assets/")) return `/${avatar}`;
 
-    const avatarMap: { [key: string]: string } = {
+    const avatarMap: Record<string, string> = {
       bear: "/assets/BearIcon.svg",
       cat: "/assets/CatIcon.svg",
       dog: "/assets/DogIcon.svg",
@@ -81,11 +81,12 @@ export default function KidDashboardPage() {
       fox: "/assets/DogIcon.svg",
       rabbit: "/assets/BunnyIcon.svg",
     };
+
     return avatarMap[avatar.toLowerCase()] || "/assets/BearIcon.svg";
   };
 
   const handleOpenCustomize = () => {
-    setSelectedAvatar(child?.avatar || "");
+    setSelectedAvatar(child?.avatar || "assets/BearIcon.svg");
     setIsCustomizing(true);
   };
 
@@ -94,6 +95,7 @@ export default function KidDashboardPage() {
 
     try {
       setSavingAvatar(true);
+
       await updateDoc(doc(db, "children", child.id), {
         avatar: selectedAvatar,
       });
@@ -151,7 +153,7 @@ export default function KidDashboardPage() {
         };
 
         const choreSnap = await getDocs(
-          query(collection(db, "chores"), where("childId", "==", childId)),
+          query(collection(db, "chores"), where("childId", "==", childId))
         );
 
         const choreList: ChoreItem[] = choreSnap.docs
@@ -169,7 +171,7 @@ export default function KidDashboardPage() {
           .filter((chore) => chore.status === "active");
 
         const completionSnap = await getDocs(
-          query(collection(db, "completions"), where("childId", "==", childId)),
+          query(collection(db, "completions"), where("childId", "==", childId))
         );
 
         const completionList: CompletionItem[] = completionSnap.docs.map(
@@ -181,7 +183,7 @@ export default function KidDashboardPage() {
               status: data.status || "pending",
               reward: Number(data.reward || 0),
             };
-          },
+          }
         );
 
         setChild(childProfile);
@@ -253,69 +255,83 @@ export default function KidDashboardPage() {
 
   if (!child) return null;
 
-    return (
+  return (
     <main className="kid-dashboard-page">
       <div className="kid-dashboard-shell">
         <section className="kid-dashboard-hero">
           <div className="kid-corner-stats">
             <div className="kid-pill kid-pill-coins">
-              <img src="/assets/CoinIcon.svg" alt="Coin" />
+              <img
+                src="/assets/CoinIcon.svg"
+                alt="Coin"
+                className="kid-pill-icon"
+              />
               {child.coinBalance} Coins
             </div>
 
             <div className="kid-pill kid-pill-streak">
-              <img src="/assets/FireIcon.svg" alt="Fire" />
+              <img
+                src="/assets/FireIcon.svg"
+                alt="Streak"
+                className="kid-pill-icon"
+              />
               {child.streak} {child.streak === 1 ? "day" : "days"}
             </div>
           </div>
 
-          <div>
-            <p className="kid-dashboard-kicker">Kid Dashboard</p>
-            <h1 className="kid-dashboard-title">
-              Hi, {child.displayName || child.name}!
-            </h1>
+          <div className="kid-hero-main">
+            <div className="kid-hero-name-row">
+              <div style={{ position: "relative", display: "inline-block" }}>
+                <div className="kid-avatar-badge">
+                  <img
+                    src={getAvatarPath(child.avatar)}
+                    alt="Your avatar"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/assets/BearIcon.svg";
+                    }}
+                  />
+                </div>
+
+                <button
+                  onClick={handleOpenCustomize}
+                  className="kid-avatar-customize-btn"
+                  title="Customize"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  <span className="kid-avatar-customize-text">Customize</span>
+                </button>
+              </div>
+
+              <div>
+                <p className="kid-dashboard-kicker">Kid Dashboard</p>
+                <h1 className="kid-dashboard-title">
+                  Hi, {child.displayName || child.name}!
+                </h1>
+              </div>
+            </div>
+
             <p className="kid-dashboard-subtitle">
               Finish chores, earn coins, and grow your money skills.
             </p>
-          </div>
-
-          <div style={{ position: "relative", display: "inline-block" }}>
-            <div className="kid-avatar-badge">
-              <img
-                src={getAvatarPath(child.avatar)}
-                alt="Your avatar"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
-                }}
-              />
-            </div>
-            <button
-              onClick={handleOpenCustomize}
-              className="kid-avatar-customize-btn"
-              title="Customize"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-              <span className="kid-avatar-customize-text">Customize</span>
-            </button>
           </div>
         </section>
 
         <section className="kid-dashboard-section">
           <div className="kid-section-header">
             <h2>Learning Modules</h2>
-            <span>Build your money skills</span>
           </div>
 
           <div className="kid-modules-grid">
@@ -453,10 +469,7 @@ export default function KidDashboardPage() {
           <div
             style={{
               position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              inset: 0,
               background: "rgba(0, 0, 0, 0.5)",
               display: "flex",
               alignItems: "center",
@@ -518,6 +531,7 @@ export default function KidDashboardPage() {
                 {avatars.map((avatar) => (
                   <button
                     key={avatar}
+                    type="button"
                     onClick={() => setSelectedAvatar(avatar)}
                     style={{
                       width: 70,
@@ -554,6 +568,7 @@ export default function KidDashboardPage() {
                 }}
               >
                 <button
+                  type="button"
                   onClick={() => setIsCustomizing(false)}
                   disabled={savingAvatar}
                   style={{
@@ -570,7 +585,9 @@ export default function KidDashboardPage() {
                 >
                   Cancel
                 </button>
+
                 <button
+                  type="button"
                   onClick={handleSaveAvatar}
                   disabled={savingAvatar}
                   style={{
@@ -592,7 +609,8 @@ export default function KidDashboardPage() {
           </div>
         )}
       </div>
-      <KidBottomNav/>
+
+      <KidBottomNav />
     </main>
   );
 }
