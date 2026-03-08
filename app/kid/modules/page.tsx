@@ -67,6 +67,10 @@ export default function KidModulesPage() {
 
   if (!child) return null;
 
+  const module1Complete = child.modulesCompleted.includes("module-1");
+  const module2Complete = child.modulesCompleted.includes("module-2");
+  const module2Unlocked = module1Complete;
+
   return (
     <main className="kid-modules-page">
       <div className="kid-modules-shell">
@@ -92,10 +96,10 @@ export default function KidModulesPage() {
           </div>
 
           <div>
-            <p className="kid-modules-kicker">Learning</p>
             <h1 className="kid-modules-title">Build Your Money Skills</h1>
             <p className="kid-modules-subtitle">
-              Complete modules to learn about money, saving, and financial literacy.
+              Complete modules to learn about money, saving, and financial
+              literacy.
             </p>
           </div>
         </section>
@@ -104,15 +108,8 @@ export default function KidModulesPage() {
           <div className="kid-modules-grid">
             <article className="kid-module-card">
               <div className="kid-module-top">
-                <div>
-                  <p className="kid-module-tag">Module 1</p>
-                  <h3>Needs vs Wants</h3>
-                </div>
-                <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-1")
-                    ? "Completed"
-                    : "Ready"}
-                </span>
+                <p className="kid-module-tag">MODULE 1</p>
+                <h3>Needs vs Wants</h3>
               </div>
 
               <p className="kid-module-description">
@@ -120,29 +117,18 @@ export default function KidModulesPage() {
               </p>
 
               <button
-                className="kid-primary-button"
+                className="kid-module-button is-primary"
                 onClick={() => router.push("/kid/modules/module-1" as Route)}
                 type="button"
               >
-                {child.modulesCompleted.includes("module-1")
-                  ? "Play Again"
-                  : "Start Module 1"}
+                {module1Complete ? "Play Again" : "Start Module"}
               </button>
             </article>
 
             <article className="kid-module-card">
               <div className="kid-module-top">
-                <div>
-                  <p className="kid-module-tag">Module 2</p>
-                  <h3>Saving & Budgeting</h3>
-                </div>
-                <span className="kid-module-status">
-                  {!child.modulesCompleted.includes("module-1")
-                    ? "🔒 Locked"
-                    : child.modulesCompleted.includes("module-2")
-                    ? "Completed"
-                    : "Ready"}
-                </span>
+                <p className="kid-module-tag">MODULE 2</p>
+                <h3>Saving &amp; Budgeting</h3>
               </div>
 
               <p className="kid-module-description">
@@ -151,25 +137,49 @@ export default function KidModulesPage() {
               </p>
 
               <button
-                className="kid-primary-button"
+                className={`kid-module-button ${module2Unlocked ? "is-primary" : "is-locked"}`}
                 onClick={() => {
-                  if (child.modulesCompleted.includes("module-1")) {
+                  if (module2Unlocked) {
                     router.push("/kid/modules/module-2" as Route);
                   }
                 }}
-                disabled={!child.modulesCompleted.includes("module-1")}
+                disabled={!module2Unlocked}
                 type="button"
-                style={
-                  !child.modulesCompleted.includes("module-1")
-                    ? { opacity: 0.5, cursor: "not-allowed" }
-                    : {}
-                }
               >
-                {!child.modulesCompleted.includes("module-1")
-                  ? "Complete Module 1 First"
-                  : child.modulesCompleted.includes("module-2")
-                  ? "Play Again"
-                  : "Start Module 2"}
+                {module2Unlocked ? (
+                  module2Complete ? (
+                    "Play Again"
+                  ) : (
+                    "Start Module"
+                  )
+                ) : (
+                  <span className="kid-module-button-label">
+                    <svg
+                      className="kid-module-lock-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M8 10V7.5C8 5.57 9.57 4 11.5 4C13.43 4 15 5.57 15 7.5V10"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                      <rect
+                        x="5"
+                        y="10"
+                        width="13"
+                        height="10"
+                        rx="2"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                    Locked ~ Do Module 1 First
+                  </span>
+                )}
               </button>
             </article>
           </div>

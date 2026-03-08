@@ -228,31 +228,34 @@ export default function KidDashboardPage() {
     let goalsUnsub: (() => void) | null = null;
 
     try {
-      childUnsub = onSnapshot(doc(db, "children", storedChildId), (childSnap) => {
-        if (!childSnap.exists()) {
-          router.push("/kid" as Route);
-          return;
-        }
+      childUnsub = onSnapshot(
+        doc(db, "children", storedChildId),
+        (childSnap) => {
+          if (!childSnap.exists()) {
+            router.push("/kid" as Route);
+            return;
+          }
 
-        const childData = childSnap.data();
+          const childData = childSnap.data();
 
-        const childProfile: ChildProfile = {
-          id: childSnap.id,
-          parentUid: childData.parentUid || "",
-          name: childData.name || "",
-          displayName: childData.displayName || childData.name || "",
-          avatar: childData.avatar || "bear",
-          coinBalance: Number(childData.coinBalance || 0),
-          streak: Number(childData.streak || 0),
-          completedChores: Number(childData.completedChores || 0),
-          modulesCompleted: Array.isArray(childData.modulesCompleted)
-            ? childData.modulesCompleted
-            : [],
-        };
+          const childProfile: ChildProfile = {
+            id: childSnap.id,
+            parentUid: childData.parentUid || "",
+            name: childData.name || "",
+            displayName: childData.displayName || childData.name || "",
+            avatar: childData.avatar || "bear",
+            coinBalance: Number(childData.coinBalance || 0),
+            streak: Number(childData.streak || 0),
+            completedChores: Number(childData.completedChores || 0),
+            modulesCompleted: Array.isArray(childData.modulesCompleted)
+              ? childData.modulesCompleted
+              : [],
+          };
 
-        setChild(childProfile);
-        setLoading(false);
-      });
+          setChild(childProfile);
+          setLoading(false);
+        },
+      );
 
       choresUnsub = onSnapshot(
         query(collection(db, "chores"), where("childId", "==", storedChildId)),
@@ -272,11 +275,14 @@ export default function KidDashboardPage() {
             .filter((chore) => chore.status === "active");
 
           setChores(choreList);
-        }
+        },
       );
 
       completionsUnsub = onSnapshot(
-        query(collection(db, "completions"), where("childId", "==", storedChildId)),
+        query(
+          collection(db, "completions"),
+          where("childId", "==", storedChildId),
+        ),
         (completionSnap) => {
           const completionList: CompletionItem[] = completionSnap.docs.map(
             (completionDoc) => {
@@ -288,11 +294,11 @@ export default function KidDashboardPage() {
                 reward: Number(data.reward || 0),
                 createdAt: data.createdAt || null,
               };
-            }
+            },
           );
 
           setCompletions(completionList);
-        }
+        },
       );
 
       goalsUnsub = onSnapshot(
@@ -309,7 +315,7 @@ export default function KidDashboardPage() {
           });
 
           setGoals(goalList);
-        }
+        },
       );
     } catch (error) {
       console.error(error);
@@ -402,12 +408,20 @@ export default function KidDashboardPage() {
         <section className="kid-dashboard-hero">
           <div className="kid-corner-stats">
             <div className="kid-pill kid-pill-coins">
-              <img src="/assets/CoinIcon.svg" alt="Coin" className="kid-pill-icon" />
+              <img
+                src="/assets/CoinIcon.svg"
+                alt="Coin"
+                className="kid-pill-icon"
+              />
               {child.coinBalance} Coins
             </div>
 
             <div className="kid-pill kid-pill-streak">
-              <img src="/assets/FireIcon.svg" alt="Streak" className="kid-pill-icon" />
+              <img
+                src="/assets/FireIcon.svg"
+                alt="Streak"
+                className="kid-pill-icon"
+              />
               {child.streak} {child.streak === 1 ? "day" : "days"}
             </div>
           </div>
@@ -420,7 +434,8 @@ export default function KidDashboardPage() {
                     src={getAvatarPath(child.avatar)}
                     alt="Your avatar"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                      (e.target as HTMLImageElement).src =
+                        "/assets/BearIcon.svg";
                     }}
                   />
                 </div>
@@ -459,7 +474,7 @@ export default function KidDashboardPage() {
               </div>
 
               <div>
-                <p className="kid-dashboard-kicker">Kid Dashboard</p>
+                <p className="kid-dashboard-kicker"></p>
                 <h1 className="kid-dashboard-title">
                   Hi, {child.displayName || child.name}!
                 </h1>
@@ -510,7 +525,10 @@ export default function KidDashboardPage() {
               {goals.map((goal, index) => {
                 const progress =
                   goal.cost > 0
-                    ? Math.min(((child.coinBalance || 0) / goal.cost) * 100, 100)
+                    ? Math.min(
+                        ((child.coinBalance || 0) / goal.cost) * 100,
+                        100,
+                      )
                     : 0;
 
                 return (
@@ -560,7 +578,10 @@ export default function KidDashboardPage() {
                         </div>
 
                         <p className="kid-goal-progress-text">
-                          <strong>{Math.min(child.coinBalance, goal.cost)}</strong> / {goal.cost} Coins
+                          <strong>
+                            {Math.min(child.coinBalance, goal.cost)}
+                          </strong>{" "}
+                          / {goal.cost} Coins
                         </p>
                       </div>
                     </div>
@@ -606,7 +627,9 @@ export default function KidDashboardPage() {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <p>Complete “Module 1: Needs vs Wants” first to unlock chores.</p>
+                <p>
+                  Complete “Module 1: Needs vs Wants” first to unlock chores.
+                </p>
               </div>
               <p className="kid-empty-subtext">
                 Head to the Learn section and finish the module to get started.
@@ -625,19 +648,24 @@ export default function KidDashboardPage() {
                   <article key={chore.id} className="kid-task-card">
                     <div className="kid-task-top">
                       <div className="kid-task-copy">
-                        <h3>{chore.title}</h3>
-                        {chore.description ? (
-                          <p className="kid-task-description">{chore.description}</p>
-                        ) : null}
-                      </div>
+                        <div className="kid-task-title-row">
+                          <h3>{chore.title}</h3>
 
-                      <div className="kid-task-reward-pill">
-                        <img
-                          src="/assets/CoinIcon.svg"
-                          alt=""
-                          className="kid-task-reward-icon"
-                        />
-                        +{chore.reward}
+                          <div className="kid-task-reward-pill">
+                            <img
+                              src="/assets/CoinIcon.svg"
+                              alt=""
+                              className="kid-task-reward-icon"
+                            />
+                            +{chore.reward}
+                          </div>
+                        </div>
+
+                        {chore.description ? (
+                          <p className="kid-task-description">
+                            {chore.description}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
 
@@ -650,7 +678,13 @@ export default function KidDashboardPage() {
                           xmlns="http://www.w3.org/2000/svg"
                           aria-hidden="true"
                         >
-                          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
                           <path
                             d="M12 7v5l3 2"
                             stroke="currentColor"
@@ -708,10 +742,12 @@ export default function KidDashboardPage() {
                       <button
                         onClick={() => handleMarkDone(chore)}
                         disabled={actionLoadingId === chore.id}
-                        className="kid-primary-button"
+                        className="kid-primary-button kid-task-done-button"
                         type="button"
                       >
-                        {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
+                        {actionLoadingId === chore.id
+                          ? "Submitting..."
+                          : "Mark as Done"}
                       </button>
                     )}
                   </article>

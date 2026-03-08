@@ -1,6 +1,6 @@
 .kid-dashboard-page {
   min-height: 100vh;
-  background: #fff8ef;
+  background: white;
   padding: 32px 20px 120px;
   color: #2f241f;
 }
@@ -74,7 +74,7 @@
   margin-bottom: 28px;
   padding: 32px 28px 28px;
   background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
-  border-radius: 28px;
+  border-radius: 16px;
   box-shadow: 0 10px 30px rgba(241, 100, 46, 0.12);
 }
 
@@ -92,7 +92,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: #ffffff;
   font-size: 0.95rem;
   font-weight: 700;
@@ -130,18 +130,23 @@
 }
 
 .kid-dashboard-kicker {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: #b4562e;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: Rubik;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 15px;
+  leading-trim: NONE;
+  line-height: 100%;
+  letter-spacing: 0%;
 }
 
 .kid-dashboard-title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.05;
+  font-family: Rubik;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 32px;
+  leading-trim: NONE;
+  line-height: 100%;
+  letter-spacing: 0%;
 }
 
 .kid-dashboard-subtitle {
@@ -241,10 +246,14 @@
 }
 
 .kid-section-header h2 {
-  margin: 0;
-  font-size: 1.35rem;
-  font-weight: 800;
-  color: #2f241f;
+  font-family: Rubik;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 15px;
+  leading-trim: NONE;
+  line-height: 22px;
+  letter-spacing: 0%;
+  color: #5F5F5F; 
 }
 
 .kid-section-header span {
@@ -254,7 +263,7 @@
 
 .kid-empty-card {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 8px;
   padding: 22px;
   border: 1.5px solid #f1e1cf;
   box-shadow: 0 8px 24px rgba(47, 36, 31, 0.06);
@@ -292,10 +301,10 @@
 }
 
 .kid-goal-card {
-  background: linear-gradient(180deg, #fffdfb 0%, #fff8f1 100%);
-  border-radius: 24px;
+  background: #FFFFFF;
+  border-radius: 8px;
   padding: 22px;
-  border: 1.5px solid #f2dbc2;
+  border: 1.5px solid #D0C3BC;
   box-shadow: 0 10px 24px rgba(47, 36, 31, 0.06);
 }
 
@@ -312,12 +321,14 @@
 }
 
 .kid-goal-label {
-  margin: 0 0 6px;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #a4724e;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: Rubik;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 15px;
+  leading-trim: NONE;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #00000080;
 }
 
 .kid-goal-card h3 {
@@ -363,10 +374,14 @@
 }
 
 .kid-goal-progress-text {
-  margin: 0;
-  font-size: 1rem;
-  color: #7d665a;
-  font-weight: 600;
+  font-family: Rubik;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 13px;
+  leading-trim: NONE;
+  line-height: 100%;
+  letter-spacing: 0%;
+  color: #00000080;
 }
 
 .kid-goal-progress-text strong {
@@ -395,8 +410,9 @@
 }
 
 .kid-task-card {
+  position: relative;
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 20px;
   border: 1.5px solid #f1e1cf;
   box-shadow: 0 8px 22px rgba(47, 36, 31, 0.06);
@@ -412,6 +428,7 @@
 .kid-task-copy {
   min-width: 0;
   flex: 1;
+  padding-right: 110px;
 }
 
 .kid-task-copy h3 {
@@ -419,6 +436,13 @@
   font-size: 1.35rem;
   line-height: 1.15;
   color: #2f241f;
+}
+
+.kid-task-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .kid-task-description {
@@ -429,16 +453,20 @@
 }
 
 .kid-task-reward-pill {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+
   display: inline-flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: #fff9ef;
   border: 1.5px solid #f3d091;
-  color: #8a6d2e;
-  font-weight: 800;
+  color: black;
+  font-weight: 400;
   font-size: 0.95rem;
   flex-shrink: 0;
 }
@@ -546,7 +574,7 @@
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 14px;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1.5px solid #ddd;
   font-size: 1rem;
   box-sizing: border-box;
@@ -570,7 +598,7 @@
 .kid-modal-primary-button {
   flex: 1;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 16px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
@@ -646,7 +674,7 @@
 
 .kid-module-card {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 22px;
   box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
   border: 1px solid #f6eadb;
@@ -694,6 +722,13 @@
 
 .kid-section-header-goals {
   align-items: center;
+  font-family: Rubik;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 10px;
+  leading-trim: NONE;
+  line-height: 22px;
+  letter-spacing: 0%;
 }
 
 .kid-add-goal-button {
@@ -733,16 +768,6 @@
   font-size: 0.8rem;
   font-weight: 600;
   color: #2f241f;
-}
-
-
-.kid-goal-card.is-primary {
-  border-color: #f2dbc2;
-}
-
-.kid-goal-card.is-secondary {
-  background: linear-gradient(180deg, #fffefe 0%, #fffaf6 100%);
-  opacity: 0.96;
 }
 
 @media (max-width: 720px) {
@@ -787,4 +812,39 @@
   .kid-goal-edit-button {
     align-self: flex-end;
   }
+
+  .kid-task-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kid-task-actions {
+    width: 100%;
+  }
+
+  .kid-task-done-button {
+    width: 100%;
+  }
+}
+
+.kid-task-bottom {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.kid-task-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.kid-task-done-button {
+  margin-top: 0;
+  width: auto;
+  min-width: 160px;
 }
