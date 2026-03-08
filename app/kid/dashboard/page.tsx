@@ -197,6 +197,13 @@ export default function KidDashboardPage() {
       <p>Streak: {child.streak}</p>
       <p>Completed chores: {child.completedChores}</p>
 
+      <section>
+        <h2>Learning</h2>
+        <button onClick={() => router.push("/kid/modules/module-1" as Route)}>
+          Start Module 1
+        </button>
+      </section>
+
       <section style={{ marginTop: 32 }}>
         <h2>Your Chores</h2>
 
