@@ -553,6 +553,14 @@
     min-height: 48px;
     font-size: 15px;
   }
+
+  .module-one-footer {
+  margin-top: -6px;
+}
+
+  .module-one-primary-button {
+    min-height: 48px;
+  }
 }
 
 @media (max-width: 480px) {

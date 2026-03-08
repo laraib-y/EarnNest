@@ -144,9 +144,6 @@ export default function Quiz({ onFinish }: Props) {
     resetCardPosition();
   };
 
-  const leftActive = dragX < -32;
-  const rightActive = dragX > 32;
-
   return (
     <main className="module-one-page">
       <div className="module-one-shell module-one-quiz-shell">
@@ -176,22 +173,6 @@ export default function Quiz({ onFinish }: Props) {
         </section>
 
         <section className="module-one-swipe-stage">
-          <div
-            className={`module-one-swipe-label module-one-swipe-label-left ${
-              leftActive ? "is-active" : ""
-            }`}
-          >
-            Want
-          </div>
-
-          <div
-            className={`module-one-swipe-label module-one-swipe-label-right ${
-              rightActive ? "is-active" : ""
-            }`}
-          >
-            Need
-          </div>
-
           <div
             className="module-one-swipe-card"
             style={cardStyle}

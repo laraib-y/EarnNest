@@ -1,13 +1,14 @@
 .module-two-shell {
   width: 100%;
   max-width: 430px;
-  min-height: 100vh;
-  padding: 22px 22px 24px;
+  height: 100dvh;
+  padding: 22px 22px 18px;
   box-sizing: border-box;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
 }
 
 .module-two-loading {
@@ -68,8 +69,9 @@
 }
 
 .module-two-illustration-card {
-  width: 347px;
-  height: 366px;
+  width: 100%;
+  max-width: 347px;
+  height: 290px;
   background: #f8f8f8;
   border: 1px solid #cdbfba;
   border-radius: 20px;
@@ -88,10 +90,11 @@
 
 .module-two-lesson-stage {
   position: relative;
-  width: 347px;
-  height: 300px;
-  margin-bottom: 0px;
-  overflow: visible;
+  width: 100%;
+  max-width: 347px;
+  height: 210px;
+  margin-bottom: 0;
+  overflow: hidden;
 }
 
 .module-two-text-card {
