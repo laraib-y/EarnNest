@@ -7,10 +7,14 @@ import {
   collection,
   doc,
   getDoc,
+  getDocs,
+  query,
   serverTimestamp,
+  where,
 } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import type { Route } from "next";
 import { auth, db } from "@/lib/firebase-client";
 import "./add-child.css";
 
@@ -31,27 +35,32 @@ export default function AddChildPage() {
   const [age, setAge] = useState("");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
-  const [createdChild, setCreatedChild] = useState<null | {
-    name: string;
-    accessCode: string;
-  }>(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        router.push("/");
+        router.push("/" as Route);
         return;
       }
 
-      const parentRef = doc(db, "parents", user.uid);
-      const parentSnap = await getDoc(parentRef);
+      try {
+        const parentRef = doc(db, "parents", user.uid);
+        const parentSnap = await getDoc(parentRef);
 
-      if (!parentSnap.exists()) {
-        router.push("/parent/dashboard");
-        return;
+        if (!parentSnap.exists()) {
+          router.push("/parent/dashboard" as Route);
+          return;
+        }
+
+        // Allow adding multiple children - removed the check that redirects if children exist
+        setParentUid(user.uid);
+      } catch (error) {
+        console.error(error);
+        router.push("/parent/dashboard" as Route);
+      } finally {
+        setChecking(false);
       }
-
-      setParentUid(user.uid);
     });
 
     return () => unsubscribe();
@@ -96,14 +105,7 @@ export default function AddChildPage() {
         createdAt: serverTimestamp(),
       });
 
-      setCreatedChild({
-        name: childName.trim(),
-        accessCode,
-      });
-
-      setChildName("");
-      setAge("");
-      setPin("");
+      router.push("/parent/dashboard" as Route);
     } catch (error) {
       console.error(error);
       alert("Failed to create child profile.");
@@ -111,6 +113,16 @@ export default function AddChildPage() {
       setLoading(false);
     }
   };
+
+  if (checking) {
+    return (
+      <main className="add-child-page">
+        <div className="add-child-shell">
+          <p className="add-child-loading">Loading...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="add-child-page">
@@ -161,34 +173,18 @@ export default function AddChildPage() {
         </section>
 
         <section className="add-child-empty-state">
-          {createdChild ? (
-            <>
-              <p className="add-child-empty-title">
-                {createdChild.name} added successfully!
-              </p>
-              <div className="add-child-access-code">
-                Access code: <strong>{createdChild.accessCode}</strong>
-              </div>
-              <p className="add-child-empty-subtitle">
-                Use this code on the child&apos;s device to join the account.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="add-child-empty-title">No Account Added Yet...</p>
+          <p className="add-child-empty-title">No Account Added Yet...</p>
 
-              <div className="add-child-bird">
-                <Image
-                  src="/assets/Parent.svg"
-                  alt="Bird"
-                  fill
-                  style={{ objectFit: "contain" }}
-                />
-              </div>
+          <div className="add-child-bird">
+            <Image
+              src="/assets/Parent.svg"
+              alt="Bird"
+              fill
+              style={{ objectFit: "contain" }}
+            />
+          </div>
 
-              <p className="add-child-empty-subtitle">Add child to get started!</p>
-            </>
-          )}
+          <p className="add-child-empty-subtitle">Add child to get started!</p>
         </section>
 
         <section className="add-child-pager" aria-label="carousel navigation">
@@ -196,7 +192,7 @@ export default function AddChildPage() {
             type="button"
             className="add-child-arrow"
             onClick={() => router.push("/parent/dashboard")}
-            aria-label="Back to dashboard"
+            aria-label="Back"
           >
             ‹
           </button>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import {
+  addDoc,
   collection,
   doc,
   getDoc,
@@ -33,6 +34,8 @@ type ChildItem = {
   displayName: string;
   accessCode: string;
   coinBalance: number;
+  modulesCompleted: string[];
+  completedChores: number;
 };
 
 type PendingCompletion = {
@@ -45,6 +48,14 @@ type PendingCompletion = {
   childName: string;
 };
 
+type ActiveChore = {
+  id: string;
+  childId: string;
+  title: string;
+  reward: number;
+  status: string;
+};
+
 export default function ParentDashboardPage() {
   const router = useRouter();
 
@@ -52,95 +63,33 @@ export default function ParentDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [children, setChildren] = useState<ChildItem[]>([]);
   const [pendingCompletions, setPendingCompletions] = useState<PendingCompletion[]>([]);
+  const [activeChores, setActiveChores] = useState<ActiveChore[]>([]);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [activeChildIndex, setActiveChildIndex] = useState(0);
+  const [showChoreModal, setShowChoreModal] = useState(false);
+  const [choreTitle, setChoreTitle] = useState("");
+  const [choreDescription, setChoreDescription] = useState("");
+  const [choreReward, setChoreReward] = useState("20");
+  const [choreFrequency, setChoreFrequency] = useState("one-time");
+  const [choreSaving, setChhoreSaving] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadDashboard = async (firebaseUser: User) => {
+    const parentRef = doc(db, "parents", firebaseUser.uid);
+    const parentSnap = await getDoc(parentRef);
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push("/" as Route);
-        return;
-      }
+    if (!parentSnap.exists()) {
+      const parentProfile: ParentProfile = {
+        uid: firebaseUser.uid,
+        name: firebaseUser.displayName || "Parent",
+        email: firebaseUser.email || "",
+        createdAt: serverTimestamp(),
+      };
 
-      setUser(firebaseUser);
-
-      try {
-        const parentRef = doc(db, "parents", firebaseUser.uid);
-        const parentSnap = await getDoc(parentRef);
-
-        if (!parentSnap.exists()) {
-          const parentProfile: ParentProfile = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName || "Parent",
-            email: firebaseUser.email || "",
-            createdAt: serverTimestamp(),
-          };
-
-          await setDoc(parentRef, parentProfile);
-        }
-
-        const childSnap = await getDocs(
-          query(collection(db, "children"), where("parentUid", "==", firebaseUser.uid))
-        );
-
-        const childList: ChildItem[] = childSnap.docs.map((childDoc) => {
-          const data = childDoc.data();
-          return {
-            id: childDoc.id,
-            name: data.name || "",
-            displayName: data.displayName || data.name || "",
-            accessCode: data.accessCode || "",
-            coinBalance: Number(data.coinBalance || 0),
-          };
-        });
-
-        const childNameMap = new Map(childList.map((child) => [child.id, child.displayName]));
-
-        const completionSnap = await getDocs(
-          query(collection(db, "completions"), where("parentUid", "==", firebaseUser.uid))
-        );
-
-        const pendingList: PendingCompletion[] = completionSnap.docs
-          .map((completionDoc) => {
-            const data = completionDoc.data();
-            return {
-              id: completionDoc.id,
-              childId: data.childId || "",
-              choreId: data.choreId || "",
-              choreTitle: data.choreTitle || "Task",
-              reward: Number(data.reward || 0),
-              status: data.status || "pending",
-              childName: childNameMap.get(data.childId || "") || "Child",
-            } as PendingCompletion;
-          })
-          .filter((item) => item.status === "pending");
-
-        if (!cancelled) {
-          setChildren(childList);
-          setPendingCompletions(pendingList);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error(error);
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    });
-
-    return () => {
-      cancelled = true;
-      unsubscribe();
-    };
-  }, [router]);
-
-  const refreshDashboard = async () => {
-    if (!user) return;
+      await setDoc(parentRef, parentProfile);
+    }
 
     const childSnap = await getDocs(
-      query(collection(db, "children"), where("parentUid", "==", user.uid))
+      query(collection(db, "children"), where("parentUid", "==", firebaseUser.uid))
     );
 
     const childList: ChildItem[] = childSnap.docs.map((childDoc) => {
@@ -151,13 +100,20 @@ export default function ParentDashboardPage() {
         displayName: data.displayName || data.name || "",
         accessCode: data.accessCode || "",
         coinBalance: Number(data.coinBalance || 0),
+        modulesCompleted: Array.isArray(data.modulesCompleted) ? data.modulesCompleted : [],
+        completedChores: Number(data.completedChores || 0),
       };
     });
+
+    if (childList.length === 0) {
+      router.push("/parent/add-child" as Route);
+      return;
+    }
 
     const childNameMap = new Map(childList.map((child) => [child.id, child.displayName]));
 
     const completionSnap = await getDocs(
-      query(collection(db, "completions"), where("parentUid", "==", user.uid))
+      query(collection(db, "completions"), where("parentUid", "==", firebaseUser.uid))
     );
 
     const pendingList: PendingCompletion[] = completionSnap.docs
@@ -175,12 +131,60 @@ export default function ParentDashboardPage() {
       })
       .filter((item) => item.status === "pending");
 
+    const choreSnap = await getDocs(
+      query(collection(db, "chores"), where("parentUid", "==", firebaseUser.uid))
+    );
+
+    const choreList: ActiveChore[] = choreSnap.docs
+      .map((choreDoc) => {
+        const data = choreDoc.data();
+        return {
+          id: choreDoc.id,
+          childId: data.childId || "",
+          title: data.title || "",
+          reward: Number(data.reward || 0),
+          status: data.status || "active",
+        };
+      })
+      .filter((chore) => chore.status === "active");
+
     setChildren(childList);
     setPendingCompletions(pendingList);
-    setActiveChildIndex((prev) => {
-      if (childList.length === 0) return 0;
-      return Math.min(prev, childList.length - 1);
+    setActiveChores(choreList);
+    setActiveChildIndex((prev) => Math.min(prev, childList.length - 1));
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        router.push("/" as Route);
+        return;
+      }
+
+      setUser(firebaseUser);
+
+      try {
+        await loadDashboard(firebaseUser);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
     });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, [router]);
+
+  const refreshDashboard = async () => {
+    if (!user) return;
+    await loadDashboard(user);
   };
 
   const handleApprove = async (completionId: string) => {
@@ -251,6 +255,48 @@ export default function ParentDashboardPage() {
     }
   };
 
+  const handleAddChore = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!choreTitle.trim()) {
+      alert("Please enter a task title.");
+      return;
+    }
+
+    const numericReward = Number(choreReward);
+    if (!Number.isFinite(numericReward) || numericReward <= 0) {
+      alert("Please enter a valid coin reward.");
+      return;
+    }
+
+    try {
+      setChhoreSaving(true);
+
+      await addDoc(collection(db, "chores"), {
+        parentUid: user?.uid,
+        childId: activeChild?.id,
+        title: choreTitle.trim(),
+        description: choreDescription.trim(),
+        reward: numericReward,
+        frequency: choreFrequency,
+        status: "active",
+        createdAt: serverTimestamp(),
+      });
+
+      setChoreTitle("");
+      setChoreDescription("");
+      setChoreReward("20");
+      setChoreFrequency("one-time");
+      setShowChoreModal(false);
+      await refreshDashboard();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to create task.");
+    } finally {
+      setChhoreSaving(false);
+    }
+  };
+
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/" as Route);
@@ -266,6 +312,14 @@ export default function ParentDashboardPage() {
     return pendingCompletions.filter((item) => item.childId === activeChild.id);
   }, [pendingCompletions, activeChild]);
 
+  const activeChildChores = useMemo(() => {
+    if (!activeChild) return [];
+    return activeChores.filter((item) => item.childId === activeChild.id);
+  }, [activeChores, activeChild]);
+
+  const completedModulesCount = activeChild?.modulesCompleted.length || 0;
+  const totalModules = 2;
+
   if (loading) {
     return (
       <main className="parent-dashboard-page">
@@ -276,6 +330,8 @@ export default function ParentDashboardPage() {
     );
   }
 
+  if (!activeChild) return null;
+
   return (
     <main className="parent-dashboard-page">
       <div className="parent-dashboard-shell">
@@ -283,133 +339,219 @@ export default function ParentDashboardPage() {
           <h1 className="parent-dashboard-title">
             Hi {user?.displayName?.split(" ")[0] || "parent"}! 👋
           </h1>
-
-          <div className="parent-dashboard-top-actions">
-            <Link href={"/parent/add-child" as Route} className="parent-primary-button">
-              <span className="parent-plus">＋</span> Add Child
-            </Link>
-          </div>
+          <button onClick={handleLogout} className="parent-secondary-button">
+            Log out
+          </button>
         </section>
 
-        {children.length === 0 ? (
-          <section className="parent-empty-state-card">
-            <Link href={"/parent/add-child" as Route} className="parent-primary-button parent-primary-button-full">
-              <span className="parent-plus">＋</span> Add Child
-            </Link>
-
-            <div className="parent-empty-panel">
-              <p>No Account Added Yet</p>
+        <section className="parent-child-panel">
+          <article className="parent-child-focus-card">
+            <div className="parent-child-header">
+              <div className="parent-child-avatar" aria-hidden="true" />
+              <div className="parent-child-meta">
+                <h2>{activeChild.displayName}</h2>
+                <p>lvl 1</p>
+                <span>🪙 {activeChild.coinBalance} Coins</span>
+                <span style={{ fontSize: "0.75rem", color: "#666", marginTop: "4px", display: "block" }}>
+                  Access Code: <strong>{activeChild.accessCode}</strong>
+                </span>
+              </div>
             </div>
-          </section>
-        ) : (
-          <>
-            <section className="parent-child-panel">
-              <article className="parent-child-focus-card">
-                <div className="parent-child-header">
-                  <div className="parent-child-avatar" aria-hidden="true" />
-                  <div className="parent-child-meta">
-                    <h2>{activeChild?.displayName}</h2>
-                    <p>lvl 1</p>
-                    <span>🪙 {activeChild?.coinBalance} Coins</span>
-                  </div>
-                </div>
 
-                <Link
-                  href={`/parent/assign-chore/${activeChild?.id}` as Route}
-                  className="parent-task-button"
-                >
-                  <span className="parent-plus">＋</span> Add New Task
-                </Link>
+            <button
+              onClick={() => setShowChoreModal(true)}
+              className="parent-task-button"
+            >
+              <span className="parent-plus">＋</span> Add New Task
+            </button>
 
-                <div className="parent-activity-list">
-                  {activeChildPending.length === 0 ? (
-                    <div className="parent-activity-empty">No recent activities yet.</div>
-                  ) : (
-                    activeChildPending.map((completion) => (
-                      <article key={completion.id} className="parent-activity-card">
-                        <div className="parent-activity-copy">
-                          <p className="parent-activity-label">Complete</p>
-                          <h3>{completion.choreTitle}</h3>
-                        </div>
+            <div className="parent-summary-grid">
+              <div className="parent-summary-pill">
+                <span>Active Tasks</span>
+                <strong>{activeChildChores.length}</strong>
+              </div>
+              <div className="parent-summary-pill">
+                <span>Pending</span>
+                <strong>{activeChildPending.length}</strong>
+              </div>
+              <div className="parent-summary-pill">
+                <span>Modules</span>
+                <strong>
+                  {completedModulesCount}/{totalModules}
+                </strong>
+              </div>
+            </div>
 
-                        <div className="parent-activity-actions">
-                          <button
-                            onClick={() => handleReject(completion.id)}
-                            disabled={actionLoadingId === completion.id}
-                            className="parent-icon-button parent-icon-button-muted"
-                            aria-label="Reject task"
-                          >
-                            ✕
-                          </button>
+            <div className="parent-activity-section">
+              <p className="parent-activity-heading">Recent Activities</p>
 
-                          <button
-                            onClick={() => handleApprove(completion.id)}
-                            disabled={actionLoadingId === completion.id}
-                            className="parent-icon-button parent-icon-button-primary"
-                            aria-label="Approve task"
-                          >
-                            {actionLoadingId === completion.id ? "…" : "✓"}
-                          </button>
-                        </div>
-                      </article>
-                    ))
-                  )}
-                </div>
-              </article>
-            </section>
-
-            {children.length > 1 && (
-              <section className="parent-child-nav">
-                <button
-                  type="button"
-                  className="parent-nav-arrow"
-                  onClick={() =>
-                    setActiveChildIndex((prev) =>
-                      prev === 0 ? children.length - 1 : prev - 1
-                    )
-                  }
-                  aria-label="Previous child"
-                >
-                  ‹
-                </button>
-
-                <div className="parent-nav-dots">
-                  {children.map((child, index) => (
-                    <button
-                      key={child.id}
-                      type="button"
-                      className={`parent-nav-dot ${
-                        index === activeChildIndex ? "is-active" : ""
+              <div className="parent-activity-list">
+                {activeChildPending.length === 0 ? (
+                  <div className="parent-activity-empty">No recent activities yet.</div>
+                ) : (
+                  activeChildPending.map((completion) => (
+                    <article
+                      key={completion.id}
+                      className={`parent-activity-card ${
+                        completion.choreTitle.toLowerCase().includes("goal")
+                          ? "goal-card"
+                          : ""
                       }`}
-                      onClick={() => setActiveChildIndex(index)}
-                      aria-label={`Go to ${child.displayName}`}
-                    />
-                  ))}
-                </div>
+                    >
+                      <div className="parent-activity-copy">
+                        <p className="parent-activity-label">
+                          {completion.choreTitle.toLowerCase().includes("goal")
+                            ? "New Goal"
+                            : "Complete"}
+                        </p>
+                        <h3>{completion.choreTitle}</h3>
+                      </div>
 
+                      <div className="parent-activity-actions">
+                        <button
+                          onClick={() => handleReject(completion.id)}
+                          disabled={actionLoadingId === completion.id}
+                          className="parent-icon-button parent-icon-button-muted"
+                          aria-label="Reject task"
+                        >
+                          ✕
+                        </button>
+
+                        <button
+                          onClick={() => handleApprove(completion.id)}
+                          disabled={actionLoadingId === completion.id}
+                          className="parent-icon-button parent-icon-button-primary"
+                          aria-label="Approve task"
+                        >
+                          {actionLoadingId === completion.id ? "…" : "✓"}
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section className="parent-fab-row">
+          <button
+            onClick={() => router.push("/parent/add-child" as Route)}
+            className="parent-fab"
+            aria-label="Add child"
+          >
+            ＋ Child
+          </button>
+        </section>
+
+        {children.length > 1 && (
+          <section className="parent-child-nav">
+            <button
+              type="button"
+              className="parent-nav-arrow"
+              onClick={() =>
+                setActiveChildIndex((prev) => (prev === 0 ? children.length - 1 : prev - 1))
+              }
+              aria-label="Previous child"
+            >
+              ‹
+            </button>
+
+            <div className="parent-nav-dots">
+              {children.map((child, index) => (
                 <button
+                  key={child.id}
                   type="button"
-                  className="parent-nav-arrow"
-                  onClick={() =>
-                    setActiveChildIndex((prev) =>
-                      prev === children.length - 1 ? 0 : prev + 1
-                    )
-                  }
-                  aria-label="Next child"
-                >
-                  ›
-                </button>
-              </section>
-            )}
+                  className={`parent-nav-dot ${index === activeChildIndex ? "is-active" : ""}`}
+                  onClick={() => setActiveChildIndex(index)}
+                  aria-label={`Go to ${child.displayName}`}
+                />
+              ))}
+            </div>
 
-            <section className="parent-dashboard-footer">
-              <button onClick={handleLogout} className="parent-secondary-button">
-                Log out
-              </button>
-            </section>
-          </>
+            <button
+              type="button"
+              className="parent-nav-arrow"
+              onClick={() =>
+                setActiveChildIndex((prev) =>
+                  prev === children.length - 1 ? 0 : prev + 1
+                )
+              }
+              aria-label="Next child"
+            >
+              ›
+            </button>
+          </section>
         )}
       </div>
+
+      {/* Bottom Sheet Modal */}
+      {showChoreModal && (
+        <>
+          <div 
+            className="parent-modal-overlay"
+            onClick={() => setShowChoreModal(false)}
+          />
+          <div className="parent-modal-sheet">
+            <div className="parent-modal-handle" />
+            <h2 className="parent-modal-title">Assign Task</h2>
+            
+            <form onSubmit={handleAddChore} className="parent-modal-form">
+              <div className="parent-modal-field">
+                <label htmlFor="chore-title">Task</label>
+                <input
+                  id="chore-title"
+                  value={choreTitle}
+                  onChange={(e) => setChoreTitle(e.target.value)}
+                  placeholder="Enter task name"
+                />
+              </div>
+
+              <div className="parent-modal-field">
+                <label htmlFor="chore-reward">Coin amount</label>
+                <input
+                  id="chore-reward"
+                  type="number"
+                  value={choreReward}
+                  onChange={(e) => setChoreReward(e.target.value)}
+                />
+              </div>
+
+              <div className="parent-modal-field">
+                <label htmlFor="chore-description">Details/Instructions</label>
+                <textarea
+                  id="chore-description"
+                  value={choreDescription}
+                  onChange={(e) => setChoreDescription(e.target.value)}
+                  rows={3}
+                  placeholder="Add details..."
+                />
+              </div>
+
+              <div className="parent-modal-field">
+                <label htmlFor="chore-frequency">Frequency</label>
+                <select
+                  id="chore-frequency"
+                  value={choreFrequency}
+                  onChange={(e) => setChoreFrequency(e.target.value)}
+                >
+                  <option value="one-time">One-time</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                </select>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={choreSaving}
+                className="parent-modal-submit"
+              >
+                <span>＋</span> {choreSaving ? "Adding..." : "Add Task"}
+              </button>
+            </form>
+          </div>
+        </>
+      )}
     </main>
   );
 }

@@ -1,50 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { signInWithPopup, onAuthStateChanged, User } from "firebase/auth";
+import { useState } from "react";
+import { signInWithPopup, User } from "firebase/auth";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
-import { auth, googleProvider } from "@/lib/firebase-client";
+import { auth, db, googleProvider } from "@/lib/firebase-client";
 
 type ParentAuthProps = {
   className?: string;
   children?: React.ReactNode;
 };
 
+async function getParentDestination(user: User): Promise<Route> {
+  const childSnap = await getDocs(
+    query(collection(db, "children"), where("parentUid", "==", user.uid))
+  );
+
+  return childSnap.empty
+    ? ("/parent/add-child" as Route)
+    : ("/parent/dashboard" as Route);
+}
+
 export default function ParentAuth({ className, children }: ParentAuthProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
-      if (user) {
-        router.push("/parent/dashboard" as Route);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
-  const signIn = async () => {
+  const handleParentClick = async () => {
     try {
       setLoading(true);
-      await signInWithPopup(auth, googleProvider);
-      router.push("/parent/dashboard" as Route);
+
+      const existingUser = auth.currentUser;
+
+      if (existingUser) {
+        const destination = await getParentDestination(existingUser);
+        router.push(destination);
+        return;
+      }
+
+      const result = await signInWithPopup(auth, googleProvider);
+      const destination = await getParentDestination(result.user);
+      router.push(destination);
     } catch (error: any) {
-      console.error("Firebase sign-in error:", error.code, error.message);
-      alert(error.message || "Sign-in failed");
+      console.error("Firebase sign-in error:", error?.code, error?.message);
+      alert(error?.message || "Sign-in failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <button onClick={signIn} disabled={loading} className={className}>
-      {children ? (
-        children
-      ) : (
-        <span>{loading ? "SIGNING IN..." : "PARENT"}</span>
-      )}
+    <button
+      type="button"
+      onClick={handleParentClick}
+      disabled={loading}
+      className={className}
+    >
+      {children ? children : <span>{loading ? "SIGNING IN..." : "PARENT"}</span>}
     </button>
   );
 }
