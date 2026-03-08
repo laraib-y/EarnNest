@@ -3,11 +3,32 @@
   background: #fff8ef;
   padding: 32px 20px 120px;
   color: #2f241f;
+  overflow: hidden;
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .kid-dashboard-shell {
   max-width: 920px;
   margin: 0 auto;
+  animation: slideInLeft 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
 
 .kid-dashboard-loading {
