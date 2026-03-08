@@ -13,6 +13,8 @@ type ChildProfile = {
   displayName: string;
   name: string;
   modulesCompleted: string[];
+  coinBalance: number;
+  streak: number;
 };
 
 export default function KidModulesPage() {
@@ -43,6 +45,8 @@ export default function KidModulesPage() {
         modulesCompleted: Array.isArray(childData.modulesCompleted)
           ? childData.modulesCompleted
           : [],
+        coinBalance: Number(childData.coinBalance || 0),
+        streak: Number(childData.streak || 0),
       });
 
       setLoading(false);
@@ -67,6 +71,26 @@ export default function KidModulesPage() {
     <main className="kid-modules-page">
       <div className="kid-modules-shell">
         <section className="kid-modules-hero">
+          <div className="kid-corner-stats">
+            <div className="kid-pill kid-pill-coins">
+              <img
+                src="/assets/CoinIcon.svg"
+                alt="Coin"
+                className="kid-pill-icon"
+              />
+              {child.coinBalance} Coins
+            </div>
+
+            <div className="kid-pill kid-pill-streak">
+              <img
+                src="/assets/FireIcon.svg"
+                alt="Streak"
+                className="kid-pill-icon"
+              />
+              {child.streak} {child.streak === 1 ? "day" : "days"}
+            </div>
+          </div>
+
           <div>
             <p className="kid-modules-kicker">Learning</p>
             <h1 className="kid-modules-title">Build Your Money Skills</h1>

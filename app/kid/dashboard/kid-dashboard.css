@@ -48,10 +48,10 @@
 
 .kid-corner-stats {
   position: absolute;
-  top: -46px;
+  top: -56px;
   right: 12px;
   display: flex;
-  gap: 12px;
+  gap: 16px;
   z-index: 2;
 }
 
@@ -225,7 +225,7 @@
 }
 
 .kid-module-card {
-  background: #ffffff;
+  background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
   border-radius: 24px;
   padding: 22px;
   box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);

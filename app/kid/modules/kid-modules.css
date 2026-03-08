@@ -1,6 +1,5 @@
 .kid-modules-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgba(255, 204, 176, 0) 12.8%, #ffccb0 62.87%);
   padding: 32px 20px 120px;
   color: #2f241f;
   overflow: hidden;
@@ -31,22 +30,58 @@
   will-change: transform;
 }
 
-.kid-modules-shell {
-  max-width: 920px;
-  margin: 0 auto;
-}
-
 .kid-modules-loading {
   font-size: 1rem;
   color: #7a675d;
 }
 
 .kid-modules-hero {
+  position: relative;
+  margin-top: 48px;
   margin-bottom: 28px;
-  padding: 32px 28px;
-  background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
+  padding: 32px 28px 28px;
+  background: #fcdd9d;
   border-radius: 28px;
   box-shadow: 0 10px 30px rgba(241, 100, 46, 0.12);
+}
+
+.kid-corner-stats {
+  position: absolute;
+  top: -56px;
+  right: 12px;
+  display: flex;
+  gap: 16px;
+  z-index: 2;
+}
+
+.kid-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.08);
+}
+
+.kid-pill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.kid-pill-coins {
+  border: 2px solid #b28600;
+  color: #9b7200;
+}
+
+.kid-pill-streak {
+  border: 2px solid #b31800;
+  color: #db3b16;
 }
 
 .kid-modules-kicker {
@@ -161,4 +196,33 @@
 .kid-primary-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .kid-modules-page {
+    padding-bottom: 120px;
+  }
+
+  .kid-modules-hero {
+    margin-top: 64px;
+    padding-top: 30px;
+  }
+
+  .kid-corner-stats {
+    top: -70px;
+    right: 8px;
+    left: 8px;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .kid-module-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kid-module-status {
+    align-self: flex-start;
+  }
 }
