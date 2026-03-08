@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { db } from "@/lib/firebase-client";
+import "./kid-dashboard.css";
 
 type ChildProfile = {
   id: string;
@@ -181,8 +182,10 @@ export default function KidDashboardPage() {
 
   if (loading) {
     return (
-      <main style={{ padding: 40 }}>
-        <p>Loading kid dashboard...</p>
+      <main className="kid-dashboard-page">
+        <div className="kid-dashboard-shell">
+          <p className="kid-dashboard-loading">Loading kid dashboard...</p>
+        </div>
       </main>
     );
   }
@@ -190,74 +193,107 @@ export default function KidDashboardPage() {
   if (!child) return null;
 
   return (
-    <main style={{ padding: 40, maxWidth: 800 }}>
-      <h1>Kid Dashboard</h1>
-      <p>Hi, {child.displayName || child.name}!</p>
-      <p>Coins: {child.coinBalance}</p>
-      <p>Streak: {child.streak}</p>
-      <p>Completed chores: {child.completedChores}</p>
-
-      <section>
-        <h2>Learning</h2>
-        <button onClick={() => router.push("/kid/modules/module-1" as Route)}>
-          Start Module 1
-        </button>
-      </section>
-
-      <section style={{ marginTop: 32 }}>
-        <h2>Your Chores</h2>
-
-        {chores.length === 0 ? (
-          <p>No chores assigned yet.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
-            {chores.map((chore) => {
-              const completion = latestCompletionByChore.get(chore.id);
-
-              return (
-                <div
-                  key={chore.id}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 12,
-                    padding: 16,
-                  }}
-                >
-                  <h3 style={{ margin: 0 }}>{chore.title}</h3>
-
-                  {chore.description ? (
-                    <p style={{ margin: "8px 0" }}>{chore.description}</p>
-                  ) : null}
-
-                  <p style={{ margin: "8px 0" }}>Reward: {chore.reward} coins</p>
-                  <p style={{ margin: "8px 0" }}>Frequency: {chore.frequency}</p>
-
-                  {completion?.status === "pending" && (
-                    <p style={{ margin: "8px 0" }}>Waiting for parent approval</p>
-                  )}
-
-                  {completion?.status === "approved" && (
-                    <p style={{ margin: "8px 0" }}>Approved ✅</p>
-                  )}
-
-                  {completion?.status === "rejected" && (
-                    <p style={{ margin: "8px 0" }}>Rejected — you can try again</p>
-                  )}
-
-                  {(completion?.status === undefined || completion?.status === "rejected") && (
-                    <button
-                      onClick={() => handleMarkDone(chore)}
-                      disabled={actionLoadingId === chore.id}
-                    >
-                      {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+<main className="kid-dashboard-page">
+      <div className="kid-dashboard-shell">
+        <section className="kid-dashboard-hero">
+          <div>
+            <p className="kid-dashboard-kicker">Kid Dashboard</p>
+            <h1 className="kid-dashboard-title">
+              Hi, {child.displayName || child.name}! 👋
+            </h1>
+            <p className="kid-dashboard-subtitle">
+              Finish chores, earn coins, and keep your streak going.
+            </p>
           </div>
-        )}
-      </section>
+
+          <div className="kid-avatar-badge">
+            {(child.displayName || child.name).charAt(0).toUpperCase()}
+          </div>
+        </section>
+
+        <section className="kid-stats-grid">
+          <article className="kid-stat-card">
+            <p className="kid-stat-label">Coins</p>
+            <h2>{child.coinBalance}</h2>
+          </article>
+
+          <article className="kid-stat-card">
+            <p className="kid-stat-label">Streak</p>
+            <h2>{child.streak}</h2>
+          </article>
+
+          <article className="kid-stat-card">
+            <p className="kid-stat-label">Completed</p>
+            <h2>{child.completedChores}</h2>
+          </article>
+        </section>
+        <section>
+          <h2>Learning</h2>
+          <button onClick={() => router.push("/kid/modules/module-1" as Route)}>
+            Start Module 1
+          </button>
+        </section>
+
+        <section className="kid-dashboard-section">
+          <div className="kid-section-header">
+            <h2>Your Chores</h2>
+            <span>{chores.length} task{chores.length === 1 ? "" : "s"}</span>
+          </div>
+
+          {chores.length === 0 ? (
+            <div className="kid-empty-card">
+              <p>No chores assigned yet.</p>
+            </div>
+          ) : (
+            <div className="kid-chores-grid">
+              {chores.map((chore) => {
+                const completion = latestCompletionByChore.get(chore.id);
+
+                return (
+                  <article key={chore.id} className="kid-chore-card">
+                    <div className="kid-chore-top">
+                      <h3>{chore.title}</h3>
+                      <span className="kid-reward-pill">{chore.reward} coins</span>
+                    </div>
+
+                    {chore.description ? (
+                      <p className="kid-chore-description">{chore.description}</p>
+                    ) : null}
+
+                    <p className="kid-chore-frequency">Frequency: {chore.frequency}</p>
+
+                    {completion?.status === "pending" && (
+                      <p className="kid-status kid-status-pending">
+                        Waiting for parent approval
+                      </p>
+                    )}
+
+                    {completion?.status === "approved" && (
+                      <p className="kid-status kid-status-approved">Approved ✅</p>
+                    )}
+
+                    {completion?.status === "rejected" && (
+                      <p className="kid-status kid-status-rejected">
+                        Rejected — you can try again
+                      </p>
+                    )}
+
+                    {(completion?.status === undefined || completion?.status === "rejected") && (
+                      <button
+                        onClick={() => handleMarkDone(chore)}
+                        disabled={actionLoadingId === chore.id}
+                        className="kid-primary-button"
+                      >
+                        {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
+                      </button>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }
