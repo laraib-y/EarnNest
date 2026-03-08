@@ -5,9 +5,29 @@
   color: #2f241f;
 }
 
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .kid-dashboard-shell {
   max-width: 920px;
   margin: 0 auto;
+  animation: slideInLeft 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
 
 .kid-dashboard-loading {
@@ -181,7 +201,8 @@
 
 .kid-section-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .kid-section-header span {
@@ -195,6 +216,77 @@
   padding: 24px;
   box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
   color: #7a675d;
+}
+
+.kid-goals-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.kid-goal-card {
+  background: #f5f5f5;
+  border-radius: 16px;
+  padding: 14px 18px 12px;
+  border: 1.5px solid #cfc9d8;
+  box-shadow: none;
+}
+
+.kid-goal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.kid-goal-label {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7d7d7d;
+}
+
+.kid-goal-card h3 {
+  font-family: Rubik;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 18px;
+  leading-trim: NONE;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
+
+.kid-goal-edit-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px;
+  color: #f1642e;
+  line-height: 1;
+}
+
+.kid-goal-progress-text {
+  margin: 0 0 8px;
+  font-size: 0.92rem;
+  color: #6f6f6f;
+  font-weight: 600;
+}
+
+.kid-goal-progress-track {
+  width: 100%;
+  height: 10px;
+  background: #ececf0;
+  border: 1px solid #cfc9d8;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kid-goal-progress-fill {
+  height: 100%;
+  background: #67bf1b;
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
 .kid-modules-grid {
@@ -380,4 +472,77 @@
   .kid-module-status {
     align-self: flex-start;
   }
+}
+
+@keyframes kidModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kidModalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kidModalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes kidModalPopOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+.kid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: kidModalFadeIn 0.22s ease-out;
+}
+
+.kid-modal-overlay.closing {
+  animation: kidModalFadeOut 0.2s ease-in forwards;
+}
+
+.kid-modal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px 24px;
+  max-width: 390px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: kidModalPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+
+.kid-modal-card.closing {
+  animation: kidModalPopOut 0.2s ease-in forwards;
 }
