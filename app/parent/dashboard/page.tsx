@@ -18,6 +18,7 @@ import {
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase-client";
+import "./parent-dashboard.css";
 
 type ParentProfile = {
   uid: string;
@@ -252,93 +253,128 @@ export default function ParentDashboardPage() {
 
   if (loading) {
     return (
-      <main style={{ padding: 40 }}>
-        <p>Loading dashboard...</p>
+      <main className="parent-dashboard-page">
+        <div className="parent-dashboard-shell">
+          <p className="parent-dashboard-loading">Loading dashboard...</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: 40, maxWidth: 900 }}>
-      <h1>Parent Dashboard</h1>
-      <p>Welcome, {user?.displayName || "Parent"}.</p>
-      <p>Email: {user?.email}</p>
-
-      <div style={{ marginTop: 24 }}>
-        <Link href={"/parent/add-child" as Route}>Add Child</Link>
-      </div>
-
-      <section style={{ marginTop: 32 }}>
-        <h2>Your Children</h2>
-
-        {children.length === 0 ? (
-          <p>No child profiles yet.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
-            {children.map((child) => (
-              <div
-                key={child.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
-                <h3 style={{ margin: 0 }}>{child.displayName}</h3>
-                <p style={{ margin: "8px 0" }}>Access Code: {child.accessCode}</p>
-                <p style={{ margin: "8px 0" }}>Coins: {child.coinBalance}</p>
-                <Link href={`/parent/assign-chore/${child.id}` as Route}>
-                  Assign Chore
-                </Link>
-              </div>
-            ))}
+    <main className="parent-dashboard-page">
+      <div className="parent-dashboard-shell">
+        <section className="parent-dashboard-hero">
+          <div>
+            <p className="parent-dashboard-kicker">Parent Dashboard</p>
+            <h1 className="parent-dashboard-title">
+              Hi {user?.displayName?.split(" ")[0] || "Parent"} 👋
+            </h1>
+            <p className="parent-dashboard-subtitle">
+              Keep track of your children, assign chores, and review progress.
+            </p>
           </div>
-        )}
-      </section>
 
-      <section style={{ marginTop: 40 }}>
-        <h2>Pending Approvals</h2>
-
-        {pendingCompletions.length === 0 ? (
-          <p>No chores waiting for approval.</p>
-        ) : (
-          <div style={{ display: "grid", gap: 16, marginTop: 16 }}>
-            {pendingCompletions.map((completion) => (
-              <div
-                key={completion.id}
-                style={{
-                  border: "1px solid #ddd",
-                  borderRadius: 12,
-                  padding: 16,
-                }}
-              >
-                <h3 style={{ margin: 0 }}>{completion.choreTitle}</h3>
-                <p style={{ margin: "8px 0" }}>Child: {completion.childName}</p>
-                <p style={{ margin: "8px 0" }}>Reward: {completion.reward} coins</p>
-
-                <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-                  <button
-                    onClick={() => handleApprove(completion.id)}
-                    disabled={actionLoadingId === completion.id}
-                  >
-                    {actionLoadingId === completion.id ? "Working..." : "Approve"}
-                  </button>
-
-                  <button
-                    onClick={() => handleReject(completion.id)}
-                    disabled={actionLoadingId === completion.id}
-                  >
-                    Reject
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="parent-dashboard-actions">
+            <Link href={"/parent/add-child" as Route} className="parent-primary-button">
+              + Add Child
+            </Link>
           </div>
-        )}
-      </section>
+        </section>
 
-      <div style={{ marginTop: 32 }}>
-        <button onClick={handleLogout}>Log out</button>
+        <section className="parent-dashboard-section">
+          <div className="parent-section-header">
+            <h2>Your Children</h2>
+            <span>{children.length} profile{children.length === 1 ? "" : "s"}</span>
+          </div>
+
+          {children.length === 0 ? (
+            <div className="parent-empty-card">
+              <p>No child profiles yet.</p>
+            </div>
+          ) : (
+            <div className="parent-children-grid">
+              {children.map((child) => (
+                <article key={child.id} className="parent-child-card">
+                  <div className="parent-child-top">
+                    <div className="parent-child-avatar">
+                      {child.displayName?.charAt(0).toUpperCase() || "C"}
+                    </div>
+
+                    <div className="parent-child-meta">
+                      <h3>{child.displayName}</h3>
+                      <p className="parent-child-code">Access Code: {child.accessCode}</p>
+                    </div>
+                  </div>
+
+                  <div className="parent-child-stats">
+                    <div className="parent-stat-pill">
+                      <span className="parent-stat-label">Coins</span>
+                      <strong>{child.coinBalance}</strong>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/parent/assign-chore/${child.id}` as Route}
+                    className="parent-task-button"
+                  >
+                    + Assign New Task
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="parent-dashboard-section">
+          <div className="parent-section-header">
+            <h2>Pending Approvals</h2>
+            <span>{pendingCompletions.length} waiting</span>
+          </div>
+
+          {pendingCompletions.length === 0 ? (
+            <div className="parent-empty-card">
+              <p>No chores waiting for approval.</p>
+            </div>
+          ) : (
+            <div className="parent-approvals-list">
+              {pendingCompletions.map((completion) => (
+                <article key={completion.id} className="parent-approval-card">
+                  <div className="parent-approval-copy">
+                    <p className="parent-approval-label">Chore Completed</p>
+                    <h3>{completion.choreTitle}</h3>
+                    <p className="parent-approval-child">Child: {completion.childName}</p>
+                    <p className="parent-approval-reward">{completion.reward} coins</p>
+                  </div>
+
+                  <div className="parent-approval-actions">
+                    <button
+                      onClick={() => handleApprove(completion.id)}
+                      disabled={actionLoadingId === completion.id}
+                      className="parent-approve-button"
+                    >
+                      {actionLoadingId === completion.id ? "..." : "✓"}
+                    </button>
+
+                    <button
+                      onClick={() => handleReject(completion.id)}
+                      disabled={actionLoadingId === completion.id}
+                      className="parent-reject-button"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="parent-dashboard-footer">
+          <button onClick={handleLogout} className="parent-secondary-button">
+            Log out
+          </button>
+        </section>
       </div>
     </main>
   );
