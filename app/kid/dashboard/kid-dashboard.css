@@ -3,7 +3,6 @@
   background: #fff8ef;
   padding: 32px 20px 120px;
   color: #2f241f;
-  overflow: hidden;
 }
 
 @keyframes slideInLeft {
@@ -48,10 +47,10 @@
 
 .kid-corner-stats {
   position: absolute;
-  top: -56px;
+  top: -46px;
   right: 12px;
   display: flex;
-  gap: 16px;
+  gap: 12px;
   z-index: 2;
 }
 
@@ -225,7 +224,7 @@
 }
 
 .kid-module-card {
-  background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
+  background: #ffffff;
   border-radius: 24px;
   padding: 22px;
   box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
@@ -401,4 +400,77 @@
   .kid-module-status {
     align-self: flex-start;
   }
+}
+
+@keyframes kidModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kidModalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kidModalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes kidModalPopOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
+.kid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: kidModalFadeIn 0.22s ease-out;
+}
+
+.kid-modal-overlay.closing {
+  animation: kidModalFadeOut 0.2s ease-in forwards;
+}
+
+.kid-modal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px 24px;
+  max-width: 390px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: kidModalPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+
+.kid-modal-card.closing {
+  animation: kidModalPopOut 0.2s ease-in forwards;
 }

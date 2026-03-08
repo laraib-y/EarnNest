@@ -46,6 +46,13 @@ type CompletionItem = {
   createdAt?: unknown;
 };
 
+type GoalItem = {
+  id: string;
+  item: string;
+  cost: number;
+  createdAt?: unknown;
+};
+
 const avatars = [
   { key: "bear", src: "/assets/BearIcon.svg", label: "Bear" },
   { key: "cat", src: "/assets/CatIcon.svg", label: "Cat" },
@@ -61,11 +68,18 @@ export default function KidDashboardPage() {
   const [child, setChild] = useState<ChildProfile | null>(null);
   const [chores, setChores] = useState<ChoreItem[]>([]);
   const [completions, setCompletions] = useState<CompletionItem[]>([]);
+  const [goals, setGoals] = useState<GoalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const [isCustomizingClosing, setIsCustomizingClosing] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState("bear");
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [isEditingGoalClosing, setIsEditingGoalClosing] = useState(false);
+  const [editGoalItem, setEditGoalItem] = useState("");
+  const [editGoalCost, setEditGoalCost] = useState("");
+  const [savingGoal, setSavingGoal] = useState(false);
 
   const getAvatarPath = (avatar: string) => {
     if (!avatar) return "/assets/BearIcon.svg";
@@ -112,12 +126,34 @@ export default function KidDashboardPage() {
         avatar: selectedAvatar,
       });
 
-      setIsCustomizing(false);
+      setIsCustomizingClosing(true);
     } catch (error) {
       console.error(error);
       alert("Could not update avatar.");
     } finally {
       setSavingAvatar(false);
+    }
+  };
+
+  const handleCloseEditGoal = () => {
+    setIsEditingGoalClosing(true);
+  };
+
+  const handleCloseCustomize = () => {
+    setIsCustomizingClosing(true);
+  };
+
+  const handleEditGoalAnimationEnd = () => {
+    if (isEditingGoalClosing) {
+      setIsEditingGoal(false);
+      setIsEditingGoalClosing(false);
+    }
+  };
+
+  const handleCustomizeAnimationEnd = () => {
+    if (isCustomizingClosing) {
+      setIsCustomizing(false);
+      setIsCustomizingClosing(false);
     }
   };
 
@@ -132,33 +168,37 @@ export default function KidDashboardPage() {
     let childUnsub: (() => void) | null = null;
     let choresUnsub: (() => void) | null = null;
     let completionsUnsub: (() => void) | null = null;
+    let goalsUnsub: (() => void) | null = null;
 
     try {
-      childUnsub = onSnapshot(doc(db, "children", storedChildId), (childSnap) => {
-        if (!childSnap.exists()) {
-          router.push("/kid" as Route);
-          return;
-        }
+      childUnsub = onSnapshot(
+        doc(db, "children", storedChildId),
+        (childSnap) => {
+          if (!childSnap.exists()) {
+            router.push("/kid" as Route);
+            return;
+          }
 
-        const childData = childSnap.data();
+          const childData = childSnap.data();
 
-        const childProfile: ChildProfile = {
-          id: childSnap.id,
-          parentUid: childData.parentUid || "",
-          name: childData.name || "",
-          displayName: childData.displayName || childData.name || "",
-          avatar: childData.avatar || "bear",
-          coinBalance: Number(childData.coinBalance || 0),
-          streak: Number(childData.streak || 0),
-          completedChores: Number(childData.completedChores || 0),
-          modulesCompleted: Array.isArray(childData.modulesCompleted)
-            ? childData.modulesCompleted
-            : [],
-        };
+          const childProfile: ChildProfile = {
+            id: childSnap.id,
+            parentUid: childData.parentUid || "",
+            name: childData.name || "",
+            displayName: childData.displayName || childData.name || "",
+            avatar: childData.avatar || "bear",
+            coinBalance: Number(childData.coinBalance || 0),
+            streak: Number(childData.streak || 0),
+            completedChores: Number(childData.completedChores || 0),
+            modulesCompleted: Array.isArray(childData.modulesCompleted)
+              ? childData.modulesCompleted
+              : [],
+          };
 
-        setChild(childProfile);
-        setLoading(false);
-      });
+          setChild(childProfile);
+          setLoading(false);
+        },
+      );
 
       choresUnsub = onSnapshot(
         query(collection(db, "chores"), where("childId", "==", storedChildId)),
@@ -178,11 +218,14 @@ export default function KidDashboardPage() {
             .filter((chore) => chore.status === "active");
 
           setChores(choreList);
-        }
+        },
       );
 
       completionsUnsub = onSnapshot(
-        query(collection(db, "completions"), where("childId", "==", storedChildId)),
+        query(
+          collection(db, "completions"),
+          where("childId", "==", storedChildId),
+        ),
         (completionSnap) => {
           const completionList: CompletionItem[] = completionSnap.docs.map(
             (completionDoc) => {
@@ -194,11 +237,28 @@ export default function KidDashboardPage() {
                 reward: Number(data.reward || 0),
                 createdAt: data.createdAt || null,
               };
-            }
+            },
           );
 
           setCompletions(completionList);
-        }
+        },
+      );
+
+      goalsUnsub = onSnapshot(
+        query(collection(db, "goals"), where("childId", "==", storedChildId)),
+        (goalSnap) => {
+          const goalList: GoalItem[] = goalSnap.docs.map((goalDoc) => {
+            const data = goalDoc.data();
+            return {
+              id: goalDoc.id,
+              item: data.item || "",
+              cost: Number(data.cost || 0),
+              createdAt: data.createdAt || null,
+            };
+          });
+
+          setGoals(goalList);
+        },
       );
     } catch (error) {
       console.error(error);
@@ -209,6 +269,7 @@ export default function KidDashboardPage() {
       childUnsub?.();
       choresUnsub?.();
       completionsUnsub?.();
+      goalsUnsub?.();
     };
   }, [router]);
 
@@ -243,6 +304,32 @@ export default function KidDashboardPage() {
       alert("Could not mark chore as done.");
     } finally {
       setActionLoadingId(null);
+    }
+  };
+
+  const handleEditGoal = (goal: GoalItem) => {
+    setEditGoalItem(goal.item);
+    setEditGoalCost(String(goal.cost));
+    setIsEditingGoal(true);
+  };
+
+  const handleSaveGoal = async () => {
+    if (!goals.length || !editGoalItem || !editGoalCost) return;
+
+    try {
+      setSavingGoal(true);
+
+      await updateDoc(doc(db, "goals", goals[0].id), {
+        item: editGoalItem,
+        cost: Number(editGoalCost),
+      });
+
+      setIsEditingGoalClosing(true);
+    } catch (error) {
+      console.error(error);
+      alert("Could not update goal.");
+    } finally {
+      setSavingGoal(false);
     }
   };
 
@@ -290,7 +377,8 @@ export default function KidDashboardPage() {
                     src={getAvatarPath(child.avatar)}
                     alt="Your avatar"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                      (e.target as HTMLImageElement).src =
+                        "/assets/BearIcon.svg";
                     }}
                   />
                 </div>
@@ -334,16 +422,140 @@ export default function KidDashboardPage() {
 
         <section className="kid-dashboard-section">
           <div className="kid-section-header">
-            <h2>Your Chores</h2>
-            <span>
-              {chores.length} task{chores.length === 1 ? "" : "s"}
-            </span>
+            <h2>Current Goal</h2>
           </div>
+
+          {goals.length === 0 ? (
+            <div className="kid-empty-card">
+              <p>No goal set yet. Complete Module 1 to set your first goal!</p>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: "18px" }}>
+              {goals.slice(0, 1).map((goal) => (
+                <div
+                  key={goal.id}
+                  style={{
+                    background: "#ffffff",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    border: "2px solid #e8dcc8",
+                    boxShadow: "0 2px 8px rgba(47, 36, 31, 0.06)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          margin: "0 0 8px",
+                          fontSize: "0.8rem",
+                          color: "#999",
+                          fontWeight: 500,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}
+                      >
+                        Current Goal
+                      </p>
+                      <h3
+                        style={{
+                          margin: "0 0 8px",
+                          fontSize: "1.4rem",
+                          fontWeight: 700,
+                          color: "#2f241f",
+                        }}
+                      >
+                        {goal.item}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => handleEditGoal(goal)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "1.2rem",
+                        padding: "4px",
+                        color: "#f1642e",
+                      }}
+                      type="button"
+                      title="Edit goal"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+
+                  <p
+                    style={{
+                      margin: "8px 0",
+                      fontSize: "0.9rem",
+                      color: "#7a675d",
+                      fontWeight: 500,
+                    }}
+                  >
+                    {Math.min(child?.coinBalance || 0, goal.cost)} / {goal.cost}{" "}
+                    Coins
+                  </p>
+
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "8px",
+                      backgroundColor: "#f0e6db",
+                      borderRadius: "4px",
+                      overflow: "hidden",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        backgroundColor: "#52c41a",
+                        width: `${Math.min(
+                          ((child?.coinBalance || 0) / goal.cost) * 100,
+                          100,
+                        )}%`,
+                        transition: "width 0.3s ease",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="kid-dashboard-section">
+          <h2
+            style={{
+              margin: "0 0 16px",
+              fontSize: "1rem",
+              fontWeight: 600,
+              color: "#2f241f",
+            }}
+          >
+            Task List
+          </h2>
 
           {!child.modulesCompleted.includes("module-1") ? (
             <div className="kid-empty-card">
-              <p>📚 Complete "Module 1: Needs vs Wants" first to unlock chores!</p>
-              <p style={{ fontSize: "0.9rem", color: "#7a675d", marginTop: "8px" }}>
+              <p>
+                📚 Complete "Module 1: Needs vs Wants" first to unlock chores!
+              </p>
+              <p
+                style={{
+                  fontSize: "0.9rem",
+                  color: "#7a675d",
+                  marginTop: "8px",
+                }}
+              >
                 Head to the Learn section and finish the module to get started.
               </p>
             </div>
@@ -352,211 +564,362 @@ export default function KidDashboardPage() {
               <p>No chores assigned yet.</p>
             </div>
           ) : (
-            <div className="kid-chores-grid">
-              {chores.map((chore) => {
+            <div style={{ display: "grid", gap: "10px" }}>
+              {chores.map((chore, index) => {
                 const completion = latestCompletionByChore.get(chore.id);
+                const isFirst = index === 0;
 
                 return (
-                  <article key={chore.id} className="kid-chore-card">
-                    <div className="kid-chore-top">
-                      <h3>{chore.title}</h3>
-                      <span className="kid-reward-pill">
-                        {chore.reward} coins
+                  <div
+                    key={chore.id}
+                    style={{
+                      background: "#ffffff",
+                      borderRadius: isFirst ? "12px" : "12px",
+                      padding: isFirst ? "20px" : "16px",
+                      border: "2px solid #e8dcc8",
+                      boxShadow: isFirst
+                        ? "0 2px 8px rgba(47, 36, 31, 0.08)"
+                        : "0 2px 8px rgba(47, 36, 31, 0.06)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: isFirst ? "16px" : "0",
+                      }}
+                    >
+                      <h3
+                        style={{
+                          margin: 0,
+                          fontSize: "1.15rem",
+                          fontWeight: 600,
+                          color: "#2f241f",
+                          flex: 1,
+                        }}
+                      >
+                        {chore.title}
+                      </h3>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "6px 14px",
+                          borderRadius: "8px",
+                          border: "2px solid #fcdd9d",
+                          background: "#fffaf5",
+                          color: "#8a6d2e",
+                          fontWeight: 700,
+                          fontSize: "0.9rem",
+                          whiteSpace: "nowrap",
+                          marginLeft: "16px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span>💰</span> +{chore.reward}
                       </span>
                     </div>
 
-                    {chore.description ? (
-                      <p className="kid-chore-description">
-                        {chore.description}
-                      </p>
-                    ) : null}
+                    {isFirst && (
+                      <>
+                        {completion?.status === "pending" && (
+                          <p
+                            style={{
+                              margin: "0 0 12px",
+                              fontSize: "0.85rem",
+                              color: "#9c5b24",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ⏳ Waiting for parent approval
+                          </p>
+                        )}
 
-                    <p className="kid-chore-frequency">
-                      Frequency: {chore.frequency}
-                    </p>
+                        {completion?.status === "approved" && (
+                          <p
+                            style={{
+                              margin: "0 0 12px",
+                              fontSize: "0.85rem",
+                              color: "#2d7a4b",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ✅ Approved
+                          </p>
+                        )}
 
-                    {completion?.status === "pending" && (
-                      <p className="kid-status kid-status-pending">
-                        Waiting for parent approval
-                      </p>
+                        {completion?.status === "rejected" && (
+                          <p
+                            style={{
+                              margin: "0 0 12px",
+                              fontSize: "0.85rem",
+                              color: "#b0462b",
+                              fontWeight: 600,
+                            }}
+                          >
+                            ❌ Rejected — try again
+                          </p>
+                        )}
+
+                        {(completion?.status === undefined ||
+                          completion?.status === "rejected") && (
+                          <button
+                            onClick={() => handleMarkDone(chore)}
+                            disabled={actionLoadingId === chore.id}
+                            style={{
+                              width: "100%",
+                              padding: "14px",
+                              background: "#f1642e",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "8px",
+                              fontWeight: 700,
+                              fontSize: "1rem",
+                              cursor:
+                                actionLoadingId === chore.id
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity: actionLoadingId === chore.id ? 0.7 : 1,
+                              transition: "all 0.2s ease",
+                            }}
+                            type="button"
+                          >
+                            {actionLoadingId === chore.id
+                              ? "Submitting..."
+                              : "Done"}
+                          </button>
+                        )}
+                      </>
                     )}
-
-                    {completion?.status === "approved" && (
-                      <p className="kid-status kid-status-approved">
-                        Approved ✅
-                      </p>
-                    )}
-
-                    {completion?.status === "rejected" && (
-                      <p className="kid-status kid-status-rejected">
-                        Rejected — you can try again
-                      </p>
-                    )}
-
-                    {(completion?.status === undefined ||
-                      completion?.status === "rejected") && (
-                      <button
-                        onClick={() => handleMarkDone(chore)}
-                        disabled={actionLoadingId === chore.id}
-                        className="kid-primary-button"
-                        type="button"
-                      >
-                        {actionLoadingId === chore.id
-                          ? "Submitting..."
-                          : "Mark as Done"}
-                      </button>
-                    )}
-                  </article>
+                  </div>
                 );
               })}
             </div>
           )}
         </section>
+      </div>
 
-        {isCustomizing && (
+      {isEditingGoal && (
+        <div
+          className={`kid-modal-overlay ${isEditingGoalClosing ? "closing" : ""}`}
+          onClick={() => !savingGoal && handleCloseEditGoal()}
+          onAnimationEnd={handleEditGoalAnimationEnd}
+        >
           <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0, 0, 0, 0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
-              padding: "24px",
-            }}
-            onClick={() => !savingAvatar && setIsCustomizing(false)}
+            className={`kid-modal-card ${isEditingGoalClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
           >
+            <h2 style={{ marginBottom: 20, marginTop: 0 }}>Edit Your Goal</h2>
+
+            <input
+              type="text"
+              value={editGoalItem}
+              onChange={(e) => setEditGoalItem(e.target.value)}
+              placeholder="What do you want to save for?"
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginBottom: "16px",
+                borderRadius: "8px",
+                border: "1px solid #ddd",
+                fontSize: "1rem",
+                boxSizing: "border-box",
+              }}
+            />
+
+            <input
+              type="number"
+              value={editGoalCost}
+              onChange={(e) => setEditGoalCost(e.target.value)}
+              placeholder="How many coins needed?"
+              style={{
+                width: "100%",
+                padding: "12px",
+                marginBottom: "24px",
+                borderRadius: "8px",
+                border: "1px solid #ddd",
+                fontSize: "1rem",
+                boxSizing: "border-box",
+              }}
+            />
+
             <div
               style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "40px 24px",
-                maxWidth: "390px",
-                width: "100%",
                 display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
+                gap: 12,
+                width: "100%",
               }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <h2 style={{ marginBottom: 20 }}>Pick your avatar</h2>
-
-              <div
+              <button
+                type="button"
+                onClick={handleCloseEditGoal}
+                disabled={savingGoal}
                 style={{
-                  width: 180,
-                  height: 180,
-                  marginBottom: 30,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  flex: 1,
+                  height: 48,
+                  borderRadius: 12,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "#333",
+                  fontWeight: 600,
+                  cursor: savingGoal ? "not-allowed" : "pointer",
+                  opacity: savingGoal ? 0.7 : 1,
                 }}
               >
-                <img
-                  src={getAvatarPath(selectedAvatar)}
-                  alt="Selected avatar"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
-                  }}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
+                Cancel
+              </button>
 
-              <div
+              <button
+                type="button"
+                onClick={handleSaveGoal}
+                disabled={savingGoal}
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 20,
-                  marginBottom: 40,
-                  width: "100%",
-                  justifyItems: "center",
+                  flex: 1,
+                  height: 48,
+                  borderRadius: 12,
+                  border: "none",
+                  background: "#f1642e",
+                  color: "white",
+                  fontWeight: 600,
+                  cursor: savingGoal ? "not-allowed" : "pointer",
+                  opacity: savingGoal ? 0.7 : 1,
                 }}
               >
-                {avatars.map((avatar) => (
-                  <button
-                    key={avatar.key}
-                    type="button"
-                    onClick={() => setSelectedAvatar(avatar.key)}
-                    style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: "50%",
-                      border:
-                        selectedAvatar === avatar.key
-                          ? "3px solid #f1642e"
-                          : "3px solid transparent",
-                      background: "#ddd",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
-                  >
-                    <img
-                      src={avatar.src}
-                      alt={avatar.label}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  width: "100%",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setIsCustomizing(false)}
-                  disabled={savingAvatar}
-                  style={{
-                    flex: 1,
-                    height: 48,
-                    borderRadius: 12,
-                    border: "1px solid #ccc",
-                    background: "white",
-                    color: "#333",
-                    fontWeight: 600,
-                    cursor: savingAvatar ? "not-allowed" : "pointer",
-                    opacity: savingAvatar ? 0.7 : 1,
-                  }}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSaveAvatar}
-                  disabled={savingAvatar}
-                  style={{
-                    flex: 1,
-                    height: 48,
-                    borderRadius: 12,
-                    border: "none",
-                    background: "#f1642e",
-                    color: "white",
-                    fontWeight: 600,
-                    cursor: savingAvatar ? "not-allowed" : "pointer",
-                    opacity: savingAvatar ? 0.7 : 1,
-                  }}
-                >
-                  {savingAvatar ? "Saving..." : "Save"}
-                </button>
-              </div>
+                {savingGoal ? "Saving..." : "Save"}
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {isCustomizing && (
+        <div
+          className={`kid-modal-overlay ${isCustomizingClosing ? "closing" : ""}`}
+          onClick={() => !savingAvatar && handleCloseCustomize()}
+          onAnimationEnd={handleCustomizeAnimationEnd}
+        >
+          <div
+            className={`kid-modal-card ${isCustomizingClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ marginBottom: 20 }}>Pick your avatar</h2>
+
+            <div
+              style={{
+                width: 180,
+                height: 180,
+                marginBottom: 30,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={getAvatarPath(selectedAvatar)}
+                alt="Selected avatar"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: 20,
+                marginBottom: 40,
+                width: "100%",
+                justifyItems: "center",
+              }}
+            >
+              {avatars.map((avatar) => (
+                <button
+                  key={avatar.key}
+                  type="button"
+                  onClick={() => setSelectedAvatar(avatar.key)}
+                  style={{
+                    width: 70,
+                    height: 70,
+                    borderRadius: "50%",
+                    border:
+                      selectedAvatar === avatar.key
+                        ? "3px solid #f1642e"
+                        : "3px solid transparent",
+                    background: "#ddd",
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    padding: 0,
+                  }}
+                >
+                  <img
+                    src={avatar.src}
+                    alt={avatar.label}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                width: "100%",
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleCloseCustomize}
+                disabled={savingAvatar}
+                style={{
+                  flex: 1,
+                  height: 48,
+                  borderRadius: 12,
+                  border: "1px solid #ccc",
+                  background: "white",
+                  color: "#333",
+                  fontWeight: 600,
+                  cursor: savingAvatar ? "not-allowed" : "pointer",
+                  opacity: savingAvatar ? 0.7 : 1,
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveAvatar}
+                disabled={savingAvatar}
+                style={{
+                  flex: 1,
+                  height: 48,
+                  borderRadius: 12,
+                  border: "none",
+                  background: "#f1642e",
+                  color: "white",
+                  fontWeight: 600,
+                  cursor: savingAvatar ? "not-allowed" : "pointer",
+                  opacity: savingAvatar ? 0.7 : 1,
+                }}
+              >
+                {savingAvatar ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <KidBottomNav />
     </main>
