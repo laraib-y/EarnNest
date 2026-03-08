@@ -89,7 +89,7 @@ const lessonCards: LessonCard[] = [
   },
 ];
 
-const CARD_TRANSITION_MS = 520;
+const CARD_TRANSITION_MS = 480;
 
 export default function Module2Page() {
   const router = useRouter();
@@ -97,6 +97,7 @@ export default function Module2Page() {
   const [child, setChild] = useState<ChildProfile | null>(null);
   const [loadingChild, setLoadingChild] = useState(true);
   const [lessonIndex, setLessonIndex] = useState(0);
+  const [progressIndex, setProgressIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const [displayCards, setDisplayCards] = useState<AnimatedCard[]>([
@@ -154,48 +155,33 @@ export default function Module2Page() {
     const nextCard = lessonCards[lessonIndex + 1];
 
     setIsAnimating(true);
+    setProgressIndex(lessonIndex + 1);
 
+    // Step 1: mount next card in entering state
     setDisplayCards([
-      {
-        ...currentCard,
-        state: "current",
-      },
-      {
-        ...nextCard,
-        state: "entering",
-      },
+      { ...currentCard, state: "current" },
+      { ...nextCard, state: "entering" },
     ]);
 
+    // Step 2: trigger transitions
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setDisplayCards([
-          {
-            ...currentCard,
-            state: "settled-past",
-          },
-          {
-            ...nextCard,
-            state: "current",
-          },
+          { ...currentCard, state: "settled-past" },
+          { ...nextCard, state: "current" },
         ]);
       });
     });
 
+    // Step 3: clean up old card after transition
     window.setTimeout(() => {
       setLessonIndex((prev) => prev + 1);
-      setDisplayCards([
-        {
-          ...currentCard,
-          state: "settled-past",
-        },
-        {
-          ...nextCard,
-          state: "current",
-        },
-      ]);
+      setDisplayCards([{ ...nextCard, state: "current" }]);
       setIsAnimating(false);
-    }, CARD_TRANSITION_MS);
+    }, CARD_TRANSITION_MS + 60);
   };
+
+  const lessonProgress = ((progressIndex + 1) / lessonCards.length) * 100;
 
   if (loadingChild) {
     return (
@@ -241,9 +227,20 @@ export default function Module2Page() {
                 className="module-two-pill-icon"
               />
               <span>
-                {child?.streak ?? 0} {(child?.streak ?? 0) === 1 ? "day" : "days"}
+                {child?.streak ?? 0}{" "}
+                {(child?.streak ?? 0) === 1 ? "day" : "days"}
               </span>
             </div>
+          </div>
+        </section>
+
+        {/* Progress bar */}
+        <section className="module-two-progress">
+          <div className="module-two-progress-track">
+            <div
+              className="module-two-progress-fill"
+              style={{ width: `${lessonProgress}%` }}
+            />
           </div>
         </section>
 
@@ -262,7 +259,7 @@ export default function Module2Page() {
         <section className="module-two-lesson-stage" aria-live="polite">
           {displayCards.map((card) => (
             <article
-              key={`${card.id}-${card.state}`}
+              key={card.id}
               className={`module-two-text-card module-two-text-card--${card.state}`}
             >
               <p>{card.content}</p>
@@ -277,7 +274,7 @@ export default function Module2Page() {
             onClick={handleProceedLesson}
             disabled={isAnimating}
           >
-            Proceed
+            {lessonIndex === lessonCards.length - 1 ? "Start Mini Game" : "Proceed"}
           </button>
         </section>
       </div>

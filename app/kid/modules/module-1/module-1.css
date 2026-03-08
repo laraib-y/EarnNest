@@ -81,7 +81,7 @@
 }
 
 .module-one-progress {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .module-one-progress-track {
@@ -107,23 +107,25 @@
   box-shadow:
     0 6px 0 #c8bbb5,
     0 12px 24px rgba(109, 92, 82, 0.05);
-  padding: 18px;
-  margin-bottom: 20px;
+  padding: 12px;
+  margin-bottom: 12px;
 }
 
 .module-one-illustration-inner {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 3 / 2;
 }
 
+/* ── Lesson stage ── */
 .module-one-lesson-stage {
   position: relative;
-  height: 210px;
-  margin-bottom: 18px;
-  overflow: hidden;
+  height: 160px;
+  margin-bottom: 14px;
+  overflow: visible;
 }
 
+/* Base card styles */
 .module-one-text-card {
   position: absolute;
   left: 0;
@@ -142,11 +144,12 @@
   justify-content: center;
   will-change: transform, opacity;
   transition:
-    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
 }
 
 .module-one-text-card p {
@@ -156,38 +159,39 @@
   color: #171717;
   letter-spacing: -0.01em;
   text-align: center;
+  transition: color 480ms ease;
 }
 
 .module-one-text-card strong {
   font-weight: 800;
 }
 
-/* current card sits in lower position */
+/* CURRENT — sits in the visible slot */
 .module-one-text-card--current {
-  top: 96px;
+  top: 20px;
   opacity: 1;
   transform: translateY(0) scale(1);
-  filter: blur(0);
+  filter: blur(0px);
   z-index: 2;
 }
 
-/* next card starts just below and flies into the lower slot */
+/* ENTERING — starts below, slides up into current position */
 .module-one-text-card--entering {
-  top: 96px;
+  top: 20px;
   opacity: 0;
-  transform: translateY(52px) scale(0.985);
-  filter: blur(0.8px);
+  transform: translateY(52px) scale(0.97);
+  filter: blur(2px);
   z-index: 2;
 }
 
-/* old card stays visible in its own faded box above */
+/* SETTLED-PAST — floats up and fades out above */
 .module-one-text-card--settled-past {
-  top: 8px;
-  opacity: 0.34;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-  border-color: #f0c7b2;
-  box-shadow: 0 5px 0 #f1c8b5;
+  top: 20px;
+  opacity: 0;
+  transform: translateY(-72px) scale(0.95);
+  filter: blur(3px);
+  border-color: #f2d7c9;
+  box-shadow: 0 4px 0 #eed6cb;
   z-index: 1;
   pointer-events: none;
 }
@@ -199,6 +203,8 @@
 .module-one-footer {
   display: flex;
   justify-content: center;
+  margin-top: auto;
+  padding-top: 10px;
 }
 
 .module-one-primary-button {
@@ -301,6 +307,7 @@
   border-color: #ff6a12;
   box-shadow: 0 0 0 3px rgba(255, 106, 18, 0.12);
 }
+
 .module-one-quiz-shell {
   min-height: calc(100vh - 36px);
   display: flex;
@@ -528,6 +535,55 @@
 }
 
 @media (max-width: 480px) {
+  .module-one-page {
+    padding: 12px 12px 20px;
+  }
+
+  .module-one-pill {
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .module-one-illustration-card {
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .module-one-illustration-inner {
+    aspect-ratio: 3 / 2;
+  }
+
+  .module-one-lesson-stage {
+    height: 150px;
+    margin-bottom: 12px;
+  }
+
+  .module-one-text-card {
+    padding: 16px 16px 14px;
+  }
+
+  .module-one-text-card p {
+    font-size: 15px;
+    line-height: 1.32;
+  }
+
+  .module-one-text-card--current {
+    top: 16px;
+    transform: translateY(0) scale(1);
+  }
+
+  .module-one-text-card--entering {
+    top: 16px;
+    transform: translateY(44px) scale(0.97);
+  }
+
+  .module-one-text-card--settled-past {
+    top: 16px;
+    opacity: 0;
+    transform: translateY(-66px) scale(0.95);
+  }
+
   .module-one-quiz-progress {
     margin-bottom: 16px;
   }
@@ -555,51 +611,11 @@
   }
 
   .module-one-footer {
-  margin-top: -6px;
-}
+    margin-top: -6px;
+  }
 
   .module-one-primary-button {
     min-height: 48px;
-  }
-}
-
-@media (max-width: 480px) {
-  .module-one-page {
-    padding: 12px 12px 20px;
-  }
-
-  .module-one-pill {
-    min-height: 40px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
-
-  .module-one-illustration-card {
-    padding: 16px;
-    margin-bottom: 18px;
-  }
-
-  .module-one-lesson-stage {
-    height: 198px;
-    margin-bottom: 16px;
-  }
-
-  .module-one-text-card {
-    padding: 16px 16px 14px;
-  }
-
-  .module-one-text-card p {
-    font-size: 15px;
-    line-height: 1.32;
-  }
-
-  .module-one-text-card--current,
-  .module-one-text-card--entering {
-    top: 90px;
-  }
-
-  .module-one-primary-button {
-    min-height: 50px;
     font-size: 17px;
   }
 

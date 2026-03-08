@@ -1,14 +1,18 @@
+.module-two-page {
+  min-height: 100vh;
+  background: #efefef;
+  padding: 14px 14px 22px;
+  font-family: "Rubik", sans-serif;
+  color: #171717;
+  overflow: hidden;
+}
+
 .module-two-shell {
   width: 100%;
   max-width: 430px;
-  height: 100dvh;
-  padding: 22px 22px 18px;
-  box-sizing: border-box;
-  position: relative;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow: hidden;
 }
 
 .module-two-loading {
@@ -21,19 +25,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .module-two-back {
-  width: 22px;
-  height: 22px;
+  width: 40px;
+  height: 40px;
   border: none;
   background: transparent;
   color: #232323;
   font-size: 42px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   padding: 0;
+  border-radius: 999px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.module-two-back:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateX(-1px);
 }
 
 .module-two-topbar-pills {
@@ -46,7 +60,7 @@
   min-height: 42px;
   padding: 0 14px;
   border-radius: 12px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.82);
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -68,50 +82,75 @@
   flex-shrink: 0;
 }
 
+/* ── Progress bar ── */
+.module-two-progress {
+  margin-bottom: 10px;
+}
+
+.module-two-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.module-two-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff9b5a 0%, #ff6a12 100%);
+  transition: width 180ms ease-out;
+}
+
+/* ── Illustration card ── */
 .module-two-illustration-card {
   width: 100%;
-  max-width: 347px;
-  height: 290px;
   background: #f8f8f8;
   border: 1px solid #cdbfba;
   border-radius: 20px;
   box-shadow: 0 6px 0 #c8bbb5;
-  padding: 18px;
+  padding: 12px;
   box-sizing: border-box;
-  margin-bottom: 16px;
-  position: relative;
+  margin-bottom: 12px;
 }
 
 .module-two-illustration-inner {
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 3 / 2;
 }
 
+/* ── Lesson stage ── */
 .module-two-lesson-stage {
   position: relative;
   width: 100%;
-  max-width: 347px;
-  height: 210px;
-  margin-bottom: 0;
-  overflow: hidden;
+  height: 160px;
+  margin-bottom: 14px;
+  overflow: visible;
 }
 
+/* Base card */
 .module-two-text-card {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 347px;
-  min-height: 104px;
-  border-radius: 16px;
-  border: 1px solid #ff6610;
+  left: 0;
+  right: 0;
+  width: 100%;
   background: #ffffff;
-  padding: 14px 18px;
+  border: 1px solid #ff6610;
+  border-radius: 16px;
+  padding: 20px 18px 18px;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  will-change: transform, opacity;
   transition:
-    top 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 520ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
 }
 
 .module-two-text-card p {
@@ -120,48 +159,62 @@
   line-height: 1.28;
   color: #171717;
   text-align: left;
+  transition: color 480ms ease;
 }
 
 .module-two-text-card strong {
   font-weight: 800;
 }
 
-.module-two-text-card--settled-past {
-  top: 0;
-  opacity: 0.16;
+/* CURRENT */
+.module-two-text-card--current {
+  top: 20px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0px);
   box-shadow: 0 4px 0 0 #ff6610;
+  z-index: 2;
+}
+
+/* ENTERING — starts below, slides up */
+.module-two-text-card--entering {
+  top: 20px;
+  opacity: 0;
+  transform: translateY(52px) scale(0.97);
+  filter: blur(2px);
+  box-shadow: 0 4px 0 0 #ff6610;
+  z-index: 2;
+}
+
+/* SETTLED-PAST — floats up and fades out */
+.module-two-text-card--settled-past {
+  top: 20px;
+  opacity: 0;
+  transform: translateY(-72px) scale(0.95);
+  filter: blur(3px);
+  border-color: #f2d7c9;
+  box-shadow: 0 4px 0 #eed6cb;
   z-index: 1;
   pointer-events: none;
 }
 
-.module-two-text-card--current {
-  top: 140px;
-  opacity: 1;
-  box-shadow: 0 4px 0 0 #ff6610;
-  z-index: 2;
+.module-two-text-card--settled-past p {
+  color: #a3a3a3;
 }
 
-.module-two-text-card--entering {
-  top: 190px;
-  opacity: 0;
-  box-shadow: 0 4px 0 0 #ff6610;
-  z-index: 2;
-}
-
-/* LEARNING FOOTER ONLY */
-.module-two-shell > .module-two-footer {
+/* ── Footer ── */
+.module-two-footer {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  padding-top: 0;
-  padding-bottom: 0;
-  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 10px;
 }
 
-.module-two-shell > .module-two-footer .module-two-primary-button {
-  width: 331px;
-  height: 50px;
+.module-two-primary-button {
+  width: 100%;
+  max-width: 335px;
+  height: 54px;
   border: none;
   border-radius: 14px;
   background: #ff6610;
@@ -173,11 +226,11 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.module-two-shell > .module-two-footer .module-two-primary-button:hover {
+.module-two-primary-button:hover {
   transform: translateY(-1px);
 }
 
-.module-two-shell > .module-two-footer .module-two-primary-button:disabled {
+.module-two-primary-button:disabled {
   opacity: 0.72;
   cursor: not-allowed;
   transform: none;

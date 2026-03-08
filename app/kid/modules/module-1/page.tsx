@@ -23,10 +23,12 @@ type ChildProfile = {
   modulesCompleted: string[];
 };
 
+type CardState = "current" | "entering" | "settled-past";
+
 type AnimatedCard = {
   id: string;
   content: React.ReactNode;
-  state: "current" | "entering" | "settled-past";
+  state: CardState;
 };
 
 const lessonCards = [
@@ -100,7 +102,7 @@ const lessonCards = [
   },
 ];
 
-const CARD_TRANSITION_MS = 520;
+const CARD_TRANSITION_MS = 480;
 
 export default function ModuleOnePage() {
   const router = useRouter();
@@ -175,46 +177,31 @@ export default function ModuleOnePage() {
     setIsAnimating(true);
     setProgressIndex(lessonIndex + 1);
 
+    // Step 1: Mount next card in "entering" state (below + invisible)
+    // Keep current card as "current"
     setDisplayCards([
-      {
-        ...currentCard,
-        state: "current",
-      },
-      {
-        ...nextCard,
-        state: "entering",
-      },
+      { ...currentCard, state: "current" },
+      { ...nextCard, state: "entering" },
     ]);
 
+    // Step 2: One frame later, trigger transitions:
+    //   - current → settled-past (floats up and fades out)
+    //   - entering → current (slides up into view)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         setDisplayCards([
-          {
-            ...currentCard,
-            state: "settled-past",
-          },
-          {
-            ...nextCard,
-            state: "current",
-          },
+          { ...currentCard, state: "settled-past" },
+          { ...nextCard, state: "current" },
         ]);
       });
     });
 
+    // Step 3: After transition completes, clean up the old card
     window.setTimeout(() => {
       setLessonIndex((prev) => prev + 1);
-      setDisplayCards([
-        {
-          ...currentCard,
-          state: "settled-past",
-        },
-        {
-          ...nextCard,
-          state: "current",
-        },
-      ]);
+      setDisplayCards([{ ...nextCard, state: "current" }]);
       setIsAnimating(false);
-    }, CARD_TRANSITION_MS);
+    }, CARD_TRANSITION_MS + 60); // small buffer so transition fully completes
   };
 
   const handleQuizFinish = () => {
@@ -376,7 +363,7 @@ export default function ModuleOnePage() {
           <section className="module-one-lesson-stage" aria-live="polite">
             {displayCards.map((card) => (
               <article
-                key={`${card.id}-${card.state}`}
+                key={card.id}
                 className={`module-one-text-card module-one-text-card--${card.state}`}
               >
                 <p>{card.content}</p>
