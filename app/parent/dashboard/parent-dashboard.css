@@ -1,14 +1,13 @@
-/* Local Fonts from public/assets/fonts/ */
 @font-face {
-  font-family: 'Londrina Solid';
-  src: url('/assets/fonts/LondrinaSolid-Regular.ttf') format('truetype');
+  font-family: "Londrina Solid";
+  src: url("/assets/fonts/LondrinaSolid-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'Rubik';
-  src: url('/assets/fonts/Rubik-VariableFont_wght.ttf') format('truetype');
+  font-family: "Rubik";
+  src: url("/assets/fonts/Rubik-VariableFont_wght.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
@@ -16,18 +15,14 @@
 .parent-dashboard-page {
   min-height: 100vh;
   background: #f4f4f4;
-  padding: 24px 12px 100px;
+  padding: 24px 14px 110px;
   color: #1f1f1f;
-  font-family: 'Rubik', sans-serif;
-  border-radius: 16px;
-  opacity: 1;
-  gap: 24px;
-
+  font-family: "Rubik", sans-serif;
 }
 
 .parent-dashboard-shell {
   width: 100%;
-  max-width: 390px;
+  max-width: 420px;
   margin: 0 auto;
 }
 
@@ -39,10 +34,22 @@
 .parent-dashboard-topbar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
-  margin-bottom: 24px;
-  position: relative;
+  margin-bottom: 20px;
+}
+
+.parent-dashboard-heading {
+  min-width: 0;
+}
+
+.parent-dashboard-kicker {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #595883;
 }
 
 .parent-dashboard-title {
@@ -50,8 +57,7 @@
   font-size: 2rem;
   font-weight: 400;
   color: #111111;
-  line-height: 1;
-  letter-spacing: 0;
+  line-height: 1.05;
 }
 
 .parent-child-panel {
@@ -59,56 +65,83 @@
 }
 
 .parent-child-focus-card {
-  border-radius: 20px;
-  background: #f4efec;
-  padding: 20px 16px;
+  border-radius: 24px;
+  background: #fbf8f6;
+  padding: 20px 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  border: 1px solid rgba(89, 88, 131, 0.12);
+  box-shadow: 0 10px 28px rgba(89, 88, 131, 0.08);
 }
 
 .parent-child-header {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 0;
 }
 
 .parent-child-avatar {
-  width: 62px;
-  height: 62px;
+  width: 72px;
+  height: 72px;
   border-radius: 999px;
-  background: #c9c9c9;
+  background: #ffffff;
+  border: 1px solid rgba(89, 88, 131, 0.12);
+  box-shadow: 0 4px 12px rgba(89, 88, 131, 0.1);
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.parent-child-meta {
+  min-width: 0;
 }
 
 .parent-child-meta h2 {
   margin: 0;
-  font-family: Rubik;
-  font-weight: 500;
-  font-style: Medium;
+  font-weight: 600;
   font-size: 22px;
-  line-height: 100%;
-  letter-spacing: 4%;
-  vertical-align: middle;
+  line-height: 1.15;
   color: #191919;
 }
 
 .parent-child-meta p {
-  margin: 2px 0 2px;
-  font-size: 0.75rem;
-  color: #4c4c4c;
+  margin: 4px 0 6px;
+  font-size: 13px;
+  color: #6a6576;
   font-weight: 500;
 }
 
 .parent-child-meta span {
-  display: inline-block;
-  font-size: 0.85rem;
+  display: block;
+  font-size: 14px;
   color: #333333;
   font-weight: 500;
+  line-height: 1.35;
 }
 
-/* Add New Task Button */
+.parent-child-coins {
+  color: #423b49;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.parent-child-coins-icon {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.parent-child-code {
+  margin-top: 4px;
+  color: #666666;
+  font-size: 13px;
+}
+
 .parent-task-button {
   display: inline-flex;
   align-items: center;
@@ -118,20 +151,16 @@
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   width: 100%;
-  height: 58px;
-  border-radius: 8px;
+  min-height: 58px;
+  border-radius: 14px;
   background: #595883;
   color: #ffffff;
   border: 1px solid #353463;
-  font-family: Rubik;
-  font-weight: 450;
-  font-style: Semi Bold;
+  font-family: "Rubik", sans-serif;
+  font-weight: 475;
   font-size: 16px;
-  line-height: 100%;
-  letter-spacing: 0%;
   padding: 0 16px;
   box-shadow: 0 4px 0 0 #353463;
-  margin-bottom: 0;
 }
 
 .parent-task-button:hover {
@@ -145,89 +174,65 @@
 }
 
 .parent-plus {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   line-height: 1;
 }
 
-/* Summary Grid */
 .parent-summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   width: 100%;
-  height: 72px;
 }
 
 .parent-summary-pill {
   background: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  padding: 12px 16px;
+  border: 1px solid rgba(89, 88, 131, 0.12);
+  border-radius: 14px;
+  padding: 14px 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  min-height: 78px;
 }
 
 .parent-summary-pill span {
   display: block;
-  font-size: 0.625rem;
+  font-size: 11px;
   color: #777777;
   margin-bottom: 0;
   font-weight: 500;
-  line-height: 1.4;
+  line-height: 1.25;
 }
 
 .parent-summary-pill strong {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   color: #111111;
   font-weight: 700;
   line-height: 1;
 }
 
-/* Learning Card - Hidden */
-.parent-learning-card {
-  display: none;
-}
-
-.parent-learning-top {
-  display: none;
-}
-
-.parent-learning-label {
-  display: none;
-}
-
-.parent-learning-track {
-  display: none;
-}
-
-.parent-learning-fill {
-  display: none;
-}
-
-.parent-module-tags {
-  display: none;
-}
-
-.parent-module-tag {
-  display: none;
-}
-
-/* Activity Section */
 .parent-activity-section {
-  margin-top: 0;
+  margin-top: 2px;
+}
+
+.parent-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .parent-activity-heading {
-  margin: 0 0 12px;
-  font-size: 0.75rem;
+  margin: 0 0 4px;
+  font-size: 13px;
   color: #6a6a6a;
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .parent-activity-list {
@@ -237,26 +242,24 @@
 
 .parent-activity-empty {
   border: 1px dashed #d1d1d1;
-  border-radius: 8px;
-  padding: 16px 12px;
+  border-radius: 14px;
+  padding: 18px 14px;
   text-align: center;
   color: #888888;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   background: #fcfcfc;
 }
 
-/* Activity Cards */
 .parent-activity-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid #595883;
-  border-radius: 8px;
+  border: 1px solid rgba(89, 88, 131, 0.2);
+  border-radius: 14px;
   background: #ffffff;
-  padding: 0 16px;
-  min-height: 60px;
-  position: relative;
+  padding: 14px;
+  min-height: 78px;
 }
 
 .parent-activity-card.goal-card {
@@ -269,20 +272,27 @@
 }
 
 .parent-activity-label {
-  margin: 0 0 4px;
-  font-size: 0.625rem;
+  margin: 0 0 6px;
+  font-size: 11px;
   color: #7c7c7c;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.05em;
 }
 
 .parent-activity-copy h3 {
-  margin: 0;
-  font-size: 1rem;
+  margin: 0 0 4px;
+  font-size: 16px;
   font-weight: 600;
   color: #111111;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+.parent-activity-reward {
+  display: block;
+  font-size: 13px;
+  color: #595883;
+  font-weight: 500;
 }
 
 .parent-activity-actions {
@@ -292,16 +302,15 @@
   flex-shrink: 0;
 }
 
-/* Icon Buttons (Approve/Reject) */
 .parent-icon-button {
-  width: 40px;
-  height: 40px;
-  border-radius: 6px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   border: 1px solid #c7c7c7;
   background: #f2f2f2;
   color: #8a8a8a;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   transition: transform 0.15s ease, opacity 0.15s ease;
   display: flex;
   align-items: center;
@@ -318,7 +327,6 @@
   transform: translateY(0);
 }
 
-/* Primary Button (Approve - Green) */
 .parent-icon-button-primary {
   border-color: #9eb753;
   background: #c8e6a0;
@@ -329,7 +337,6 @@
   background: #b8dd8a;
 }
 
-/* Muted Button (Reject - Red) */
 .parent-icon-button-muted {
   color: #d97474;
   background: #fbe8e8;
@@ -346,17 +353,15 @@
   transform: none;
 }
 
-/* FAB Row */
 .parent-fab-row {
   display: flex;
   justify-content: flex-end;
   position: fixed;
-  bottom: 32px;
-  right: 32px;
+  bottom: 28px;
+  right: 20px;
   z-index: 50;
 }
 
-/* Floating Action Button */
 .parent-fab {
   display: inline-flex;
   align-items: center;
@@ -364,15 +369,15 @@
   gap: 6px;
   text-decoration: none;
   cursor: pointer;
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
-  min-width: 100px;
+  min-width: 112px;
   height: 56px;
   border-radius: 999px;
   background: #b9b6ea;
   color: #5e587c;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   box-shadow: 0 4px 16px rgba(94, 88, 124, 0.25);
   border: none;
@@ -389,69 +394,6 @@
   transform: translateY(-1px);
 }
 
-/* Child Navigation */
-.parent-child-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 36px;
-  margin-bottom: 36px;
-}
-
-.parent-nav-arrow {
-  border: none;
-  background: transparent;
-  font-size: 1.8rem;
-  color: #111111;
-  cursor: pointer;
-  line-height: 1;
-  padding: 0;
-  transition: transform 0.15s ease;
-}
-
-.parent-nav-arrow:hover {
-  transform: scale(1.15);
-}
-
-.parent-nav-dots {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.parent-nav-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  border: none;
-  background: #c5c5c5;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.parent-nav-dot:hover {
-  background: #999999;
-}
-
-.parent-nav-dot.is-active {
-  background: #7d7d7d;
-  transform: scale(1.2);
-}
-
-/* Footer */
-.parent-dashboard-footer {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  margin: 0;
-  display: flex;
-  justify-content: flex-end;
-  padding: 0;
-  z-index: 40;
-}
-
 .parent-secondary-button {
   display: inline-flex;
   align-items: center;
@@ -459,17 +401,18 @@
   gap: 8px;
   text-decoration: none;
   cursor: pointer;
-  font-family: 'Rubik', sans-serif;
-  transition: transform 0.15s ease, opacity 0.15s ease;
+  font-family: "Rubik", sans-serif;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   min-height: 42px;
-  padding: 0 18px;
+  padding: 0 16px;
   border-radius: 12px;
   background: #ffffff;
   color: #423b49;
   border: 1px solid rgba(66, 59, 73, 0.15);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   box-shadow: 0 2px 10px rgba(66, 59, 73, 0.08);
+  flex-shrink: 0;
 }
 
 .parent-secondary-button:hover:not(:disabled) {
@@ -487,13 +430,9 @@
   transform: none;
 }
 
-/* Bottom Sheet Modal */
 .parent-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: 99;
   animation: fadeIn 0.3s ease;
@@ -542,7 +481,7 @@
 
 .parent-modal-title {
   margin: 0 0 20px;
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   font-weight: 700;
   color: #111111;
   text-align: center;
@@ -561,7 +500,7 @@
 }
 
 .parent-modal-field label {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 500;
   color: #242424;
 }
@@ -572,38 +511,40 @@
   width: 100%;
   border: 1px solid #d8d8d8;
   background: #f9f9f9;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 12px;
   font-size: 0.95rem;
   color: #1f1f1f;
   outline: none;
-  font-family: 'Rubik', sans-serif;
-  transition: border-color 0.15s ease;
+  font-family: "Rubik", sans-serif;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
 }
 
 .parent-modal-field input:focus,
 .parent-modal-field select:focus,
 .parent-modal-field textarea:focus {
   border-color: #595883;
+  box-shadow: 0 0 0 3px rgba(89, 88, 131, 0.08);
 }
 
 .parent-modal-field textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 88px;
 }
 
 .parent-modal-submit {
   margin-top: 8px;
   min-height: 48px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #595883;
   color: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -624,13 +565,88 @@
   cursor: not-allowed;
 }
 
+.parent-children-list {
+  display: grid;
+  gap: 18px;
+}
+
+.parent-child-focus-card.is-selected {
+  border-color: rgba(89, 88, 131, 0.24);
+  box-shadow: 0 12px 30px rgba(89, 88, 131, 0.12);
+}
+
+.parent-child-coins {
+  color: #423b49;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+.parent-child-coins-icon {
+  width: 18px;
+  height: 18px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.parent-activity-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #595883;
+  font-weight: 500;
+}
+
+.parent-activity-reward-icon {
+  width: 16px;
+  height: 16px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+
+@media (max-width: 480px) {
+  .parent-dashboard-page {
+    padding: 20px 12px 110px;
+  }
+
+  .parent-dashboard-title {
+    font-size: 1.8rem;
+  }
+
+  .parent-child-focus-card {
+    padding: 18px 14px 16px;
+  }
+
+  .parent-child-avatar {
+    width: 68px;
+    height: 68px;
+  }
+
+  .parent-child-meta h2 {
+    font-size: 20px;
+  }
+
+  .parent-summary-pill strong {
+    font-size: 1.2rem;
+  }
+
+  .parent-fab-row {
+    right: 16px;
+    bottom: 24px;
+  }
+}
+
 @media (min-width: 768px) {
   .parent-dashboard-page {
     padding: 32px 20px 120px;
   }
 
   .parent-dashboard-shell {
-    max-width: 430px;
+    max-width: 440px;
   }
 
   .parent-dashboard-title {
@@ -638,13 +654,12 @@
   }
 
   .parent-task-button {
-    height: 62px;
-    font-size: 1.1rem;
+    min-height: 60px;
+    font-size: 1.05rem;
   }
 
   .parent-fab {
-    width: 64px;
-    height: 64px;
-    font-size: 2rem;
+    min-width: 118px;
+    height: 58px;
   }
 }

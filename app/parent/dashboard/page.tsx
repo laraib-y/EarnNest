@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import {
@@ -8,13 +8,14 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
+  onSnapshot,
   query,
   runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
   where,
+  Timestamp,
 } from "firebase/firestore";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ type ChildItem = {
   coinBalance: number;
   modulesCompleted: string[];
   completedChores: number;
+  avatar?: string;
 };
 
 type PendingCompletion = {
@@ -46,6 +48,17 @@ type PendingCompletion = {
   reward: number;
   status: "pending" | "approved" | "rejected";
   childName: string;
+  createdAt?: Timestamp | null;
+};
+
+type CompletionItem = {
+  id: string;
+  childId: string;
+  choreId: string;
+  choreTitle: string;
+  reward: number;
+  status: "pending" | "approved" | "rejected";
+  createdAt?: Timestamp | null;
 };
 
 type ActiveChore = {
@@ -56,108 +69,61 @@ type ActiveChore = {
   status: string;
 };
 
+function getAvatarSrc(avatar?: string) {
+  switch (avatar) {
+    case "bear":
+      return "/assets/BearIcon.svg";
+    case "cat":
+      return "/assets/CatIcon.svg";
+    case "dog":
+      return "/assets/DogIcon.svg";
+    case "snake":
+      return "/assets/SnakeIcon.svg";
+    case "capybara":
+      return "/assets/CapybaraIcon.svg";
+    case "bunny":
+      return "/assets/BunnyIcon.svg";
+    default:
+      return "/assets/BearIcon.svg";
+  }
+}
+
+function getTimestampMillis(value?: Timestamp | null) {
+  if (!value) return 0;
+  try {
+    return value.toMillis();
+  } catch {
+    return 0;
+  }
+}
+
 export default function ParentDashboardPage() {
   const router = useRouter();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
   const [children, setChildren] = useState<ChildItem[]>([]);
-  const [pendingCompletions, setPendingCompletions] = useState<PendingCompletion[]>([]);
+  const [completions, setCompletions] = useState<CompletionItem[]>([]);
   const [activeChores, setActiveChores] = useState<ActiveChore[]>([]);
+
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-  const [activeChildIndex, setActiveChildIndex] = useState(0);
   const [showChoreModal, setShowChoreModal] = useState(false);
+
+  const [selectedChildId, setSelectedChildId] = useState("");
   const [choreTitle, setChoreTitle] = useState("");
   const [choreDescription, setChoreDescription] = useState("");
   const [choreReward, setChoreReward] = useState("20");
   const [choreFrequency, setChoreFrequency] = useState("one-time");
   const [choreSaving, setChhoreSaving] = useState(false);
 
-  const loadDashboard = async (firebaseUser: User) => {
-    const parentRef = doc(db, "parents", firebaseUser.uid);
-    const parentSnap = await getDoc(parentRef);
-
-    if (!parentSnap.exists()) {
-      const parentProfile: ParentProfile = {
-        uid: firebaseUser.uid,
-        name: firebaseUser.displayName || "Parent",
-        email: firebaseUser.email || "",
-        createdAt: serverTimestamp(),
-      };
-
-      await setDoc(parentRef, parentProfile);
-    }
-
-    const childSnap = await getDocs(
-      query(collection(db, "children"), where("parentUid", "==", firebaseUser.uid))
-    );
-
-    const childList: ChildItem[] = childSnap.docs.map((childDoc) => {
-      const data = childDoc.data();
-      return {
-        id: childDoc.id,
-        name: data.name || "",
-        displayName: data.displayName || data.name || "",
-        accessCode: data.accessCode || "",
-        coinBalance: Number(data.coinBalance || 0),
-        modulesCompleted: Array.isArray(data.modulesCompleted) ? data.modulesCompleted : [],
-        completedChores: Number(data.completedChores || 0),
-      };
-    });
-
-    if (childList.length === 0) {
-      router.push("/parent/add-child" as Route);
-      return;
-    }
-
-    const childNameMap = new Map(childList.map((child) => [child.id, child.displayName]));
-
-    const completionSnap = await getDocs(
-      query(collection(db, "completions"), where("parentUid", "==", firebaseUser.uid))
-    );
-
-    const pendingList: PendingCompletion[] = completionSnap.docs
-      .map((completionDoc) => {
-        const data = completionDoc.data();
-        return {
-          id: completionDoc.id,
-          childId: data.childId || "",
-          choreId: data.choreId || "",
-          choreTitle: data.choreTitle || "Task",
-          reward: Number(data.reward || 0),
-          status: data.status || "pending",
-          childName: childNameMap.get(data.childId || "") || "Child",
-        } as PendingCompletion;
-      })
-      .filter((item) => item.status === "pending");
-
-    const choreSnap = await getDocs(
-      query(collection(db, "chores"), where("parentUid", "==", firebaseUser.uid))
-    );
-
-    const choreList: ActiveChore[] = choreSnap.docs
-      .map((choreDoc) => {
-        const data = choreDoc.data();
-        return {
-          id: choreDoc.id,
-          childId: data.childId || "",
-          title: data.title || "",
-          reward: Number(data.reward || 0),
-          status: data.status || "active",
-        };
-      })
-      .filter((chore) => chore.status === "active");
-
-    setChildren(childList);
-    setPendingCompletions(pendingList);
-    setActiveChores(choreList);
-    setActiveChildIndex((prev) => Math.min(prev, childList.length - 1));
-  };
-
   useEffect(() => {
-    let cancelled = false;
+    let isMounted = true;
+    let childrenUnsub: (() => void) | null = null;
+    let completionsUnsub: (() => void) | null = null;
+    let choresUnsub: (() => void) | null = null;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const authUnsub = onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) {
         router.push("/" as Route);
         return;
@@ -166,26 +132,157 @@ export default function ParentDashboardPage() {
       setUser(firebaseUser);
 
       try {
-        await loadDashboard(firebaseUser);
+        const parentRef = doc(db, "parents", firebaseUser.uid);
+        const parentSnap = await getDoc(parentRef);
+
+        if (!parentSnap.exists()) {
+          const parentProfile: ParentProfile = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName || "Parent",
+            email: firebaseUser.email || "",
+            createdAt: serverTimestamp(),
+          };
+
+          await setDoc(parentRef, parentProfile);
+        }
+
+        childrenUnsub = onSnapshot(
+          query(collection(db, "children"), where("parentUid", "==", firebaseUser.uid)),
+          (snapshot) => {
+            const childList: ChildItem[] = snapshot.docs.map((childDoc) => {
+              const data = childDoc.data();
+              return {
+                id: childDoc.id,
+                name: data.name || "",
+                displayName: data.displayName || data.name || "",
+                accessCode: data.accessCode || "",
+                coinBalance: Number(data.coinBalance || 0),
+                modulesCompleted: Array.isArray(data.modulesCompleted)
+                  ? data.modulesCompleted
+                  : [],
+                completedChores: Number(data.completedChores || 0),
+                avatar: data.avatar || "bear",
+              };
+            });
+
+            setChildren(childList);
+
+            if (childList.length > 0 && !selectedChildId) {
+              setSelectedChildId(childList[0].id);
+            }
+
+            if (childList.length === 0) {
+              router.push("/parent/add-child" as Route);
+            }
+          }
+        );
+
+        completionsUnsub = onSnapshot(
+          query(collection(db, "completions"), where("parentUid", "==", firebaseUser.uid)),
+          (snapshot) => {
+            const list: CompletionItem[] = snapshot.docs.map((completionDoc) => {
+              const data = completionDoc.data();
+              return {
+                id: completionDoc.id,
+                childId: data.childId || "",
+                choreId: data.choreId || "",
+                choreTitle: data.choreTitle || "Task",
+                reward: Number(data.reward || 0),
+                status: data.status || "pending",
+                createdAt: data.createdAt || null,
+              };
+            });
+
+            setCompletions(list);
+          }
+        );
+
+        choresUnsub = onSnapshot(
+          query(collection(db, "chores"), where("parentUid", "==", firebaseUser.uid)),
+          (snapshot) => {
+            const choreList: ActiveChore[] = snapshot.docs
+              .map((choreDoc) => {
+                const data = choreDoc.data();
+                return {
+                  id: choreDoc.id,
+                  childId: data.childId || "",
+                  title: data.title || "",
+                  reward: Number(data.reward || 0),
+                  status: data.status || "active",
+                };
+              })
+              .filter((chore) => chore.status === "active");
+
+            setActiveChores(choreList);
+          }
+        );
       } catch (error) {
         console.error(error);
       } finally {
-        if (!cancelled) {
+        if (isMounted) {
           setLoading(false);
         }
       }
     });
 
     return () => {
-      cancelled = true;
-      unsubscribe();
+      isMounted = false;
+      authUnsub();
+      childrenUnsub?.();
+      completionsUnsub?.();
+      choresUnsub?.();
     };
-  }, [router]);
+  }, [router, selectedChildId]);
 
-  const refreshDashboard = async () => {
-    if (!user) return;
-    await loadDashboard(user);
-  };
+  const pendingCompletions = useMemo(() => {
+    const childNameMap = new Map(children.map((child) => [child.id, child.displayName]));
+
+    return completions
+      .filter((item) => item.status === "pending")
+      .map((item) => ({
+        ...item,
+        childName: childNameMap.get(item.childId) || "Child",
+      })) as PendingCompletion[];
+  }, [completions, children]);
+
+  const latestCompletionByChild = useMemo(() => {
+    const map = new Map<string, number>();
+
+    for (const completion of completions) {
+      const ts = getTimestampMillis(completion.createdAt);
+      const prev = map.get(completion.childId) || 0;
+      if (ts > prev) {
+        map.set(completion.childId, ts);
+      }
+    }
+
+    return map;
+  }, [completions]);
+
+  const sortedChildren = useMemo(() => {
+    return [...children].sort((a, b) => {
+      const aLatest = latestCompletionByChild.get(a.id) || 0;
+      const bLatest = latestCompletionByChild.get(b.id) || 0;
+
+      if (bLatest !== aLatest) {
+        return bLatest - aLatest;
+      }
+
+      return a.displayName.localeCompare(b.displayName);
+    });
+  }, [children, latestCompletionByChild]);
+
+  useEffect(() => {
+    if (!selectedChildId && sortedChildren.length > 0) {
+      setSelectedChildId(sortedChildren[0].id);
+      return;
+    }
+
+    const stillExists = sortedChildren.some((child) => child.id === selectedChildId);
+    if (!stillExists && sortedChildren.length > 0) {
+      setSelectedChildId(sortedChildren[0].id);
+    }
+  }, [sortedChildren, selectedChildId]);
 
   const handleApprove = async (completionId: string) => {
     try {
@@ -227,8 +324,6 @@ export default function ParentDashboardPage() {
           reviewedAt: serverTimestamp(),
         });
       });
-
-      await refreshDashboard();
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Could not approve task.");
@@ -245,8 +340,6 @@ export default function ParentDashboardPage() {
         status: "rejected",
         reviewedAt: serverTimestamp(),
       });
-
-      await refreshDashboard();
     } catch (error) {
       console.error(error);
       alert("Could not reject task.");
@@ -257,6 +350,11 @@ export default function ParentDashboardPage() {
 
   const handleAddChore = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!selectedChildId) {
+      alert("Please select a child first.");
+      return;
+    }
 
     if (!choreTitle.trim()) {
       alert("Please enter a task title.");
@@ -274,7 +372,7 @@ export default function ParentDashboardPage() {
 
       await addDoc(collection(db, "chores"), {
         parentUid: user?.uid,
-        childId: activeChild?.id,
+        childId: selectedChildId,
         title: choreTitle.trim(),
         description: choreDescription.trim(),
         reward: numericReward,
@@ -288,7 +386,6 @@ export default function ParentDashboardPage() {
       setChoreReward("20");
       setChoreFrequency("one-time");
       setShowChoreModal(false);
-      await refreshDashboard();
     } catch (error) {
       console.error(error);
       alert("Failed to create task.");
@@ -302,24 +399,6 @@ export default function ParentDashboardPage() {
     router.push("/" as Route);
   };
 
-  const activeChild = useMemo(() => {
-    if (children.length === 0) return null;
-    return children[activeChildIndex] || children[0];
-  }, [children, activeChildIndex]);
-
-  const activeChildPending = useMemo(() => {
-    if (!activeChild) return [];
-    return pendingCompletions.filter((item) => item.childId === activeChild.id);
-  }, [pendingCompletions, activeChild]);
-
-  const activeChildChores = useMemo(() => {
-    if (!activeChild) return [];
-    return activeChores.filter((item) => item.childId === activeChild.id);
-  }, [activeChores, activeChild]);
-
-  const completedModulesCount = activeChild?.modulesCompleted.length || 0;
-  const totalModules = 2;
-
   if (loading) {
     return (
       <main className="parent-dashboard-page">
@@ -330,108 +409,165 @@ export default function ParentDashboardPage() {
     );
   }
 
-  if (!activeChild) return null;
-
   return (
     <main className="parent-dashboard-page">
       <div className="parent-dashboard-shell">
         <section className="parent-dashboard-topbar">
-          <h1 className="parent-dashboard-title">
-            Hi {user?.displayName?.split(" ")[0] || "parent"}! 👋
-          </h1>
-          <button onClick={handleLogout} className="parent-secondary-button">
+          <div className="parent-dashboard-heading">
+            <p className="parent-dashboard-kicker">Parent Dashboard</p>
+            <h1 className="parent-dashboard-title">
+              Hi {user?.displayName?.split(" ")[0] || "parent"}! 👋
+            </h1>
+          </div>
+
+          <button onClick={handleLogout} className="parent-secondary-button" type="button">
             Log out
           </button>
         </section>
 
-        <section className="parent-child-panel">
-          <article className="parent-child-focus-card">
-            <div className="parent-child-header">
-              <div className="parent-child-avatar" aria-hidden="true" />
-              <div className="parent-child-meta">
-                <h2>{activeChild.displayName}</h2>
-                <p>lvl 1</p>
-                <span>🪙 {activeChild.coinBalance} Coins</span>
-                <span style={{ fontSize: "0.75rem", color: "#666", marginTop: "4px", display: "block" }}>
-                  Access Code: <strong>{activeChild.accessCode}</strong>
-                </span>
-              </div>
-            </div>
+        <section className="parent-children-list">
+          {sortedChildren.map((child) => {
+            const childPending = pendingCompletions.filter((item) => item.childId === child.id);
+            const childActiveChores = activeChores.filter((item) => item.childId === child.id);
+            const completedModulesCount = child.modulesCompleted.length || 0;
+            const totalModules = 2;
+            const isSelected = selectedChildId === child.id;
 
-            <button
-              onClick={() => setShowChoreModal(true)}
-              className="parent-task-button"
-            >
-              <span className="parent-plus">＋</span> Add New Task
-            </button>
+            return (
+              <article
+                key={child.id}
+                className={`parent-child-focus-card ${isSelected ? "is-selected" : ""}`}
+              >
+                <div className="parent-child-header">
+                  <div className="parent-child-avatar">
+                    <Image
+                      src={getAvatarSrc(child.avatar)}
+                      alt={`${child.displayName} avatar`}
+                      fill
+                      sizes="72px"
+                      style={{ objectFit: "contain" }}
+                    />
+                  </div>
 
-            <div className="parent-summary-grid">
-              <div className="parent-summary-pill">
-                <span>Active Tasks</span>
-                <strong>{activeChildChores.length}</strong>
-              </div>
-              <div className="parent-summary-pill">
-                <span>Pending</span>
-                <strong>{activeChildPending.length}</strong>
-              </div>
-              <div className="parent-summary-pill">
-                <span>Modules</span>
-                <strong>
-                  {completedModulesCount}/{totalModules}
-                </strong>
-              </div>
-            </div>
+                  <div className="parent-child-meta">
+                    <h2>{child.displayName}</h2>
+                    <p>Level 1</p>
+                    <span className="parent-child-coins">
+                      <span className="parent-child-coins-icon" aria-hidden="true">
+                        <Image
+                          src="/assets/CoinIcon.svg"
+                          alt=""
+                          fill
+                          sizes="18px"
+                          style={{ objectFit: "contain" }}
+                        />
+                      </span>
+                      {child.coinBalance} Coins
+                    </span>
+                    <span className="parent-child-code">
+                      Access Code: <strong>{child.accessCode}</strong>
+                    </span>
+                  </div>
+                </div>
 
-            <div className="parent-activity-section">
-              <p className="parent-activity-heading">Recent Activities</p>
+                <button
+                  onClick={() => {
+                    setSelectedChildId(child.id);
+                    setShowChoreModal(true);
+                  }}
+                  className="parent-task-button"
+                  type="button"
+                >
+                  <span className="parent-plus">＋</span>
+                  Add New Task
+                </button>
 
-              <div className="parent-activity-list">
-                {activeChildPending.length === 0 ? (
-                  <div className="parent-activity-empty">No recent activities yet.</div>
-                ) : (
-                  activeChildPending.map((completion) => (
-                    <article
-                      key={completion.id}
-                      className={`parent-activity-card ${
-                        completion.choreTitle.toLowerCase().includes("goal")
-                          ? "goal-card"
-                          : ""
-                      }`}
-                    >
-                      <div className="parent-activity-copy">
-                        <p className="parent-activity-label">
-                          {completion.choreTitle.toLowerCase().includes("goal")
-                            ? "New Goal"
-                            : "Complete"}
-                        </p>
-                        <h3>{completion.choreTitle}</h3>
-                      </div>
+                <div className="parent-summary-grid">
+                  <div className="parent-summary-pill">
+                    <span>Active Tasks</span>
+                    <strong>{childActiveChores.length}</strong>
+                  </div>
+                  <div className="parent-summary-pill">
+                    <span>Pending</span>
+                    <strong>{childPending.length}</strong>
+                  </div>
+                  <div className="parent-summary-pill">
+                    <span>Modules</span>
+                    <strong>
+                      {completedModulesCount}/{totalModules}
+                    </strong>
+                  </div>
+                </div>
 
-                      <div className="parent-activity-actions">
-                        <button
-                          onClick={() => handleReject(completion.id)}
-                          disabled={actionLoadingId === completion.id}
-                          className="parent-icon-button parent-icon-button-muted"
-                          aria-label="Reject task"
+                <div className="parent-activity-section">
+                  <div className="parent-section-header">
+                    <p className="parent-activity-heading">Pending Reviews</p>
+                  </div>
+
+                  <div className="parent-activity-list">
+                    {childPending.length === 0 ? (
+                      <div className="parent-activity-empty">No pending task reviews yet.</div>
+                    ) : (
+                      childPending.map((completion) => (
+                        <article
+                          key={completion.id}
+                          className={`parent-activity-card ${
+                            completion.choreTitle.toLowerCase().includes("goal")
+                              ? "goal-card"
+                              : ""
+                          }`}
                         >
-                          ✕
-                        </button>
+                          <div className="parent-activity-copy">
+                            <p className="parent-activity-label">
+                              {completion.choreTitle.toLowerCase().includes("goal")
+                                ? "Goal"
+                                : "Task Completed"}
+                            </p>
+                            <h3>{completion.choreTitle}</h3>
+                            <span className="parent-activity-reward">
+                              Reward:
+                              <span className="parent-activity-reward-icon" aria-hidden="true">
+                                <Image
+                                  src="/assets/CoinIcon.svg"
+                                  alt=""
+                                  fill
+                                  sizes="16px"
+                                  style={{ objectFit: "contain" }}
+                                />
+                              </span>
+                              {completion.reward}
+                            </span>
+                          </div>
 
-                        <button
-                          onClick={() => handleApprove(completion.id)}
-                          disabled={actionLoadingId === completion.id}
-                          className="parent-icon-button parent-icon-button-primary"
-                          aria-label="Approve task"
-                        >
-                          {actionLoadingId === completion.id ? "…" : "✓"}
-                        </button>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
-            </div>
-          </article>
+                          <div className="parent-activity-actions">
+                            <button
+                              onClick={() => handleReject(completion.id)}
+                              disabled={actionLoadingId === completion.id}
+                              className="parent-icon-button parent-icon-button-muted"
+                              aria-label="Reject task"
+                              type="button"
+                            >
+                              ✕
+                            </button>
+
+                            <button
+                              onClick={() => handleApprove(completion.id)}
+                              disabled={actionLoadingId === completion.id}
+                              className="parent-icon-button parent-icon-button-primary"
+                              aria-label="Approve task"
+                              type="button"
+                            >
+                              {actionLoadingId === completion.id ? "…" : "✓"}
+                            </button>
+                          </div>
+                        </article>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
         </section>
 
         <section className="parent-fab-row">
@@ -439,64 +575,39 @@ export default function ParentDashboardPage() {
             onClick={() => router.push("/parent/add-child" as Route)}
             className="parent-fab"
             aria-label="Add child"
+            type="button"
           >
             ＋ Child
           </button>
         </section>
-
-        {children.length > 1 && (
-          <section className="parent-child-nav">
-            <button
-              type="button"
-              className="parent-nav-arrow"
-              onClick={() =>
-                setActiveChildIndex((prev) => (prev === 0 ? children.length - 1 : prev - 1))
-              }
-              aria-label="Previous child"
-            >
-              ‹
-            </button>
-
-            <div className="parent-nav-dots">
-              {children.map((child, index) => (
-                <button
-                  key={child.id}
-                  type="button"
-                  className={`parent-nav-dot ${index === activeChildIndex ? "is-active" : ""}`}
-                  onClick={() => setActiveChildIndex(index)}
-                  aria-label={`Go to ${child.displayName}`}
-                />
-              ))}
-            </div>
-
-            <button
-              type="button"
-              className="parent-nav-arrow"
-              onClick={() =>
-                setActiveChildIndex((prev) =>
-                  prev === children.length - 1 ? 0 : prev + 1
-                )
-              }
-              aria-label="Next child"
-            >
-              ›
-            </button>
-          </section>
-        )}
       </div>
 
-      {/* Bottom Sheet Modal */}
       {showChoreModal && (
         <>
-          <div 
+          <div
             className="parent-modal-overlay"
             onClick={() => setShowChoreModal(false)}
           />
           <div className="parent-modal-sheet">
             <div className="parent-modal-handle" />
             <h2 className="parent-modal-title">Assign Task</h2>
-            
+
             <form onSubmit={handleAddChore} className="parent-modal-form">
+              <div className="parent-modal-field">
+                <label htmlFor="child-select">Child</label>
+                <select
+                  id="child-select"
+                  value={selectedChildId}
+                  onChange={(e) => setSelectedChildId(e.target.value)}
+                >
+                  {sortedChildren.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.displayName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="parent-modal-field">
                 <label htmlFor="chore-title">Task</label>
                 <input
@@ -518,7 +629,7 @@ export default function ParentDashboardPage() {
               </div>
 
               <div className="parent-modal-field">
-                <label htmlFor="chore-description">Details/Instructions</label>
+                <label htmlFor="chore-description">Details / Instructions</label>
                 <textarea
                   id="chore-description"
                   value={choreDescription}
@@ -541,8 +652,8 @@ export default function ParentDashboardPage() {
                 </select>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={choreSaving}
                 className="parent-modal-submit"
               >

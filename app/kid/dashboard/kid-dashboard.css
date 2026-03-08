@@ -1,7 +1,7 @@
 .kid-dashboard-page {
   min-height: 100vh;
   background: #fff8ef;
-  padding: 32px 20px 48px;
+  padding: 32px 20px 120px;
   color: #2f241f;
 }
 
@@ -16,15 +16,64 @@
 }
 
 .kid-dashboard-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
+  position: relative;
+  margin-top: 48px;
   margin-bottom: 28px;
-  padding: 28px;
+  padding: 32px 28px 28px;
   background: linear-gradient(135deg, #fcdd9d 0%, #ffe9be 100%);
   border-radius: 28px;
   box-shadow: 0 10px 30px rgba(241, 100, 46, 0.12);
+}
+
+.kid-corner-stats {
+  position: absolute;
+  top: -46px;
+  right: 12px;
+  display: flex;
+  gap: 12px;
+  z-index: 2;
+}
+
+.kid-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.08);
+}
+
+.kid-pill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.kid-pill-coins {
+  border: 2px solid #b28600;
+  color: #9b7200;
+}
+
+.kid-pill-streak {
+  border: 2px solid #b31800;
+  color: #db3b16;
+}
+
+.kid-hero-main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kid-hero-name-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
 .kid-dashboard-kicker {
@@ -43,7 +92,7 @@
 }
 
 .kid-dashboard-subtitle {
-  margin: 12px 0 0;
+  margin: 0;
   max-width: 520px;
   font-size: 1rem;
   line-height: 1.6;
@@ -51,8 +100,8 @@
 }
 
 .kid-avatar-badge {
-  width: 84px;
-  height: 84px;
+  width: 92px;
+  height: 92px;
   border-radius: 999px;
   background: #f1642e;
   color: #ffffff;
@@ -63,32 +112,59 @@
   font-weight: 800;
   flex-shrink: 0;
   box-shadow: 0 10px 24px rgba(241, 100, 46, 0.22);
+  overflow: hidden;
 }
 
-.kid-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+.kid-avatar-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.kid-stat-card {
-  background: #ffffff;
-  border-radius: 22px;
-  padding: 22px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
+.kid-avatar-customize-btn {
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #f1642e;
+  border: 3px solid #fff8ef;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(241, 100, 46, 0.3);
+  padding: 0;
 }
 
-.kid-stat-label {
-  margin: 0 0 10px;
-  font-size: 0.95rem;
-  color: #8b7265;
+.kid-avatar-customize-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.4);
 }
 
-.kid-stat-card h2 {
-  margin: 0;
-  font-size: 2rem;
-  color: #f1642e;
+.kid-avatar-customize-text {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #2f241f;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.kid-avatar-customize-btn:hover .kid-avatar-customize-text {
+  opacity: 1;
 }
 
 .kid-dashboard-section {
@@ -268,12 +344,28 @@
 }
 
 @media (max-width: 720px) {
+  .kid-dashboard-page {
+    padding-bottom: 120px;
+  }
+
   .kid-dashboard-hero {
-    flex-direction: column;
+    margin-top: 64px;
+    padding-top: 30px;
+  }
+
+  .kid-corner-stats {
+    top: -70px;
+    right: 8px;
+    left: 8px;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .kid-hero-name-row {
     align-items: flex-start;
   }
 
-  .kid-stats-grid,
   .kid-modules-grid {
     grid-template-columns: 1fr;
   }
