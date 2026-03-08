@@ -237,12 +237,14 @@ export default function KidDashboardPage() {
                     <p style={{ margin: "8px 0" }}>Rejected — you can try again</p>
                   )}
 
-                  <button
-                    onClick={() => handleMarkDone(chore)}
-                    disabled={actionLoadingId === chore.id || completion?.status === "pending"}
-                  >
-                    {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
-                  </button>
+                  {(completion?.status === undefined || completion?.status === "rejected") && (
+                    <button
+                      onClick={() => handleMarkDone(chore)}
+                      disabled={actionLoadingId === chore.id}
+                    >
+                      {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
+                    </button>
+                  )}
                 </div>
               );
             })}
