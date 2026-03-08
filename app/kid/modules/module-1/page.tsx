@@ -4,8 +4,12 @@ import { useState } from "react"
 import { addDoc, collection, serverTimestamp } from "firebase/firestore"
 import { db } from "@/lib/firebase-client"
 import Quiz from "./Quiz"
+import { useRouter } from "next/navigation"
+import type { Route } from "next"
 
 export default function ModuleOnePage() {
+
+  const router = useRouter()
 
   const [step, setStep] = useState("lesson")
   const [goalItem, setGoalItem] = useState("")
@@ -81,9 +85,13 @@ export default function ModuleOnePage() {
   }
 
   return (
-    <main>
-      <h1>Module Complete</h1>
-      <p>Your goal was saved.</p>
-    </main>
+  <main>
+    <h1>Module Complete</h1>
+    <p>Your goal was saved!</p>
+
+    <button onClick={() => router.push("/kid/dashboard" as Route)}>
+      Return to Dashboard
+    </button>
+  </main>
   )
 }
