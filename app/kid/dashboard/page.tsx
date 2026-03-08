@@ -340,7 +340,14 @@ export default function KidDashboardPage() {
             </span>
           </div>
 
-          {chores.length === 0 ? (
+          {!child.modulesCompleted.includes("module-1") ? (
+            <div className="kid-empty-card">
+              <p>📚 Complete "Module 1: Needs vs Wants" first to unlock chores!</p>
+              <p style={{ fontSize: "0.9rem", color: "#7a675d", marginTop: "8px" }}>
+                Head to the Learn section and finish the module to get started.
+              </p>
+            </div>
+          ) : chores.length === 0 ? (
             <div className="kid-empty-card">
               <p>No chores assigned yet.</p>
             </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { addDoc, collection, serverTimestamp } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp, doc, runTransaction } from "firebase/firestore"
 import { db } from "@/lib/firebase-client"
 import Quiz from "./Quiz"
 import { useRouter } from "next/navigation"
@@ -14,6 +14,7 @@ export default function ModuleOnePage() {
   const [step, setStep] = useState("lesson")
   const [goalItem, setGoalItem] = useState("")
   const [goalCost, setGoalCost] = useState("")
+  const [saving, setSaving] = useState(false)
 
   const saveGoal = async () => {
 
@@ -24,14 +25,47 @@ export default function ModuleOnePage() {
       return
     }
 
-    await addDoc(collection(db, "goals"), {
-      childId,
-      item: goalItem,
-      cost: Number(goalCost),
-      createdAt: serverTimestamp()
-    })
+    try {
+      setSaving(true)
 
-    setStep("done")
+      await runTransaction(db, async (transaction) => {
+        const childRef = doc(db, "children", childId)
+        const childSnap = await transaction.get(childRef)
+
+        if (!childSnap.exists()) {
+          throw new Error("Child profile not found.")
+        }
+
+        const childData = childSnap.data()
+        const modulesCompleted = Array.isArray(childData.modulesCompleted)
+          ? childData.modulesCompleted
+          : []
+
+        const alreadyCompleted = modulesCompleted.includes("module-1")
+
+        if (!alreadyCompleted) {
+          transaction.update(childRef, {
+            modulesCompleted: [...modulesCompleted, "module-1"],
+            streak: (childData.streak || 0) + 1,
+            updatedAt: serverTimestamp(),
+          })
+        }
+      })
+
+      await addDoc(collection(db, "goals"), {
+        childId,
+        item: goalItem,
+        cost: Number(goalCost),
+        createdAt: serverTimestamp()
+      })
+
+      setStep("done")
+    } catch (error) {
+      console.error(error)
+      alert("Could not save your progress")
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (step === "lesson") {

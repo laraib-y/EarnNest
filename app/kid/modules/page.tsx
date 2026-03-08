@@ -137,7 +137,9 @@ export default function KidModulesPage() {
                   <h3>Saving & Budgeting</h3>
                 </div>
                 <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-2")
+                  {!child.modulesCompleted.includes("module-1")
+                    ? "🔒 Locked"
+                    : child.modulesCompleted.includes("module-2")
                     ? "Completed"
                     : "Ready"}
                 </span>
@@ -150,10 +152,22 @@ export default function KidModulesPage() {
 
               <button
                 className="kid-primary-button"
-                onClick={() => router.push("/kid/modules/module-2" as Route)}
+                onClick={() => {
+                  if (child.modulesCompleted.includes("module-1")) {
+                    router.push("/kid/modules/module-2" as Route);
+                  }
+                }}
+                disabled={!child.modulesCompleted.includes("module-1")}
                 type="button"
+                style={
+                  !child.modulesCompleted.includes("module-1")
+                    ? { opacity: 0.5, cursor: "not-allowed" }
+                    : {}
+                }
               >
-                {child.modulesCompleted.includes("module-2")
+                {!child.modulesCompleted.includes("module-1")
+                  ? "Complete Module 1 First"
+                  : child.modulesCompleted.includes("module-2")
                   ? "Play Again"
                   : "Start Module 2"}
               </button>
