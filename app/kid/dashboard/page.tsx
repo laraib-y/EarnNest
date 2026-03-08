@@ -101,13 +101,16 @@ export default function KidDashboardPage() {
   const [newGoalCost, setNewGoalCost] = useState("");
   const [addingGoal, setAddingGoal] = useState(false);
   const [goalCoachLoading, setGoalCoachLoading] = useState(false);
-  const [goalCoachReply, setGoalCoachReply] = useState<GoalCoachReply | null>(null);
+  const [goalCoachReply, setGoalCoachReply] = useState<GoalCoachReply | null>(
+    null,
+  );
 
   const [isSpendCoachOpen, setIsSpendCoachOpen] = useState(false);
   const [spendCoachLoading, setSpendCoachLoading] = useState(false);
   const [spendItemName, setSpendItemName] = useState("");
   const [spendItemCost, setSpendItemCost] = useState("");
-  const [spendCoachReply, setSpendCoachReply] = useState<SpendCoachReply | null>(null);
+  const [spendCoachReply, setSpendCoachReply] =
+    useState<SpendCoachReply | null>(null);
 
   const getAvatarPath = (avatar: string) => {
     if (!avatar) return "/assets/BearIcon.svg";
@@ -145,6 +148,10 @@ export default function KidDashboardPage() {
       ? Math.min(((child?.coinBalance || 0) / currentGoal.cost) * 100, 100)
       : 0;
 
+  const handleLogout = () => {
+    localStorage.removeItem("kidChildId");
+    router.push("/" as Route);
+  };
   const handleOpenCustomize = () => {
     setSelectedAvatar(child?.avatar || "bear");
     setIsCustomizing(true);
@@ -276,7 +283,7 @@ export default function KidDashboardPage() {
 
           setChild(childProfile);
           setLoading(false);
-        }
+        },
       );
 
       choresUnsub = onSnapshot(
@@ -297,13 +304,13 @@ export default function KidDashboardPage() {
             .filter((chore) => chore.status === "active");
 
           setChores(choreList);
-        }
+        },
       );
 
       completionsUnsub = onSnapshot(
         query(
           collection(db, "completions"),
-          where("childId", "==", storedChildId)
+          where("childId", "==", storedChildId),
         ),
         (completionSnap) => {
           const completionList: CompletionItem[] = completionSnap.docs.map(
@@ -316,11 +323,11 @@ export default function KidDashboardPage() {
                 reward: Number(data.reward || 0),
                 createdAt: data.createdAt || null,
               };
-            }
+            },
           );
 
           setCompletions(completionList);
-        }
+        },
       );
 
       goalsUnsub = onSnapshot(
@@ -337,7 +344,7 @@ export default function KidDashboardPage() {
           });
 
           setGoals(goalList);
-        }
+        },
       );
     } catch (error) {
       console.error(error);
@@ -441,7 +448,7 @@ export default function KidDashboardPage() {
 
       if (!response.ok) {
         throw new Error(
-          ("error" in data && data.error) || "Could not get goal coach advice."
+          ("error" in data && data.error) || "Could not get goal coach advice.",
         );
       }
 
@@ -489,7 +496,7 @@ export default function KidDashboardPage() {
       if (!response.ok) {
         throw new Error(
           ("error" in data && data.error) ||
-            "Could not get spend or save advice."
+            "Could not get spend or save advice.",
         );
       }
 
@@ -518,6 +525,13 @@ export default function KidDashboardPage() {
     <main className="kid-dashboard-page">
       <div className="kid-dashboard-shell">
         <section className="kid-dashboard-hero">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="kid-logout-button"
+          >
+            Log out
+          </button>
           <div className="kid-corner-stats">
             <div className="kid-pill kid-pill-coins">
               <img
@@ -640,7 +654,7 @@ export default function KidDashboardPage() {
                     goal.cost > 0
                       ? Math.min(
                           ((child.coinBalance || 0) / goal.cost) * 100,
-                          100
+                          100,
                         )
                       : 0;
 
@@ -737,11 +751,11 @@ export default function KidDashboardPage() {
                         <h4>{goalCoachReply.title}</h4>
                         <p>{goalCoachReply.message}</p>
                         <p>
-                          <strong>Right now:</strong>{" "}
-                          {goalCoachReply.actionTip}
+                          <strong>Right now:</strong> {goalCoachReply.actionTip}
                         </p>
                         <p>
-                          <strong>Money tip:</strong> {goalCoachReply.generalTip}
+                          <strong>Money tip:</strong>{" "}
+                          {goalCoachReply.generalTip}
                         </p>
                       </div>
                       <button
@@ -1054,10 +1068,7 @@ export default function KidDashboardPage() {
             }
           }}
         >
-          <div
-            className="kid-modal-card"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="kid-modal-card" onClick={(e) => e.stopPropagation()}>
             <h2 className="kid-modal-title">Spend or Save Coach</h2>
 
             <input

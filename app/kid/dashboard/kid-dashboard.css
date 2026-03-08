@@ -1485,3 +1485,31 @@
     margin-bottom: 18px;
   }
 }
+.kid-dashboard-hero {
+  position: relative;  /* already set */
+}
+
+.kid-logout-button {
+  position: absolute;
+  top: -46px;   /* same height as the pills */
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 2px solid #e0d0c8;
+  background: #ffffff;
+  color: #8b7265;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(47, 36, 31, 0.08);
+  transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  font-family: inherit;
+}
+
+.kid-logout-button:hover {
+  transform: translateY(-1px);
+  color: #f1642e;
+  border-color: #f1642e;
+}
