@@ -1,19 +1,7 @@
-.module-two-page {
-  min-height: 100vh;
-  height: 100vh;
-  background: #efefef;
-  padding: 0;
-  font-family: "Rubik", sans-serif;
-  color: #171717;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-}
-
 .module-two-shell {
   width: 100%;
   max-width: 430px;
-  height: 100vh;
+  min-height: 100vh;
   padding: 22px 22px 24px;
   box-sizing: border-box;
   position: relative;
@@ -101,8 +89,8 @@
 .module-two-lesson-stage {
   position: relative;
   width: 347px;
-  height: 250px;
-  margin-bottom: 16px;
+  height: 300px;
+  margin-bottom: 0px;
   overflow: visible;
 }
 
@@ -111,11 +99,11 @@
   left: 50%;
   transform: translateX(-50%);
   width: 347px;
-  min-height: 96px;
+  min-height: 104px;
   border-radius: 16px;
   border: 1px solid #ff6610;
   background: #ffffff;
-  padding: 10px 16px;
+  padding: 14px 18px;
   box-sizing: border-box;
   transition:
     top 520ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -126,7 +114,7 @@
 .module-two-text-card p {
   margin: 0;
   font-size: 16px;
-  line-height: 1.22;
+  line-height: 1.28;
   color: #171717;
   text-align: left;
 }
@@ -137,34 +125,38 @@
 
 .module-two-text-card--settled-past {
   top: 0;
-  opacity: 0.2;
-  box-shadow: 0px 4px 0px 0px #ff6610;
+  opacity: 0.16;
+  box-shadow: 0 4px 0 0 #ff6610;
   z-index: 1;
   pointer-events: none;
 }
 
 .module-two-text-card--current {
-  top: 138px;
+  top: 140px;
   opacity: 1;
-  box-shadow: 0px 4px 0px 0px #ff6610;
+  box-shadow: 0 4px 0 0 #ff6610;
   z-index: 2;
 }
 
 .module-two-text-card--entering {
-  top: 178px;
+  top: 190px;
   opacity: 0;
-  box-shadow: 0px 4px 0px 0px #ff6610;
+  box-shadow: 0 4px 0 0 #ff6610;
   z-index: 2;
 }
 
-.module-two-footer {
+/* LEARNING FOOTER ONLY */
+.module-two-shell > .module-two-footer {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: auto;
+  margin-top: 20px;
+  padding-top: 0;
+  padding-bottom: 0;
+  flex-shrink: 0;
 }
 
-.module-two-primary-button {
+.module-two-shell > .module-two-footer .module-two-primary-button {
   width: 331px;
   height: 50px;
   border: none;
@@ -178,21 +170,25 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.module-two-primary-button:hover {
+.module-two-shell > .module-two-footer .module-two-primary-button:hover {
   transform: translateY(-1px);
 }
 
-.module-two-primary-button:disabled {
+.module-two-shell > .module-two-footer .module-two-primary-button:disabled {
   opacity: 0.72;
   cursor: not-allowed;
   transform: none;
 }
 
+/* =========================
+   MODULE 2 QUIZ
+   ========================= */
+
 .module-two-quiz-shell {
   align-items: stretch;
-  padding: 12px 18px 20px;
+  padding: 12px 18px calc(20px + env(safe-area-inset-bottom));
   max-width: 390px;
-  min-height: 100vh;
+  min-height: 100%;
   box-sizing: border-box;
 }
 
@@ -332,15 +328,17 @@
   font-weight: 400;
 }
 
-.module-two-footer {
+.module-two-quiz-shell .module-two-footer {
   width: 100%;
   display: flex;
   justify-content: center;
   margin-top: auto;
-  padding-top: 2px;
+  padding-top: 12px;
+  padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
-.module-two-primary-button {
+.module-two-quiz-shell .module-two-primary-button {
   width: 100%;
   height: 48px;
   border: none;
@@ -354,11 +352,11 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.module-two-primary-button:hover:not(:disabled) {
+.module-two-quiz-shell .module-two-primary-button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
-.module-two-primary-button:disabled {
+.module-two-quiz-shell .module-two-primary-button:disabled {
   opacity: 0.72;
   cursor: not-allowed;
   transform: none;
