@@ -7,8 +7,8 @@ import {
   collection,
   doc,
   getDoc,
+  runTransaction,
   serverTimestamp,
-  updateDoc,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase-client";
 import Quiz from "./Quiz";
@@ -173,11 +173,8 @@ export default function ModuleOnePage() {
     const nextCard = lessonCards[lessonIndex + 1];
 
     setIsAnimating(true);
-
-    /* progress updates immediately */
     setProgressIndex(lessonIndex + 1);
 
-    /* start with old current + new entering */
     setDisplayCards([
       {
         ...currentCard,
@@ -225,7 +222,9 @@ export default function ModuleOnePage() {
   };
 
   const saveGoal = async () => {
-    if (!child) {
+    const childId = child?.id || localStorage.getItem("kidChildId");
+
+    if (!childId) {
       alert("Child not found.");
       return;
     }
@@ -244,27 +243,47 @@ export default function ModuleOnePage() {
     try {
       setSavingGoal(true);
 
+      await runTransaction(db, async (transaction) => {
+        const childRef = doc(db, "children", childId);
+        const childSnap = await transaction.get(childRef);
+
+        if (!childSnap.exists()) {
+          throw new Error("Child profile not found.");
+        }
+
+        const childData = childSnap.data();
+        const modulesCompleted = Array.isArray(childData.modulesCompleted)
+          ? childData.modulesCompleted
+          : [];
+
+        const alreadyCompleted = modulesCompleted.includes("module-1");
+
+        if (!alreadyCompleted) {
+          transaction.update(childRef, {
+            modulesCompleted: [...modulesCompleted, "module-1"],
+            streak: Number(childData.streak || 0) + 1,
+            updatedAt: serverTimestamp(),
+          });
+        }
+      });
+
       await addDoc(collection(db, "goals"), {
-        childId: child.id,
+        childId,
         item: goalItem.trim(),
         cost: numericCost,
         createdAt: serverTimestamp(),
-      });
-
-      const alreadyCompleted = child.modulesCompleted.includes("module-1");
-      const nextModules = alreadyCompleted
-        ? child.modulesCompleted
-        : [...child.modulesCompleted, "module-1"];
-
-      await updateDoc(doc(db, "children", child.id), {
-        modulesCompleted: nextModules,
       });
 
       setChild((prev) =>
         prev
           ? {
               ...prev,
-              modulesCompleted: nextModules,
+              streak: prev.modulesCompleted.includes("module-1")
+                ? prev.streak
+                : prev.streak + 1,
+              modulesCompleted: prev.modulesCompleted.includes("module-1")
+                ? prev.modulesCompleted
+                : [...prev.modulesCompleted, "module-1"],
             }
           : prev
       );
@@ -272,7 +291,7 @@ export default function ModuleOnePage() {
       setStep("done");
     } catch (error) {
       console.error(error);
-      alert("Could not save your goal.");
+      alert("Could not save your progress");
     } finally {
       setSavingGoal(false);
     }

@@ -79,6 +79,7 @@ export default function Module2QuizPage() {
               transaction.update(childRef, {
                 modulesCompleted: [...modulesCompleted, module2Meta.id],
                 coinBalance: Number(childData.coinBalance || 0) + module2Meta.rewardCoins,
+                streak: (childData.streak || 0) + 1,
                 updatedAt: serverTimestamp(),
               });
             }

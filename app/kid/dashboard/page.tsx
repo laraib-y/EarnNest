@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
   addDoc,
@@ -46,6 +47,13 @@ type CompletionItem = {
   createdAt?: unknown;
 };
 
+type GoalItem = {
+  id: string;
+  item: string;
+  cost: number;
+  createdAt?: unknown;
+};
+
 const avatars = [
   { key: "bear", src: "/assets/BearIcon.svg", label: "Bear" },
   { key: "cat", src: "/assets/CatIcon.svg", label: "Cat" },
@@ -61,11 +69,23 @@ export default function KidDashboardPage() {
   const [child, setChild] = useState<ChildProfile | null>(null);
   const [chores, setChores] = useState<ChoreItem[]>([]);
   const [completions, setCompletions] = useState<CompletionItem[]>([]);
+  const [goals, setGoals] = useState<GoalItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const [isCustomizingClosing, setIsCustomizingClosing] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState("bear");
   const [savingAvatar, setSavingAvatar] = useState(false);
+  const [isEditingGoal, setIsEditingGoal] = useState(false);
+  const [isEditingGoalClosing, setIsEditingGoalClosing] = useState(false);
+  const [editGoalItem, setEditGoalItem] = useState("");
+  const [editGoalCost, setEditGoalCost] = useState("");
+  const [savingGoal, setSavingGoal] = useState(false);
+  const [isAddingGoal, setIsAddingGoal] = useState(false);
+  const [isAddingGoalClosing, setIsAddingGoalClosing] = useState(false);
+  const [newGoalItem, setNewGoalItem] = useState("");
+  const [newGoalCost, setNewGoalCost] = useState("");
+  const [addingGoal, setAddingGoal] = useState(false);
 
   const getAvatarPath = (avatar: string) => {
     if (!avatar) return "/assets/BearIcon.svg";
@@ -97,9 +117,60 @@ export default function KidDashboardPage() {
     return map;
   }, [completions]);
 
+  const currentGoal = goals[0] || null;
+  const currentGoalProgress =
+    currentGoal && currentGoal.cost > 0
+      ? Math.min(((child?.coinBalance || 0) / currentGoal.cost) * 100, 100)
+      : 0;
+
   const handleOpenCustomize = () => {
     setSelectedAvatar(child?.avatar || "bear");
     setIsCustomizing(true);
+  };
+
+  const handleOpenAddGoal = () => {
+    setNewGoalItem("");
+    setNewGoalCost("");
+    setIsAddingGoal(true);
+  };
+
+  const handleCloseAddGoal = () => {
+    setIsAddingGoalClosing(true);
+  };
+
+  const handleAddGoalAnimationEnd = () => {
+    if (isAddingGoalClosing) {
+      setIsAddingGoal(false);
+      setIsAddingGoalClosing(false);
+    }
+  };
+
+  const handleCreateGoal = async () => {
+    if (!child || !newGoalItem.trim() || !newGoalCost) return;
+
+    const numericCost = Number(newGoalCost);
+    if (!Number.isFinite(numericCost) || numericCost <= 0) {
+      alert("Please enter a valid goal cost.");
+      return;
+    }
+
+    try {
+      setAddingGoal(true);
+
+      await addDoc(collection(db, "goals"), {
+        childId: child.id,
+        item: newGoalItem.trim(),
+        cost: numericCost,
+        createdAt: serverTimestamp(),
+      });
+
+      setIsAddingGoalClosing(true);
+    } catch (error) {
+      console.error(error);
+      alert("Could not create goal.");
+    } finally {
+      setAddingGoal(false);
+    }
   };
 
   const handleSaveAvatar = async () => {
@@ -112,12 +183,34 @@ export default function KidDashboardPage() {
         avatar: selectedAvatar,
       });
 
-      setIsCustomizing(false);
+      setIsCustomizingClosing(true);
     } catch (error) {
       console.error(error);
       alert("Could not update avatar.");
     } finally {
       setSavingAvatar(false);
+    }
+  };
+
+  const handleCloseEditGoal = () => {
+    setIsEditingGoalClosing(true);
+  };
+
+  const handleCloseCustomize = () => {
+    setIsCustomizingClosing(true);
+  };
+
+  const handleEditGoalAnimationEnd = () => {
+    if (isEditingGoalClosing) {
+      setIsEditingGoal(false);
+      setIsEditingGoalClosing(false);
+    }
+  };
+
+  const handleCustomizeAnimationEnd = () => {
+    if (isCustomizingClosing) {
+      setIsCustomizing(false);
+      setIsCustomizingClosing(false);
     }
   };
 
@@ -132,6 +225,7 @@ export default function KidDashboardPage() {
     let childUnsub: (() => void) | null = null;
     let choresUnsub: (() => void) | null = null;
     let completionsUnsub: (() => void) | null = null;
+    let goalsUnsub: (() => void) | null = null;
 
     try {
       childUnsub = onSnapshot(doc(db, "children", storedChildId), (childSnap) => {
@@ -200,6 +294,23 @@ export default function KidDashboardPage() {
           setCompletions(completionList);
         }
       );
+
+      goalsUnsub = onSnapshot(
+        query(collection(db, "goals"), where("childId", "==", storedChildId)),
+        (goalSnap) => {
+          const goalList: GoalItem[] = goalSnap.docs.map((goalDoc) => {
+            const data = goalDoc.data();
+            return {
+              id: goalDoc.id,
+              item: data.item || "",
+              cost: Number(data.cost || 0),
+              createdAt: data.createdAt || null,
+            };
+          });
+
+          setGoals(goalList);
+        }
+      );
     } catch (error) {
       console.error(error);
       router.push("/kid" as Route);
@@ -209,6 +320,7 @@ export default function KidDashboardPage() {
       childUnsub?.();
       choresUnsub?.();
       completionsUnsub?.();
+      goalsUnsub?.();
     };
   }, [router]);
 
@@ -246,6 +358,32 @@ export default function KidDashboardPage() {
     }
   };
 
+  const handleEditGoal = (goal: GoalItem) => {
+    setEditGoalItem(goal.item);
+    setEditGoalCost(String(goal.cost));
+    setIsEditingGoal(true);
+  };
+
+  const handleSaveGoal = async () => {
+    if (!goals.length || !editGoalItem || !editGoalCost) return;
+
+    try {
+      setSavingGoal(true);
+
+      await updateDoc(doc(db, "goals", goals[0].id), {
+        item: editGoalItem,
+        cost: Number(editGoalCost),
+      });
+
+      setIsEditingGoalClosing(true);
+    } catch (error) {
+      console.error(error);
+      alert("Could not update goal.");
+    } finally {
+      setSavingGoal(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="kid-dashboard-page">
@@ -264,27 +402,19 @@ export default function KidDashboardPage() {
         <section className="kid-dashboard-hero">
           <div className="kid-corner-stats">
             <div className="kid-pill kid-pill-coins">
-              <img
-                src="/assets/CoinIcon.svg"
-                alt="Coin"
-                className="kid-pill-icon"
-              />
+              <img src="/assets/CoinIcon.svg" alt="Coin" className="kid-pill-icon" />
               {child.coinBalance} Coins
             </div>
 
             <div className="kid-pill kid-pill-streak">
-              <img
-                src="/assets/FireIcon.svg"
-                alt="Streak"
-                className="kid-pill-icon"
-              />
+              <img src="/assets/FireIcon.svg" alt="Streak" className="kid-pill-icon" />
               {child.streak} {child.streak === 1 ? "day" : "days"}
             </div>
           </div>
 
           <div className="kid-hero-main">
             <div className="kid-hero-name-row">
-              <div style={{ position: "relative", display: "inline-block" }}>
+              <div className="kid-avatar-wrap">
                 <div className="kid-avatar-badge">
                   <img
                     src={getAvatarPath(child.avatar)}
@@ -300,19 +430,29 @@ export default function KidDashboardPage() {
                   className="kid-avatar-customize-btn"
                   title="Customize"
                   type="button"
+                  aria-label="Customize avatar"
                 >
                   <svg
-                    width="20"
-                    height="20"
+                    className="kid-avatar-edit-icon"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke="white"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
                   >
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    <path
+                      d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M14.06 4.94 17.81 8.69"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                   <span className="kid-avatar-customize-text">Customize</span>
                 </button>
@@ -333,122 +473,234 @@ export default function KidDashboardPage() {
         </section>
 
         <section className="kid-dashboard-section">
-          <div className="kid-section-header">
-            <h2>Learning Modules</h2>
+          <div className="kid-section-header kid-section-header-goals">
+            <h2>Goals</h2>
+
+            <button
+              type="button"
+              className="kid-add-goal-button"
+              onClick={handleOpenAddGoal}
+              aria-label="Add new goal"
+            >
+              <svg
+                className="kid-add-goal-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 5v14M5 12h14"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+
+              <span className="kid-add-goal-text">Goal</span>
+            </button>
           </div>
 
-          <div className="kid-modules-grid">
-            <article className="kid-module-card">
-              <div className="kid-module-top">
-                <div>
-                  <p className="kid-module-tag">Module 1</p>
-                  <h3>Needs vs Wants</h3>
-                </div>
-                <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-1")
-                    ? "Completed"
-                    : "Ready"}
-                </span>
-              </div>
+          {goals.length === 0 ? (
+            <div className="kid-empty-card">
+              <p>No goal set yet. Complete Module 1 to set your first goal!</p>
+            </div>
+          ) : (
+            <div className="kid-goals-grid">
+              {goals.map((goal, index) => {
+                const progress =
+                  goal.cost > 0
+                    ? Math.min(((child.coinBalance || 0) / goal.cost) * 100, 100)
+                    : 0;
 
-              <p className="kid-module-description">
-                Learn the difference between things you need and things you want.
-              </p>
+                return (
+                  <div
+                    key={goal.id}
+                    className={`kid-goal-card ${index === 0 ? "is-primary" : "is-secondary"}`}
+                  >
+                    <div className="kid-goal-top">
+                      <div className="kid-goal-copy">
+                        <p className="kid-goal-label">
+                          {index === 0 ? "Current Goal" : "Next Goal"}
+                        </p>
 
-              <button
-                className="kid-primary-button"
-                onClick={() => router.push("/kid/modules/module-1" as Route)}
-                type="button"
-              >
-                {child.modulesCompleted.includes("module-1")
-                  ? "Play Again"
-                  : "Start Module 1"}
-              </button>
-            </article>
+                        <div className="kid-goal-title-row">
+                          <h3>{goal.item}</h3>
 
-            <article className="kid-module-card">
-              <div className="kid-module-top">
-                <div>
-                  <p className="kid-module-tag">Module 2</p>
-                  <h3>Saving & Budgeting</h3>
-                </div>
-                <span className="kid-module-status">
-                  {child.modulesCompleted.includes("module-2")
-                    ? "Completed"
-                    : "Ready"}
-                </span>
-              </div>
+                          <button
+                            onClick={() => handleEditGoal(goal)}
+                            className="kid-goal-edit-button"
+                            type="button"
+                            title="Edit goal"
+                            aria-label="Edit goal"
+                          >
+                            <svg
+                              className="kid-goal-edit-icon"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                              <path
+                                d="M14.06 4.94 17.81 8.69"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </button>
+                        </div>
 
-              <p className="kid-module-description">
-                Practice saving coins and making smart budgeting choices to reach
-                a goal.
-              </p>
+                        <p className="kid-goal-progress-text">
+                          <strong>{Math.min(child.coinBalance, goal.cost)}</strong> / {goal.cost} Coins
+                        </p>
+                      </div>
+                    </div>
 
-              <button
-                className="kid-primary-button"
-                onClick={() => router.push("/kid/modules/module-2" as Route)}
-                type="button"
-              >
-                {child.modulesCompleted.includes("module-2")
-                  ? "Play Again"
-                  : "Start Module 2"}
-              </button>
-            </article>
-          </div>
+                    <div className="kid-goal-progress-track">
+                      <div
+                        className="kid-goal-progress-fill"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         <section className="kid-dashboard-section">
           <div className="kid-section-header">
-            <h2>Your Chores</h2>
-            <span>
-              {chores.length} task{chores.length === 1 ? "" : "s"}
-            </span>
+            <h2>Task List</h2>
           </div>
 
-          {chores.length === 0 ? (
+          {!child.modulesCompleted.includes("module-1") ? (
+            <div className="kid-empty-card">
+              <div className="kid-empty-inline">
+                <svg
+                  className="kid-empty-inline-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 4.5C5 3.67 5.67 3 6.5 3H19v16H6.5C5.67 19 5 19.67 5 20.5V4.5Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M5 18.5C5 17.67 5.67 17 6.5 17H19"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <p>Complete “Module 1: Needs vs Wants” first to unlock chores.</p>
+              </div>
+              <p className="kid-empty-subtext">
+                Head to the Learn section and finish the module to get started.
+              </p>
+            </div>
+          ) : chores.length === 0 ? (
             <div className="kid-empty-card">
               <p>No chores assigned yet.</p>
             </div>
           ) : (
-            <div className="kid-chores-grid">
+            <div className="kid-task-list">
               {chores.map((chore) => {
                 const completion = latestCompletionByChore.get(chore.id);
 
                 return (
-                  <article key={chore.id} className="kid-chore-card">
-                    <div className="kid-chore-top">
-                      <h3>{chore.title}</h3>
-                      <span className="kid-reward-pill">
-                        {chore.reward} coins
-                      </span>
+                  <article key={chore.id} className="kid-task-card">
+                    <div className="kid-task-top">
+                      <div className="kid-task-copy">
+                        <h3>{chore.title}</h3>
+                        {chore.description ? (
+                          <p className="kid-task-description">{chore.description}</p>
+                        ) : null}
+                      </div>
+
+                      <div className="kid-task-reward-pill">
+                        <img
+                          src="/assets/CoinIcon.svg"
+                          alt=""
+                          className="kid-task-reward-icon"
+                        />
+                        +{chore.reward}
+                      </div>
                     </div>
 
-                    {chore.description ? (
-                      <p className="kid-chore-description">
-                        {chore.description}
-                      </p>
-                    ) : null}
-
-                    <p className="kid-chore-frequency">
-                      Frequency: {chore.frequency}
-                    </p>
-
                     {completion?.status === "pending" && (
-                      <p className="kid-status kid-status-pending">
+                      <div className="kid-task-status kid-task-status-pending">
+                        <svg
+                          className="kid-task-status-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                        >
+                          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
+                          <path
+                            d="M12 7v5l3 2"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          />
+                        </svg>
                         Waiting for parent approval
-                      </p>
+                      </div>
                     )}
 
                     {completion?.status === "approved" && (
-                      <p className="kid-status kid-status-approved">
-                        Approved ✅
-                      </p>
+                      <div className="kid-task-status kid-task-status-approved">
+                        <svg
+                          className="kid-task-status-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Approved
+                      </div>
                     )}
 
                     {completion?.status === "rejected" && (
-                      <p className="kid-status kid-status-rejected">
-                        Rejected — you can try again
-                      </p>
+                      <div className="kid-task-status kid-task-status-rejected">
+                        <svg
+                          className="kid-task-status-icon"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M18 6L6 18M6 6l12 12"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        Rejected — try again
+                      </div>
                     )}
 
                     {(completion?.status === undefined ||
@@ -459,9 +711,7 @@ export default function KidDashboardPage() {
                         className="kid-primary-button"
                         type="button"
                       >
-                        {actionLoadingId === chore.id
-                          ? "Submitting..."
-                          : "Mark as Done"}
+                        {actionLoadingId === chore.id ? "Submitting..." : "Mark as Done"}
                       </button>
                     )}
                   </article>
@@ -470,151 +720,169 @@ export default function KidDashboardPage() {
             </div>
           )}
         </section>
+      </div>
 
-        {isCustomizing && (
+      {isEditingGoal && (
+        <div
+          className={`kid-modal-overlay ${isEditingGoalClosing ? "closing" : ""}`}
+          onClick={() => !savingGoal && handleCloseEditGoal()}
+          onAnimationEnd={handleEditGoalAnimationEnd}
+        >
           <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0, 0, 0, 0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 1000,
-              padding: "24px",
-            }}
-            onClick={() => !savingAvatar && setIsCustomizing(false)}
+            className={`kid-modal-card ${isEditingGoalClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div
-              style={{
-                background: "white",
-                borderRadius: "12px",
-                padding: "40px 24px",
-                maxWidth: "390px",
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h2 style={{ marginBottom: 20 }}>Pick your avatar</h2>
+            <h2 className="kid-modal-title">Edit Your Goal</h2>
 
-              <div
-                style={{
-                  width: 180,
-                  height: 180,
-                  marginBottom: 30,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+            <input
+              type="text"
+              value={editGoalItem}
+              onChange={(e) => setEditGoalItem(e.target.value)}
+              placeholder="What do you want to save for?"
+              className="kid-modal-input"
+            />
+
+            <input
+              type="number"
+              value={editGoalCost}
+              onChange={(e) => setEditGoalCost(e.target.value)}
+              placeholder="How many coins needed?"
+              className="kid-modal-input"
+            />
+
+            <div className="kid-modal-actions">
+              <button
+                type="button"
+                onClick={handleCloseEditGoal}
+                disabled={savingGoal}
+                className="kid-modal-secondary-button"
               >
-                <img
-                  src={getAvatarPath(selectedAvatar)}
-                  alt="Selected avatar"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
-                  }}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "contain",
-                  }}
-                />
-              </div>
+                Cancel
+              </button>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 20,
-                  marginBottom: 40,
-                  width: "100%",
-                  justifyItems: "center",
-                }}
+              <button
+                type="button"
+                onClick={handleSaveGoal}
+                disabled={savingGoal}
+                className="kid-modal-primary-button"
               >
-                {avatars.map((avatar) => (
-                  <button
-                    key={avatar.key}
-                    type="button"
-                    onClick={() => setSelectedAvatar(avatar.key)}
-                    style={{
-                      width: 70,
-                      height: 70,
-                      borderRadius: "50%",
-                      border:
-                        selectedAvatar === avatar.key
-                          ? "3px solid #f1642e"
-                          : "3px solid transparent",
-                      background: "#ddd",
-                      overflow: "hidden",
-                      cursor: "pointer",
-                      padding: 0,
-                    }}
-                  >
-                    <img
-                      src={avatar.src}
-                      alt={avatar.label}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  gap: 12,
-                  width: "100%",
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setIsCustomizing(false)}
-                  disabled={savingAvatar}
-                  style={{
-                    flex: 1,
-                    height: 48,
-                    borderRadius: 12,
-                    border: "1px solid #ccc",
-                    background: "white",
-                    color: "#333",
-                    fontWeight: 600,
-                    cursor: savingAvatar ? "not-allowed" : "pointer",
-                    opacity: savingAvatar ? 0.7 : 1,
-                  }}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSaveAvatar}
-                  disabled={savingAvatar}
-                  style={{
-                    flex: 1,
-                    height: 48,
-                    borderRadius: 12,
-                    border: "none",
-                    background: "#f1642e",
-                    color: "white",
-                    fontWeight: 600,
-                    cursor: savingAvatar ? "not-allowed" : "pointer",
-                    opacity: savingAvatar ? 0.7 : 1,
-                  }}
-                >
-                  {savingAvatar ? "Saving..." : "Save"}
-                </button>
-              </div>
+                {savingGoal ? "Saving..." : "Save"}
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {isAddingGoal && (
+        <div
+          className={`kid-modal-overlay ${isAddingGoalClosing ? "closing" : ""}`}
+          onClick={() => !addingGoal && handleCloseAddGoal()}
+          onAnimationEnd={handleAddGoalAnimationEnd}
+        >
+          <div
+            className={`kid-modal-card ${isAddingGoalClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="kid-modal-title">Add New Goal</h2>
+
+            <input
+              type="text"
+              value={newGoalItem}
+              onChange={(e) => setNewGoalItem(e.target.value)}
+              placeholder="What do you want to save for?"
+              className="kid-modal-input"
+            />
+
+            <input
+              type="number"
+              value={newGoalCost}
+              onChange={(e) => setNewGoalCost(e.target.value)}
+              placeholder="How many coins needed?"
+              className="kid-modal-input"
+            />
+
+            <div className="kid-modal-actions">
+              <button
+                type="button"
+                onClick={handleCloseAddGoal}
+                disabled={addingGoal}
+                className="kid-modal-secondary-button"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCreateGoal}
+                disabled={addingGoal}
+                className="kid-modal-primary-button"
+              >
+                {addingGoal ? "Saving..." : "Add Goal"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isCustomizing && (
+        <div
+          className={`kid-modal-overlay ${isCustomizingClosing ? "closing" : ""}`}
+          onClick={() => !savingAvatar && handleCloseCustomize()}
+          onAnimationEnd={handleCustomizeAnimationEnd}
+        >
+          <div
+            className={`kid-modal-card ${isCustomizingClosing ? "closing" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="kid-modal-title">Pick your avatar</h2>
+
+            <div className="kid-modal-avatar-preview">
+              <img
+                src={getAvatarPath(selectedAvatar)}
+                alt="Selected avatar"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/assets/BearIcon.svg";
+                }}
+              />
+            </div>
+
+            <div className="kid-avatar-grid">
+              {avatars.map((avatar) => (
+                <button
+                  key={avatar.key}
+                  type="button"
+                  onClick={() => setSelectedAvatar(avatar.key)}
+                  className={`kid-avatar-option ${
+                    selectedAvatar === avatar.key ? "is-selected" : ""
+                  }`}
+                >
+                  <img src={avatar.src} alt={avatar.label} />
+                </button>
+              ))}
+            </div>
+
+            <div className="kid-modal-actions">
+              <button
+                type="button"
+                onClick={handleCloseCustomize}
+                disabled={savingAvatar}
+                className="kid-modal-secondary-button"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveAvatar}
+                disabled={savingAvatar}
+                className="kid-modal-primary-button"
+              >
+                {savingAvatar ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <KidBottomNav />
     </main>

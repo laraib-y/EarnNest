@@ -5,9 +5,62 @@
   color: #2f241f;
 }
 
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes kidModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes kidModalPopIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes kidModalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes kidModalPopOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+}
+
 .kid-dashboard-shell {
   max-width: 920px;
   margin: 0 auto;
+  animation: slideInLeft 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 .kid-dashboard-loading {
@@ -42,7 +95,7 @@
   border-radius: 14px;
   background: #ffffff;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   box-shadow: 0 4px 12px rgba(47, 36, 31, 0.08);
 }
@@ -60,7 +113,7 @@
 }
 
 .kid-pill-streak {
-  border: 2px solid #b31800;
+  border: 2px solid #db3b16;
   color: #db3b16;
 }
 
@@ -79,10 +132,10 @@
 .kid-dashboard-kicker {
   margin: 0 0 8px;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #b4562e;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .kid-dashboard-title {
@@ -99,6 +152,11 @@
   color: #7a5d4d;
 }
 
+.kid-avatar-wrap {
+  position: relative;
+  display: inline-block;
+}
+
 .kid-avatar-badge {
   width: 92px;
   height: 92px;
@@ -108,11 +166,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: 800;
-  flex-shrink: 0;
   box-shadow: 0 10px 24px rgba(241, 100, 46, 0.22);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .kid-avatar-badge img {
@@ -125,8 +181,8 @@
   position: absolute;
   bottom: -8px;
   right: -8px;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 999px;
   background: #f1642e;
   border: 3px solid #fff8ef;
@@ -135,14 +191,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(241, 100, 46, 0.3);
   padding: 0;
 }
 
 .kid-avatar-customize-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(241, 100, 46, 0.4);
+  transform: scale(1.08);
+}
+
+.kid-avatar-edit-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .kid-avatar-customize-text {
@@ -153,14 +214,14 @@
   background: #2f241f;
   color: white;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
   white-space: nowrap;
   margin-left: 12px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .kid-avatar-customize-btn:hover .kid-avatar-customize-text {
@@ -176,12 +237,14 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .kid-section-header h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #2f241f;
 }
 
 .kid-section-header span {
@@ -191,10 +254,388 @@
 
 .kid-empty-card {
   background: #ffffff;
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
+  border-radius: 24px;
+  padding: 22px;
+  border: 1.5px solid #f1e1cf;
+  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.06);
   color: #7a675d;
+}
+
+.kid-empty-card p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.kid-empty-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.kid-empty-inline-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.kid-empty-subtext {
+  margin-top: 8px !important;
+  font-size: 0.92rem;
+  color: #8a776b;
+}
+
+.kid-goals-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.kid-goal-card {
+  background: linear-gradient(180deg, #fffdfb 0%, #fff8f1 100%);
+  border-radius: 24px;
+  padding: 22px;
+  border: 1.5px solid #f2dbc2;
+  box-shadow: 0 10px 24px rgba(47, 36, 31, 0.06);
+}
+
+.kid-goal-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.kid-goal-copy {
+  min-width: 0;
+}
+
+.kid-goal-label {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #a4724e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kid-goal-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.55rem;
+  line-height: 1.1;
+  color: #2f241f;
+}
+
+.kid-goal-edit-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1.5px solid #f3d8bf;
+  background: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+
+.kid-goal-edit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(47, 36, 31, 0.08);
+  background: #fffaf5;
+}
+
+.kid-goal-edit-icon {
+  width: 16px;
+  height: 16px;
+  color: #111111;
+  flex-shrink: 0;
+}
+
+.kid-goal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.kid-goal-progress-text {
+  margin: 0;
+  font-size: 1rem;
+  color: #7d665a;
+  font-weight: 600;
+}
+
+.kid-goal-progress-text strong {
+  color: #2f241f;
+}
+
+.kid-goal-progress-track {
+  width: 100%;
+  height: 12px;
+  background: #f2ebe4;
+  border: 1px solid #e6d8ca;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.kid-goal-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8ad21f 0%, #67bf1b 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.kid-task-list {
+  display: grid;
+  gap: 14px;
+}
+
+.kid-task-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 20px;
+  border: 1.5px solid #f1e1cf;
+  box-shadow: 0 8px 22px rgba(47, 36, 31, 0.06);
+}
+
+.kid-task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.kid-task-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.kid-task-copy h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: #2f241f;
+}
+
+.kid-task-description {
+  margin: 10px 0 0;
+  color: #7b665b;
+  line-height: 1.55;
+  font-size: 0.96rem;
+}
+
+.kid-task-reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff9ef;
+  border: 1.5px solid #f3d091;
+  color: #8a6d2e;
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.kid-task-reward-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.kid-task-status {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.kid-task-status-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.kid-task-status-pending {
+  color: #9c5b24;
+}
+
+.kid-task-status-approved {
+  color: #2d7a4b;
+}
+
+.kid-task-status-rejected {
+  color: #b0462b;
+}
+
+.kid-primary-button {
+  margin-top: 16px;
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 18px;
+  background: #f1642e;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(241, 100, 46, 0.18);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.kid-primary-button:hover {
+  transform: translateY(-1px);
+}
+
+.kid-primary-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.kid-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: kidModalFadeIn 0.22s ease-out;
+}
+
+.kid-modal-overlay.closing {
+  animation: kidModalFadeOut 0.2s ease-in forwards;
+}
+
+.kid-modal-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 390px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: kidModalPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.kid-modal-card.closing {
+  animation: kidModalPopOut 0.2s ease-in forwards;
+}
+
+.kid-modal-title {
+  margin: 0 0 20px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2f241f;
+}
+
+.kid-modal-input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1.5px solid #ddd;
+  font-size: 1rem;
+  box-sizing: border-box;
+  font-family: inherit;
+  outline: none;
+}
+
+.kid-modal-input:focus {
+  border-color: #f1642e;
+  box-shadow: 0 0 0 3px rgba(241, 100, 46, 0.12);
+}
+
+.kid-modal-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.kid-modal-secondary-button,
+.kid-modal-primary-button {
+  flex: 1;
+  height: 48px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.kid-modal-secondary-button {
+  border: 1px solid #ccc;
+  background: white;
+  color: #333;
+}
+
+.kid-modal-primary-button {
+  border: none;
+  background: #f1642e;
+  color: white;
+}
+
+.kid-modal-avatar-preview {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kid-modal-avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.kid-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+  width: 100%;
+  justify-items: center;
+}
+
+.kid-avatar-option {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  background: #f1f1f1;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.kid-avatar-option:hover {
+  transform: scale(1.04);
+}
+
+.kid-avatar-option.is-selected {
+  border-color: #f1642e;
+}
+
+.kid-avatar-option img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .kid-modules-grid {
@@ -251,96 +692,65 @@
   line-height: 1.6;
 }
 
-.kid-chores-grid {
-  display: grid;
-  gap: 18px;
-}
-
-.kid-chore-card {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 22px;
-  box-shadow: 0 8px 24px rgba(47, 36, 31, 0.08);
-  border: 1px solid #f6eadb;
-}
-
-.kid-chore-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.kid-chore-top h3 {
-  margin: 0;
-  font-size: 1.3rem;
-}
-
-.kid-reward-pill {
-  display: inline-flex;
+.kid-section-header-goals {
   align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #fcdd9d;
-  color: #8a4d1d;
-  font-weight: 700;
-  font-size: 0.95rem;
 }
 
-.kid-chore-description {
-  margin: 12px 0 0;
-  color: #6e5a50;
-  line-height: 1.6;
-}
+.kid-add-goal-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 
-.kid-chore-frequency {
-  margin: 12px 0 0;
-  color: #9a7f6f;
-  font-size: 0.95rem;
-}
-
-.kid-status {
-  margin: 14px 0 0;
-  font-weight: 600;
-}
-
-.kid-status-pending {
-  color: #9c5b24;
-}
-
-.kid-status-approved {
-  color: #2d7a4b;
-}
-
-.kid-status-rejected {
-  color: #b0462b;
-}
-
-.kid-primary-button {
-  margin-top: 16px;
-  width: 100%;
   border: none;
-  border-radius: 18px;
-  padding: 14px 18px;
-  background: #f1642e;
-  color: #ffffff;
-  font-size: 1rem;
-  font-weight: 700;
+  background: transparent;
+
+  font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(241, 100, 46, 0.22);
+  padding: 4px;
+
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.kid-primary-button:hover {
+.kid-add-goal-button:hover {
   transform: translateY(-1px);
+  opacity: 0.85;
 }
 
-.kid-primary-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
+.kid-add-goal-icon-box {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px solid #000;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.kid-add-goal-icon-box svg {
+  width: 16px;
+  height: 16px;
+  color: #000;
+}
+
+.kid-add-goal-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2f241f;
+}
+
+
+.kid-goal-card.is-primary {
+  border-color: #f2dbc2;
+}
+
+.kid-goal-card.is-secondary {
+  background: linear-gradient(180deg, #fffefe 0%, #fffaf6 100%);
+  opacity: 0.96;
 }
 
 @media (max-width: 720px) {
@@ -370,14 +780,19 @@
     grid-template-columns: 1fr;
   }
 
-  .kid-chore-top,
-  .kid-module-top {
+  .kid-task-top,
+  .kid-module-top,
+  .kid-goal-top {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .kid-reward-pill,
+  .kid-task-reward-pill,
   .kid-module-status {
     align-self: flex-start;
+  }
+
+  .kid-goal-edit-button {
+    align-self: flex-end;
   }
 }
